@@ -1,10 +1,11 @@
+import { IDockviewPanelProps } from "dockview";
 import {
   connect,
   createClient,
   useStatus,
 } from "../networktables/NetworkTables";
 
-export default function ConnectionManagerTab() {
+const ConnectionManager: React.FC<IDockviewPanelProps<{ title: string }>> = (props) => {
   const status = useStatus();
 
   return (
@@ -24,3 +25,5 @@ export default function ConnectionManagerTab() {
     </div>
   );
 }
+
+export default ConnectionManager;
