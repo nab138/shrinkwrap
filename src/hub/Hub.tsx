@@ -1,13 +1,13 @@
 import React, { useCallback, useEffect, useState } from "react";
 import { DockviewApi, DockviewReact, DockviewReadyEvent } from "dockview";
-import "./App.css";
+import "./Hub.css";
 import "dockview/dist/styles/dockview.css";
-import { tabsConfig } from "./tabsConfig";
+import { tabsConfig } from "../tabsConfig";
 import { invoke } from "@tauri-apps/api/core";
 import { window as tauriWindow } from "@tauri-apps/api";
-import { TauriEvent } from "@tauri-apps/api/event";
+import Navbar from "./Navbar";
 
-const App: React.FC = () => {
+const Hub: React.FC = () => {
   const [api, setApi] = useState<DockviewApi>();
 
   const onReady = useCallback(async (event: DockviewReadyEvent) => {
@@ -18,32 +18,34 @@ const App: React.FC = () => {
     } catch (e) {
       console.warn("Failed to load saved layout", e);
     }
-    if (layout) {
+    if (layout != null) {
       event.api.fromJSON(JSON.parse(layout));
-      return;
+    } else {
+      openTab("welcome");
     }
-    let tab = tabsConfig[0];
-    event.api.addPanel({
-      id: getPanelId(tab.id, event.api.panels.length),
-      component: tab.id,
-      params: { title: tab.title },
-    });
   }, []);
 
   const openTab = useCallback(
     (tabId: string) => {
-      api?.addPanel({
-        id: getPanelId(tabId),
-        component: tabId,
-        params: { title: tabId },
-      });
+      let tab = tabsConfig.find((tab) => tab.id === tabId);
+      if (tab == null) return;
+      api
+        ?.addPanel({
+          id: tabId + api.panels.length,
+          component: tabId,
+          params: { title: tab.title },
+        })
+        .setTitle(tab.title);
       saveLayout();
     },
     [api]
   );
 
   const saveLayout = useCallback(() => {
-    invoke("save_layout", { layout: JSON.stringify(api?.toJSON()) });
+    if (api == null) return;
+    let json = api.toJSON();
+    if (json == null) return;
+    invoke("save_layout", { layout: JSON.stringify(json) });
   }, [api]);
 
   useEffect(() => {
@@ -65,13 +67,7 @@ const App: React.FC = () => {
 
   return (
     <div className="container">
-      <div className="toolbar">
-        {tabsConfig.map((tab) => (
-          <button key={tab.id} onClick={() => openTab(tab.id)}>
-            {tab.title}
-          </button>
-        ))}
-      </div>
+      <Navbar openTab={openTab} />
       <DockviewReact
         components={tabsConfig.reduce((acc, tab) => {
           acc[tab.id] = tab.component;
@@ -84,8 +80,4 @@ const App: React.FC = () => {
   );
 };
 
-export default App;
-
-function getPanelId(tabId: string, tabCount = 0) {
-  return tabId + (tabCount > 0 ? `-${tabCount}` : "");
-}
+export default Hub;

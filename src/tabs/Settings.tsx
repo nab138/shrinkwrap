@@ -5,14 +5,12 @@ import {
   useStatus,
 } from "../networktables/NetworkTables";
 
-const ConnectionManager: React.FC<IDockviewPanelProps<{ title: string }>> = (props) => {
+const Settings: React.FC<IDockviewPanelProps<{ title: string }>> = () => {
   const status = useStatus();
 
   return (
     <div className="container">
-      <h1>Welcome to ShrinkWrap</h1>
-
-      <p>The next-generation FRC Suite</p>
+      <h1>Settings</h1>
 
       <input
         id="ip"
@@ -24,6 +22,6 @@ const ConnectionManager: React.FC<IDockviewPanelProps<{ title: string }>> = (pro
       <p>{status}</p>
     </div>
   );
-}
+};
 
-export default ConnectionManager;
+export default Settings;
