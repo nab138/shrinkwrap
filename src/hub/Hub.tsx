@@ -3,18 +3,21 @@ import { DockviewApi, DockviewReact, DockviewReadyEvent } from "dockview";
 import "./Hub.css";
 import "dockview/dist/styles/dockview.css";
 import { tabsConfig } from "../tabsConfig";
-import { invoke } from "@tauri-apps/api/core";
 import { window as tauriWindow } from "@tauri-apps/api";
 import Navbar from "./Navbar";
+import { usePrefs } from "../utils/PrefsContext";
+import useSaveLoad from "../utils/saveload";
 
 const Hub: React.FC = () => {
+  const { theme, savePrefs } = usePrefs();
   const [api, setApi] = useState<DockviewApi>();
+  const [save, load] = useSaveLoad("layout.json");
 
   const onReady = useCallback(async (event: DockviewReadyEvent) => {
     setApi(event.api);
     let layout: string | null = null;
     try {
-      layout = (await invoke("load_layout")) as string;
+      layout = await load();
     } catch (e) {
       console.warn("Failed to load saved layout", e);
     }
@@ -41,11 +44,11 @@ const Hub: React.FC = () => {
     [api]
   );
 
-  const saveLayout = useCallback(() => {
+  const saveLayout = useCallback(async () => {
     if (api == null) return;
     let json = api.toJSON();
     if (json == null) return;
-    invoke("save_layout", { layout: JSON.stringify(json) });
+    await save(JSON.stringify(json));
   }, [api]);
 
   useEffect(() => {
@@ -54,6 +57,7 @@ const Hub: React.FC = () => {
         .getCurrentWindow()
         .onCloseRequested(async () => {
           await saveLayout();
+          await savePrefs();
         });
       return unlisten;
     };
@@ -63,10 +67,10 @@ const Hub: React.FC = () => {
     return () => {
       unlistenPromise.then((unlisten) => unlisten());
     };
-  }, [saveLayout]);
+  }, [saveLayout, savePrefs]);
 
   return (
-    <div className="container">
+    <div className={`container ${theme}`}>
       <Navbar openTab={openTab} />
       <DockviewReact
         components={tabsConfig.reduce((acc, tab) => {
@@ -74,7 +78,7 @@ const Hub: React.FC = () => {
           return acc;
         }, {} as any)}
         onReady={onReady}
-        className={"dockview-theme-dark"}
+        className={"dockview-theme-" + theme}
       />
     </div>
   );
