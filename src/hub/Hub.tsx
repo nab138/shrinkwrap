@@ -7,11 +7,18 @@ import { window as tauriWindow } from "@tauri-apps/api";
 import Navbar from "./Navbar";
 import { usePrefs } from "../utils/PrefsContext";
 import useSaveLoad from "../utils/saveload";
+import { listen } from "@tauri-apps/api/event";
+import {
+  connect,
+  createClient,
+  useStatus,
+} from "../networktables/NetworkTables";
 
 const Hub: React.FC = () => {
-  const { theme, savePrefs } = usePrefs();
+  const { connectionIP, theme, savePrefs } = usePrefs();
   const [api, setApi] = useState<DockviewApi>();
   const [save, load] = useSaveLoad("layout.json");
+  const status = useStatus();
 
   const onReady = useCallback(async (event: DockviewReadyEvent) => {
     setApi(event.api);
@@ -68,6 +75,36 @@ const Hub: React.FC = () => {
       unlistenPromise.then((unlisten) => unlisten());
     };
   }, [saveLayout, savePrefs]);
+
+  useEffect(() => {
+    const setupListener = async () => {
+      const unlisten = await listen("connect", (event) => {
+        console.log("hi");
+        if (event.payload as boolean) {
+          createClient("127.0.0.1");
+          connect();
+        } else {
+          createClient(connectionIP);
+          connect();
+        }
+      });
+      unlisten();
+      return unlisten;
+    };
+
+    const unlistenPromise = setupListener();
+
+    return () => {
+      unlistenPromise.then((unlisten) => unlisten());
+    };
+  }, [connectionIP]);
+
+  useEffect(() => {
+    const renameWindow = async () => {
+      await tauriWindow.getCurrentWindow().setTitle(`ShrinkWrap - ${status}`);
+    };
+    renameWindow();
+  }, [status]);
 
   return (
     <div className={`container ${theme}`}>

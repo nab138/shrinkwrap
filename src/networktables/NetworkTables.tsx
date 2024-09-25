@@ -24,6 +24,9 @@ function onDisconnect() {
   }
 }
 export function createClient(ip: string) {
+  if (client !== null) {
+    client.disconnect();
+  }
   client = new NTClient(
     ip,
     "ShrinkWrap",
@@ -55,13 +58,17 @@ export function useStatus(): string {
     };
   }, []);
 
+  if (!client) {
+    return "Idle";
+  }
+
   switch (status) {
     case NetworkTablesStatus.IDLE:
       return "Idle";
     case NetworkTablesStatus.CONNECTING:
-      return "Connecting...";
+      return `Connecting to ${client?.serverBaseAddr}...`;
     case NetworkTablesStatus.CONNECTED:
-      return "Connected";
+      return "Connected to " + client.serverBaseAddr;
     case NetworkTablesStatus.DISCONNECTED:
       return "Disconnected";
     default:

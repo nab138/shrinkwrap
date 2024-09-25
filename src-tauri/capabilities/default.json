@@ -6,6 +6,7 @@
   "permissions": [
     "core:default",
     "shell:allow-open",
-    "core:window:allow-destroy"
+    "core:window:allow-destroy",
+    "core:window:allow-set-title"
   ]
 }

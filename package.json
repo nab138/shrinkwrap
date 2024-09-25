@@ -12,6 +12,7 @@
   "dependencies": {
     "@msgpack/msgpack": "^3.0.0-beta2",
     "@tauri-apps/api": ">=2.0.0-rc.0",
+    "@tauri-apps/plugin-global-shortcut": "^2.0.0-rc.1",
     "@tauri-apps/plugin-shell": ">=2.0.0-rc.0",
     "dockview": "^1.17.1",
     "react": "^18.2.0",

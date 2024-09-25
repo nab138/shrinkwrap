@@ -1,10 +1,9 @@
 import { IDockviewPanelProps } from "dockview";
-import { createClient } from "../networktables/NetworkTables";
 import { usePrefs } from "../utils/PrefsContext";
 import { Theme } from "@tauri-apps/api/window";
 
 const Settings: React.FC<IDockviewPanelProps<{ title: string }>> = () => {
-  const { theme, setTheme } = usePrefs();
+  const { theme, setTheme, connectionIP, setConnectionIP } = usePrefs();
 
   return (
     <div className="pageContainer">
@@ -20,8 +19,9 @@ const Settings: React.FC<IDockviewPanelProps<{ title: string }>> = () => {
         <li>
           <input
             id="ip"
-            onChange={(e) => createClient(e.target.value)}
+            onChange={(e) => setConnectionIP(e.target.value)}
             placeholder="Connection IP..."
+            value={connectionIP}
           />
         </li>
         <li>

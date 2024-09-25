@@ -14,6 +14,8 @@ interface PrefsContextType {
   savePrefs: () => Promise<void>;
   theme: Theme;
   setTheme: (theme: Theme) => void;
+  connectionIP: string;
+  setConnectionIP: (ip: string) => void;
 }
 
 const PrefsContext = createContext<PrefsContextType | undefined>(undefined);
@@ -23,23 +25,27 @@ export const PrefsProvider: React.FC<{ children: ReactNode }> = ({
 }) => {
   const [save, load] = useSaveLoad("prefs.json");
   const [theme, setTheme] = useState<Theme>("light");
+  const [connectionIP, setConnectionIP] = useState<string>("");
 
   const savePrefs = useCallback(() => {
-    return save(JSON.stringify({ theme }));
-  }, [save, theme]);
+    return save(JSON.stringify({ theme, connectionIP }));
+  }, [save, theme, connectionIP]);
 
   useEffect(() => {
     if (!load) return;
     (async () => {
       const prefs = await load();
       if (prefs == null) return;
-      const { theme } = JSON.parse(prefs);
+      const { theme, connectionIP } = JSON.parse(prefs);
       setTheme(theme);
+      setConnectionIP(connectionIP);
     })();
   }, [load]);
 
   return (
-    <PrefsContext.Provider value={{ theme, setTheme, savePrefs }}>
+    <PrefsContext.Provider
+      value={{ theme, setTheme, savePrefs, connectionIP, setConnectionIP }}
+    >
       {children}
     </PrefsContext.Provider>
   );

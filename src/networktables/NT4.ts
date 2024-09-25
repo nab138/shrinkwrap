@@ -102,7 +102,7 @@ export class NTClient {
   private onConnect: () => void;
   private onDisconnect: () => void;
 
-  private serverBaseAddr;
+  serverBaseAddr;
   private ws: WebSocket | null = null;
   private rttWs: WebSocket | null = null;
   private timestampInterval: NodeJS.Timeout | null = null;
