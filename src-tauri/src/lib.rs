@@ -2,7 +2,7 @@ use std::fs::read_to_string;
 use std::fs::{self, write};
 use tauri::menu::{MenuBuilder, MenuItemBuilder, SubmenuBuilder};
 use tauri::{Emitter, Manager};
-use tauri_plugin_global_shortcut::{Code, Modifiers, Shortcut, ShortcutState};
+use tauri_plugin_global_shortcut::{Code, GlobalShortcutExt, Modifiers, Shortcut, ShortcutState};
 
 #[cfg_attr(mobile, tauri::mobile_entry_point)]
 pub fn run() {
@@ -28,9 +28,19 @@ pub fn run() {
             let menu = MenuBuilder::new(app).item(&submenu).build()?;
 
             app.set_menu(menu)?;
+
+            app.on_menu_event(move |app_handle, event| {
+                if event.id() == connect.id() {
+                    app_handle.emit("connect", false).unwrap();
+                } else if event.id() == connect_sim.id() {
+                    app_handle.emit("connect", true).unwrap();
+                }
+            });
+
             app.handle().plugin(
                 tauri_plugin_global_shortcut::Builder::new()
                     .with_handler(move |app_handle, shortcut, event| {
+                        println!("{:?}", event.state());
                         if event.state() == ShortcutState::Released {
                             return;
                         }
@@ -43,13 +53,8 @@ pub fn run() {
                     .build(),
             )?;
 
-            app.on_menu_event(move |app_handle, event| {
-                if event.id() == connect.id() {
-                    app_handle.emit("connect", false).unwrap();
-                } else if event.id() == connect_sim.id() {
-                    app_handle.emit("connect", true).unwrap();
-                }
-            });
+            app.global_shortcut().register(connect_shortcut)?;
+            app.global_shortcut().register(connect_sim_shortcut)?;
             Ok(())
         })
         .plugin(tauri_plugin_shell::init())

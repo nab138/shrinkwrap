@@ -78,9 +78,9 @@ const Hub: React.FC = () => {
 
   useEffect(() => {
     const setupListener = async () => {
-      const unlisten = await listen("connect", (event) => {
+      const unlisten = await listen<boolean>("connect", (event) => {
         console.log("hi");
-        if (event.payload as boolean) {
+        if (event.payload) {
           createClient("127.0.0.1");
           connect();
         } else {
@@ -88,7 +88,6 @@ const Hub: React.FC = () => {
           connect();
         }
       });
-      unlisten();
       return unlisten;
     };
 

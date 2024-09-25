@@ -11,6 +11,7 @@ export enum NetworkTablesStatus {
 let client: NTClient | null = null;
 let setState: React.Dispatch<React.SetStateAction<NetworkTablesStatus>> | null =
   null;
+let setIP: React.Dispatch<React.SetStateAction<string>> | null = null;
 
 function onConnect() {
   if (setState) {
@@ -36,6 +37,9 @@ export function createClient(ip: string) {
     onConnect,
     onDisconnect
   );
+  if (setIP) {
+    setIP(ip);
+  }
 }
 
 export async function connect() {
@@ -50,11 +54,14 @@ export async function connect() {
 // useStatus hook for react
 export function useStatus(): string {
   const [status, updateStatus] = useState(NetworkTablesStatus.IDLE);
+  const [ip, updateIp] = useState("");
 
   useEffect(() => {
     setState = updateStatus;
+    setIP = updateIp;
     return () => {
       setState = null;
+      setIP = null;
     };
   }, []);
 
@@ -66,9 +73,9 @@ export function useStatus(): string {
     case NetworkTablesStatus.IDLE:
       return "Idle";
     case NetworkTablesStatus.CONNECTING:
-      return `Connecting to ${client?.serverBaseAddr}...`;
+      return `Connecting to ${ip}...`;
     case NetworkTablesStatus.CONNECTED:
-      return "Connected to " + client.serverBaseAddr;
+      return "Connected to " + ip;
     case NetworkTablesStatus.DISCONNECTED:
       return "Disconnected";
     default:
