@@ -1,26 +1,28 @@
-import React, { useState } from "react";
+import React, { useCallback, useState } from "react";
 import { IDockviewPanelProps } from "dockview";
 import ThreeComponent from "./ThreeComponent";
-import Sidebar, { Setting } from "../../hub/Sidebar";
+import Sidebar, { Item, Setting } from "../../hub/Sidebar";
 import "./ThreeDimensionField.css";
 
 const ThreeDimensionField: React.FC<
   IDockviewPanelProps<{ title: string }>
 > = () => {
-  const [settings, setSettings] = useState<Setting[]>([
-    { id: "1", label: "Cinematic Mode", type: "boolean", value: false },
+  const initialSettings: Setting[] = [
+    { id: "cinematic", label: "Cinematic Mode", type: "boolean", value: false },
     {
-      id: "2",
-      label: "Select Option",
-      type: "string",
-      value: "option1",
-      options: ["option1", "option2", "option3"],
+      id: "3",
+      label: "Item List",
+      type: "itemList",
+      value: [],
+      options: ["Type1", "Type2", "Type3"],
     },
-  ]);
+  ];
+
+  const [settings, setSettings] = useState<Setting[]>(initialSettings);
 
   const handleSettingChange = (
     id: string,
-    value: boolean | string | number
+    value: boolean | string | number | Item[]
   ) => {
     setSettings((prevSettings) =>
       prevSettings.map((setting) =>
@@ -29,6 +31,14 @@ const ThreeDimensionField: React.FC<
     );
   };
 
+  const getSettingValue = useCallback(
+    (id: string) => {
+      const setting = settings.find((setting) => setting.id === id);
+      return setting ? setting.value : undefined;
+    },
+    [settings]
+  );
+
   return (
     <div className="pageContainer">
       <div className="fieldContainer">
@@ -36,7 +46,7 @@ const ThreeDimensionField: React.FC<
           position={[0, 0, 0]}
           field={`Field3d_2024.glb`}
           robot={"KitBot"}
-          cinematic={settings[0].value as boolean}
+          cinematic={getSettingValue("cinematic") as boolean}
         />
       </div>
       <Sidebar

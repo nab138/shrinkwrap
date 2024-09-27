@@ -1,18 +1,27 @@
 import React, { useState } from "react";
 import "./Sidebar.css";
+import ItemList from "./NetworkArrayConfig";
 
 export interface Setting {
   id: string;
   label: string;
-  type: "boolean" | "string" | "number" | "custom";
-  value: boolean | string | number;
-  options?: string[]; // Optional property for predefined choices
+  type: "boolean" | "string" | "number" | "custom" | "itemList";
+  value: boolean | string | number | Item[];
+  options?: string[];
+}
+
+export interface Item {
+  id: string;
+  type: string;
 }
 
 export interface SidebarProps {
   title: string;
   settings: Setting[];
-  onSettingChange: (id: string, value: boolean | string | number) => void;
+  onSettingChange: (
+    id: string,
+    value: boolean | string | number | Item[]
+  ) => void;
   collapsible?: boolean;
 }
 
@@ -27,7 +36,7 @@ const Sidebar: React.FC<SidebarProps> = ({
 
   const handleSettingChange = (
     id: string,
-    value: boolean | string | number
+    value: boolean | string | number | Item[]
   ) => {
     const updatedSettings = localSettings.map((setting) =>
       setting.id === id ? { ...setting, value } : setting
@@ -99,6 +108,15 @@ const Sidebar: React.FC<SidebarProps> = ({
               {setting.type === "custom" && (
                 <div>Custom input for {setting.label}</div>
               )}
+              {setting.type === "itemList" && (
+                <ItemList
+                  availableTypes={setting.options || []}
+                  items={(setting.value as Item[]) || []}
+                  onItemsChange={(items) =>
+                    handleSettingChange(setting.id, items)
+                  }
+                />
+              )}
             </div>
           ))}
         </div>
@@ -108,3 +126,12 @@ const Sidebar: React.FC<SidebarProps> = ({
 };
 
 export default Sidebar;
+
+export const arrayToObject = (array: Setting[]) =>
+  array.reduce((obj, item) => {
+    obj[item.id] = item;
+    return obj;
+  }, {} as { [key: string]: Setting });
+
+export const objectToArray = (obj: { [key: string]: Setting }) =>
+  Object.keys(obj).map((key) => obj[key]);

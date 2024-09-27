@@ -8,7 +8,7 @@
 }
 
 .sidebar.collapsed {
-  width: 50px;
+  width: 0px;
 }
 
 .settings {
@@ -28,6 +28,12 @@
   box-sizing: border-box;
   background-color: var(--background-color-3);
   border-bottom: 1px solid var(--border-color);
+}
+
+.collapsed .titleBar {
+  background-color: transparent;
+  border: none;
+  width: 50px;
 }
 
 .titleBar h2 {
