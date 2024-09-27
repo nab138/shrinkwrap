@@ -25,6 +25,7 @@ const Settings: React.FC<IDockviewPanelProps<{ title: string }>> = () => {
           />
         </li>
         <li>
+          <label>Theme: </label>
           <select
             value={theme}
             onChange={(e) => setTheme(e.target.value as Theme)}
