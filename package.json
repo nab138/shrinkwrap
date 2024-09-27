@@ -7,26 +7,30 @@
     "dev": "vite",
     "build": "tsc && vite build",
     "preview": "vite preview",
-    "tauri": "tauri"
+    "tauri": "tauri",
+    "ios-sim": "tauri ios dev '15 pro'",
+    "ios": "tauri ios dev 'TimCook'",
+    "ios-build": "tauri ios build -o"
   },
   "dependencies": {
     "@msgpack/msgpack": "^3.0.0-beta2",
     "@react-three/drei": "^9.114.0",
     "@react-three/fiber": "^8.17.8",
-    "@tauri-apps/api": ">=2.0.0-rc.0",
+    "@tauri-apps/api": "^2.0.0-rc.5",
     "@tauri-apps/plugin-global-shortcut": "^2.0.0-rc.1",
-    "@tauri-apps/plugin-shell": ">=2.0.0-rc.0",
+    "@tauri-apps/plugin-shell": "^2.0.0-rc.1",
+    "@types/node": "^22.7.4",
     "dockview": "^1.17.1",
-    "react": "^18.2.0",
-    "react-dom": "^18.2.0",
+    "react": "^18.3.1",
+    "react-dom": "^18.3.1",
     "three": "^0.169.0"
   },
   "devDependencies": {
-    "@types/react": "^18.2.15",
-    "@types/react-dom": "^18.2.7",
-    "@vitejs/plugin-react": "^4.2.1",
-    "typescript": "^5.2.2",
-    "vite": "^5.3.1",
-    "@tauri-apps/cli": ">=2.0.0-rc.0"
+    "@types/react": "^18.3.10",
+    "@types/react-dom": "^18.3.0",
+    "@vitejs/plugin-react": "^4.3.1",
+    "typescript": "^5.6.2",
+    "vite": "^5.4.8",
+    "@tauri-apps/cli": "^2.0.0-rc.17"
   }
 }
