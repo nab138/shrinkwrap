@@ -1,4 +1,5 @@
 import Settings from "./tabs/Settings";
+import ThreeDimensionField from "./tabs/ThreeDimensionField/ThreeDimensionField";
 import Welcome from "./tabs/Welcome";
 
 export const tabsConfig = [
@@ -11,5 +12,10 @@ export const tabsConfig = [
     id: "welcome",
     component: Welcome,
     title: "Welcome",
+  },
+  {
+    id: "3dfield",
+    component: ThreeDimensionField,
+    title: "3D Field",
   },
 ];

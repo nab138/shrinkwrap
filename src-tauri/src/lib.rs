@@ -40,7 +40,6 @@ pub fn run() {
             app.handle().plugin(
                 tauri_plugin_global_shortcut::Builder::new()
                     .with_handler(move |app_handle, shortcut, event| {
-                        println!("{:?}", event.state());
                         if event.state() == ShortcutState::Released {
                             return;
                         }

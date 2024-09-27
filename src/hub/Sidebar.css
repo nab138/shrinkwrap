@@ -1,0 +1,43 @@
+.sidebar {
+  width: 250px;
+  background-color: var(--background-color-2);
+  position: absolute;
+  top: 0;
+  left: 0;
+  bottom: 0;
+}
+
+.sidebar.collapsed {
+  width: 50px;
+}
+
+.settings {
+  padding: 10px;
+}
+
+.setting {
+  margin-bottom: 10px;
+}
+
+.titleBar {
+  width: 100%;
+  display: flex;
+  justify-content: space-between;
+  padding: 10px;
+  align-items: center;
+  box-sizing: border-box;
+  background-color: var(--background-color-3);
+  border-bottom: 1px solid var(--border-color);
+}
+
+.titleBar h2 {
+  margin: 0;
+}
+
+.collapseBtn {
+  float: right;
+  cursor: pointer;
+  padding: 5px;
+  width: 30px;
+  background-color: var(--background-color-2);
+}

@@ -51,8 +51,13 @@ export async function connect() {
     setState(NetworkTablesStatus.CONNECTING);
   }
 }
-// useStatus hook for react
-export function useStatus(): string {
+
+export type NetworktablesHook = {
+  status: string;
+  ip: string;
+};
+
+export function useNetworktables(): NetworktablesHook {
   const [status, updateStatus] = useState(NetworkTablesStatus.IDLE);
   const [ip, updateIp] = useState("");
 
@@ -65,10 +70,15 @@ export function useStatus(): string {
     };
   }, []);
 
-  if (!client) {
-    return "Idle";
-  }
+  let statusText = "Idle";
+  if (client) statusText = getStatusText(status, ip);
+  return {
+    status: statusText,
+    ip,
+  };
+}
 
+function getStatusText(status: NetworkTablesStatus, ip: string): string {
   switch (status) {
     case NetworkTablesStatus.IDLE:
       return "Idle";

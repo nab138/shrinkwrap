@@ -11,14 +11,14 @@ import { listen } from "@tauri-apps/api/event";
 import {
   connect,
   createClient,
-  useStatus,
+  useNetworktables,
 } from "../networktables/NetworkTables";
 
 const Hub: React.FC = () => {
   const { connectionIP, theme, savePrefs } = usePrefs();
   const [api, setApi] = useState<DockviewApi>();
   const [save, load] = useSaveLoad("layout.json");
-  const status = useStatus();
+  const { status } = useNetworktables();
 
   const onReady = useCallback(async (event: DockviewReadyEvent) => {
     setApi(event.api);
@@ -79,7 +79,6 @@ const Hub: React.FC = () => {
   useEffect(() => {
     const setupListener = async () => {
       const unlisten = await listen<boolean>("connect", (event) => {
-        console.log("hi");
         if (event.payload) {
           createClient("127.0.0.1");
           connect();
@@ -105,8 +104,12 @@ const Hub: React.FC = () => {
     renameWindow();
   }, [status]);
 
+  useEffect(() => {
+    document.body.className = `${theme}`;
+  }, [theme]);
+
   return (
-    <div className={`container ${theme}`}>
+    <div className={`container`}>
       <Navbar openTab={openTab} />
       <DockviewReact
         components={tabsConfig.reduce((acc, tab) => {
