@@ -10,8 +10,8 @@ const ThreeDimensionField: React.FC<
   const initialSettings: Setting[] = [
     { id: "cinematic", label: "Cinematic Mode", type: "boolean", value: false },
     {
-      id: "3",
-      label: "Item List",
+      id: "elements",
+      label: "Elements",
       type: "itemList",
       value: [],
       options: ["Type1", "Type2", "Type3"],
