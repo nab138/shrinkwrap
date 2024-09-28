@@ -6,7 +6,7 @@ on: [push, pull_request]
 jobs:
   test:
     name: Build iOS (.ipa)
-    runs-on: ubuntu-latest
+    runs-on: macos-latest
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v4
