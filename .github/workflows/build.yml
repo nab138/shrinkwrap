@@ -24,7 +24,7 @@ jobs:
       - run: bun i
       - run: bun run build
       - name: Build Xcode Project
-        run: xcodebuild -workspace ./src-tauri/gen/apple/shrinkwrap.xcodeproj/project.xcworkspace -sdk iphoneos -scheme shrinkwrap_iOS archive -configuration release -archivePath ./archive CODE_SIGNING_REQUIRED=NO AD_HOC_CODE_SIGNING_ALLOWED=YES CODE_SIGNING_ALLOWED=NO ORG_IDENTIFIER=me.nabdev
+        run: xcodebuild -scheme shrinkwrap_iOS -workspace /Users/runner/work/shrinkwrap/shrinkwrap/src-tauri/gen/apple/shrinkwrap.xcodeproj/project.xcworkspace/ -sdk iphoneos -configuration release archive -archivePath ./archive CODE_SIGNING_REQUIRED=NO AD_HOC_CODE_SIGNING_ALLOWED=YES CODE_SIGNING_ALLOWED=NO ORG_IDENTIFIER=me.nabdev
       - run: mkdir Payload
       - run: mkdir Payload/shrinkwrap.app
       - run: cp -R archive.xcarchive/Products/Applications/shrinkwrap.app/ Payload/shrinkwrap.app/
