@@ -1,10 +1,12 @@
 use std::fs::read_to_string;
 use std::fs::{self, write};
-use tauri::menu::{MenuBuilder, MenuItemBuilder, SubmenuBuilder};
-// use tauri::menu::{MenuBuilder, MenuItemBuilder, SubmenuBuilder};
 use tauri::{Emitter, Manager};
+
+#[cfg(desktop)]
+use tauri::menu::{MenuBuilder, MenuItemBuilder, SubmenuBuilder};
+
+#[cfg(desktop)]
 use tauri_plugin_global_shortcut::{Code, GlobalShortcutExt, Modifiers, Shortcut, ShortcutState};
-// use tauri_plugin_global_shortcut::{Code, GlobalShortcutExt, Modifiers, Shortcut, ShortcutState};
 
 #[cfg_attr(mobile, tauri::mobile_entry_point)]
 pub fn run() {
