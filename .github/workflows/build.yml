@@ -22,7 +22,7 @@ jobs:
         with:
           bun-version: latest
       - run: bun i
-      - run: bun run tauri ios build AD_HOC_CODE_SIGNING_ALLOWED=YES CODE_SIGNING_ALLOWED=NO ORG_IDENTIFIER=me.nabdev CODE_SIGNING_REQUIRED=NO
+      - run: AD_HOC_CODE_SIGNING_ALLOWED=YES CODE_SIGNING_ALLOWED=NO ORG_IDENTIFIER=me.nabdev CODE_SIGNING_REQUIRED=NO bun run tauri ios build
     #   - name: Build Xcode Project
     #     run: xcodebuild -workspace ./src-tauri/gen/apples/shrinkwrap.xcodeproj/project.xcworkspace -sdk iphoneos archive -configuration release -archivePath ./archive CODE_SIGNING_REQUIRED=NO AD_HOC_CODE_SIGNING_ALLOWED=YES CODE_SIGNING_ALLOWED=NO ORG_IDENTIFIER=me.nabdev
     #   - run: mkdir Payload
