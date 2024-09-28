@@ -22,13 +22,13 @@ jobs:
         with:
           bun-version: latest
       - run: bun i
-      - run: bun run tauri ios build
-      - name: Build Xcode Project
-        run: xcodebuild -workspace ./src-tauri/gen/apples/shrinkwrap.xcodeproj/project.xcworkspace -sdk iphoneos archive -configuration release -archivePath ./archive CODE_SIGNING_REQUIRED=NO AD_HOC_CODE_SIGNING_ALLOWED=YES CODE_SIGNING_ALLOWED=NO ORG_IDENTIFIER=me.nabdev
-      - run: mkdir Payload
-      - run: mkdir Payload/shrinkwrap.app
-      - run: cp -R archive.xcarchive/Products/Applications/shrinkwrap.app/ Payload/shrinkwrap.app/
-      - run: zip -r shrinkwrap.ipa Payload
-      - uses: actions/upload-artifact@v4
-        with:
-          name: shrinkwrap.ipa
+      - run: bun run tauri ios build AD_HOC_CODE_SIGNING_ALLOWED=YES CODE_SIGNING_ALLOWED=NO ORG_IDENTIFIER=me.nabdev CODE_SIGNING_REQUIRED=NO
+    #   - name: Build Xcode Project
+    #     run: xcodebuild -workspace ./src-tauri/gen/apples/shrinkwrap.xcodeproj/project.xcworkspace -sdk iphoneos archive -configuration release -archivePath ./archive CODE_SIGNING_REQUIRED=NO AD_HOC_CODE_SIGNING_ALLOWED=YES CODE_SIGNING_ALLOWED=NO ORG_IDENTIFIER=me.nabdev
+    #   - run: mkdir Payload
+    #   - run: mkdir Payload/shrinkwrap.app
+    #   - run: cp -R archive.xcarchive/Products/Applications/shrinkwrap.app/ Payload/shrinkwrap.app/
+    #   - run: zip -r shrinkwrap.ipa Payload
+    #   - uses: actions/upload-artifact@v4
+    #     with:
+    #       name: shrinkwrap.ipa
