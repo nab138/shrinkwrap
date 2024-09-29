@@ -5,7 +5,7 @@ on: [push, pull_request]
 
 jobs:
   test:
-    name: Build iOS (.ipa)
+    name: Deploy to TestFlight
     runs-on: macos-latest
     steps:
       - uses: actions/checkout@v4
@@ -21,17 +21,13 @@ jobs:
       - uses: oven-sh/setup-bun@v2
         with:
           bun-version: latest
-      - run: bun i
-      - run: bun run tauri ios build
-        # continue on error
-        continue-on-error: true
-      #   - run: bun run build
-      - name: Build Xcode Project
-        run: xcodebuild -scheme shrinkwrap_iOS -workspace /Users/runner/work/shrinkwrap/shrinkwrap/src-tauri/gen/apple/shrinkwrap.xcodeproj/project.xcworkspace/ -sdk iphoneos -configuration release archive -archivePath ./archive CODE_SIGNING_REQUIRED=NO AD_HOC_CODE_SIGNING_ALLOWED=YES CODE_SIGNING_ALLOWED=NO ORG_IDENTIFIER=me.nabdev IDEPackageSupportUseBuiltinSCM=YES SDKROOT=iphoneos18.0
-      - run: mkdir Payload
-      - run: mkdir Payload/shrinkwrap.app
-      - run: cp -R archive.xcarchive/Products/Applications/shrinkwrap.app/ Payload/shrinkwrap.app/
-      - run: zip -r shrinkwrap.ipa Payload
-      - uses: actions/upload-artifact@v4
+      - name: Install dependencies
+        run: bun i
+      - name: Build iOS
+        run: bun run tauri ios build -- --export-method app-store-connect
+      - name: Upload to TestFlight
+        run: xcrun altool --upload-app --type ios --file "./src-tauri/gen/apple/build/arm64/shrinkwrap.ipa" --apiKey ${{ secrets.APPLE_API_KEY_ID }} --apiIssuer ${{ secrets.APPLE_API_ISSUER }}
+      - name: Upload iOS artifact
+        uses: actions/upload-artifact@v4
         with:
-          name: shrinkwrap.ipa
+          path: src-tauri/gen/apple/build/arm64/shrinkwrap.ipa
