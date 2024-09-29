@@ -24,7 +24,7 @@ jobs:
       - name: Install dependencies
         run: bun i
       - name: Build iOS
-        run: bun run tauri ios build -- --export-method app-store-connect
+        run: bun run tauri ios build --export-method app-store-connect
       - name: Upload to TestFlight
         run: xcrun altool --upload-app --type ios --file "./src-tauri/gen/apple/build/arm64/shrinkwrap.ipa" --apiKey ${{ secrets.APPLE_API_KEY_ID }} --apiIssuer ${{ secrets.APPLE_API_ISSUER }}
       - name: Upload iOS artifact
