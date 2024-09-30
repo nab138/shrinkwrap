@@ -69,28 +69,52 @@ const Hub: React.FC = () => {
     document.body.className = `${theme}`;
   }, [theme]);
 
-  const onReady = useCallback(async (event: DockviewReadyEvent) => {
-    setApi(event.api);
-    let layout: string | null = null;
-    try {
-      layout = await load();
-    } catch (e) {
-      console.warn("Failed to load saved layout", e);
-    }
-    if (layout != null) {
-      event.api.fromJSON(JSON.parse(layout));
-    } else {
-      openTab("welcome");
-    }
-    let unlisten = event.api.onDidLayoutChange(async () => {
-      let json = event.api.toJSON();
-      if (json == null) return;
-      await save(JSON.stringify(json));
-    });
-    return () => {
-      unlisten.dispose();
-    };
-  }, []);
+  const onReady = useCallback(
+    async (event: DockviewReadyEvent) => {
+      setApi(event.api);
+      let openWelcomeTab = () => {
+        console.log("hi");
+        let tab = tabsConfig.find((tab) => tab.id === "welcome");
+        if (tab == null) return;
+        console.log(tab);
+        event.api
+          ?.addPanel({
+            id: "welcome" + event.api.panels.length,
+            component: "welcome",
+            params: { title: tab.title },
+          })
+          .setTitle(tab.title);
+      };
+      let layout: string | null = null;
+      let failed: boolean = false;
+      try {
+        layout = await load();
+      } catch (e) {
+        console.warn("Failed to load saved layout", e);
+        openWelcomeTab();
+        failed = true;
+      }
+      if (layout != null && !failed) {
+        event.api.fromJSON(JSON.parse(layout));
+      }
+      if (event.api.panels.length === 0) {
+        openWelcomeTab();
+      }
+      let unlisten = event.api.onDidLayoutChange(async () => {
+        if (event.api.panels.length === 0) {
+          openWelcomeTab();
+          return;
+        }
+        let json = event.api.toJSON();
+        if (json == null) return;
+        await save(JSON.stringify(json));
+      });
+      return () => {
+        unlisten.dispose();
+      };
+    },
+    [openTab]
+  );
 
   return (
     <div className={`container`}>
