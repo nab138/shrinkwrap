@@ -1,5 +1,3 @@
-# Create a workflow that runs on mac builds and uploads an ipa from my tauri app on every push
-
 name: Build
 on: [push, pull_request]
 
@@ -22,6 +20,7 @@ jobs:
         with:
           workspaces: |
             src-tauri
+          cache-all-crates: true
       - uses: oven-sh/setup-bun@v2
         with:
           bun-version: latest
