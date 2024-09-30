@@ -10,6 +10,7 @@ interface LeftControlsProps extends IDockviewHeaderActionsProps {
 const LeftControlsRaw: React.FC<LeftControlsProps> = ({
   saveLayout,
   containerApi,
+  group,
 }) => {
   const openTab = useCallback(
     (tabId: string) => {
@@ -20,6 +21,9 @@ const LeftControlsRaw: React.FC<LeftControlsProps> = ({
           id: tabId + containerApi.panels.length,
           component: tabId,
           params: { title: tab.title },
+          position: {
+            referenceGroup: group,
+          },
         })
         .setTitle(tab.title);
       saveLayout();
