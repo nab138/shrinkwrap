@@ -35,7 +35,6 @@ const ItemList: React.FC<ItemListProps> = ({
     <div>
       <div>
         <Dropdown
-          align="center"
           options={availableTypes.map((type) => ({ id: type, title: type }))}
           onSelect={addItem}
         />

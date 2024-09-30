@@ -5,32 +5,44 @@ export interface DropdownProps {
   options: { id: string; title: string }[];
   onSelect: (selected: string) => void;
   className?: string;
-  align?: "left" | "right" | "center";
 }
 
 const Dropdown: React.FC<DropdownProps> = ({
   options,
   onSelect,
   className,
-  align = "left",
 }) => {
   const [isOpen, setIsOpen] = useState(false);
-  const [dynamicAlign, setDynamicAlign] = useState(align);
+  const [dynamicAlign, setDynamicAlign] = useState("left");
   const dropdownRef = useRef<HTMLDivElement>(null);
 
   const toggleDropdown = () => {
-    setIsOpen(!isOpen);
+    setIsOpen((prev) => !prev);
   };
 
   useEffect(() => {
-    if (isOpen && dropdownRef.current) {
-      const rect = dropdownRef.current.getBoundingClientRect();
-      if (rect.right > window.innerWidth) {
-        setDynamicAlign("right");
-      } else {
-        setDynamicAlign("left");
+    const handleResize = () => {
+      if (dropdownRef.current) {
+        const rect = dropdownRef.current.getBoundingClientRect();
+        if (rect.right > window.innerWidth) {
+          setDynamicAlign("right");
+        } else {
+          setDynamicAlign("left");
+        }
       }
+    };
+
+    if (isOpen) {
+      handleResize();
+      window.addEventListener("resize", handleResize);
+    } else {
+      setDynamicAlign("left"); // Reset alignment when closed
+      window.removeEventListener("resize", handleResize);
     }
+
+    return () => {
+      window.removeEventListener("resize", handleResize);
+    };
   }, [isOpen]);
 
   return (
