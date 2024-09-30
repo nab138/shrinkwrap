@@ -1,3 +1,4 @@
+import LogViewer from "./tabs/Log";
 import Settings from "./tabs/Settings";
 import ThreeDimensionField from "./tabs/ThreeDimensionField/ThreeDimensionField";
 import Welcome from "./tabs/Welcome";
@@ -17,5 +18,10 @@ export const tabsConfig = [
     id: "3dfield",
     component: ThreeDimensionField,
     title: "🏟️ 3D Field",
+  },
+  {
+    id: "log",
+    component: LogViewer,
+    title: "📜 Log",
   },
 ];
