@@ -19,6 +19,9 @@ jobs:
         with:
           targets: aarch64-apple-ios
       - uses: Swatinem/rust-cache@v2
+        with:
+          workspaces: |
+            src-tauri
       - uses: oven-sh/setup-bun@v2
         with:
           bun-version: latest
