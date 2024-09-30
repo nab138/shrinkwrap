@@ -75,3 +75,4 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           path: src-tauri/gen/apple/build/arm64/shrinkwrap.ipa
+          name: shrinkwrap.ipa
