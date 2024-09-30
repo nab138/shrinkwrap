@@ -18,7 +18,7 @@ const Hub: React.FC = () => {
   const { connectionIP, theme } = usePrefs();
   const [api, setApi] = useState<DockviewApi>();
   const [save, load] = useSaveLoad("layout.json");
-  const { status } = useNetworktables();
+  const { statusText } = useNetworktables();
 
   const openTab = useCallback(
     (tabId: string) => {
@@ -58,10 +58,12 @@ const Hub: React.FC = () => {
 
   useEffect(() => {
     const renameWindow = async () => {
-      await tauriWindow.getCurrentWindow().setTitle(`ShrinkWrap - ${status}`);
+      await tauriWindow
+        .getCurrentWindow()
+        .setTitle(`ShrinkWrap - ${statusText}`);
     };
     renameWindow();
-  }, [status]);
+  }, [statusText]);
 
   useEffect(() => {
     document.body.className = `${theme}`;
@@ -81,7 +83,6 @@ const Hub: React.FC = () => {
       openTab("welcome");
     }
     let unlisten = event.api.onDidLayoutChange(async () => {
-      console.log("layout changed");
       let json = event.api.toJSON();
       if (json == null) return;
       await save(JSON.stringify(json));

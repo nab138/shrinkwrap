@@ -3,10 +3,16 @@ import { usePrefs } from "../utils/PrefsContext";
 import { Theme } from "@tauri-apps/api/window";
 import { platform } from "@tauri-apps/plugin-os";
 import { useEffect, useState } from "react";
-import { connect, createClient } from "../networktables/NetworkTables";
+import {
+  connect,
+  createClient,
+  NetworkTablesStatus,
+  useNetworktables,
+} from "../networktables/NetworkTables";
 
 const Settings: React.FC<IDockviewPanelProps<{ title: string }>> = () => {
   const { theme, setTheme, connectionIP, setConnectionIP } = usePrefs();
+  const { status } = useNetworktables();
 
   const [mobile, setMobile] = useState(false);
   useEffect(() => {
@@ -29,16 +35,15 @@ const Settings: React.FC<IDockviewPanelProps<{ title: string }>> = () => {
               createClient(connectionIP);
               connect();
             }}
+            disabled={status === NetworkTablesStatus.CONNECTING}
           >
-            Connect
-          </button>
-          <button
-            onClick={() => {
-              createClient("127.0.0.1");
-              connect();
-            }}
-          >
-            Connect (sim)
+            {status === NetworkTablesStatus.CONNECTED
+              ? "Connected"
+              : status === NetworkTablesStatus.CONNECTING
+              ? "Connecting..."
+              : status === NetworkTablesStatus.DISCONNECTED
+              ? "Reconnecting..."
+              : "Connect"}
           </button>
         </div>
       )}

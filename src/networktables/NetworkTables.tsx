@@ -53,7 +53,8 @@ export async function connect() {
 }
 
 export type NetworktablesHook = {
-  status: string;
+  status: NetworkTablesStatus;
+  statusText: string;
   ip: string;
 };
 
@@ -73,7 +74,8 @@ export function useNetworktables(): NetworktablesHook {
   let statusText = "Idle";
   if (client) statusText = getStatusText(status, ip);
   return {
-    status: statusText,
+    statusText,
+    status,
     ip,
   };
 }

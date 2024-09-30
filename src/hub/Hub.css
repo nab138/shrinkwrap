@@ -9,6 +9,11 @@
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
   -webkit-text-size-adjust: 100%;
+
+  user-select: none;
+  -webkit-user-select: none;
+  -moz-user-select: none;
+  -ms-user-select: none;
 }
 
 .dark {
@@ -136,4 +141,10 @@ button {
 
 .view {
   --dv-tabs-and-actions-container-font-size: 0.9em;
+}
+
+@media screen and (max-width: 600px) {
+  .view {
+    --dv-tabs-and-actions-container-font-size: 1em;
+  }
 }
