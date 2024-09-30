@@ -100,6 +100,10 @@ button {
   box-shadow: 0 2px 2px rgba(0, 0, 0, 0.2);
 }
 
+select {
+  padding: 0.3em 0.6em;
+}
+
 button {
   cursor: pointer;
 }
@@ -128,4 +132,8 @@ button {
 
 #greet-input {
   margin-right: 5px;
+}
+
+.view {
+  --dv-tabs-and-actions-container-font-size: 0.9em;
 }

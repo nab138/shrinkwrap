@@ -23,7 +23,6 @@
   position: absolute;
   box-shadow: 0 8px 16px rgba(0, 0, 0, 0.2);
   z-index: 1;
-  min-width: 160px;
   max-height: 200px;
   top: 30px;
   overflow-y: auto;
@@ -31,11 +30,11 @@
 }
 
 .left .dropdown-menu {
-  right: 0;
+  left: 0;
 }
 
 .right .dropdown-menu {
-  left: 0;
+  right: 0;
 }
 
 .center .dropdown-menu {
@@ -44,7 +43,9 @@
 }
 
 .dropdown-item {
+  white-space: nowrap;
   padding: 10px;
+  font-size: 1.15em;
   border-radius: 0;
   border: none;
   width: 100%;

@@ -6,16 +6,16 @@ export const tabsConfig = [
   {
     id: "settings",
     component: Settings,
-    title: "Settings",
+    title: "⚙️ Settings",
   },
   {
     id: "welcome",
     component: Welcome,
-    title: "Welcome",
+    title: "📚 Welcome",
   },
   {
     id: "3dfield",
     component: ThreeDimensionField,
-    title: "3D Field",
+    title: "🏟️ 3D Field",
   },
 ];

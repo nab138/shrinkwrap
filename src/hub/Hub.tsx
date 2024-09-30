@@ -4,7 +4,6 @@ import "./Hub.css";
 import "dockview/dist/styles/dockview.css";
 import { tabsConfig } from "../tabsConfig";
 import { window as tauriWindow } from "@tauri-apps/api";
-import Navbar from "./Navbar";
 import { usePrefs } from "../utils/PrefsContext";
 import useSaveLoad from "../utils/saveload";
 import { listen } from "@tauri-apps/api/event";
@@ -13,6 +12,7 @@ import {
   createClient,
   useNetworktables,
 } from "../networktables/NetworkTables";
+import LeftControls from "./LeftControls";
 
 const Hub: React.FC = () => {
   const { connectionIP, theme, savePrefs } = usePrefs();
@@ -110,14 +110,16 @@ const Hub: React.FC = () => {
 
   return (
     <div className={`container`}>
-      <Navbar openTab={openTab} />
       <DockviewReact
         components={tabsConfig.reduce((acc, tab) => {
           acc[tab.id] = tab.component;
           return acc;
         }, {} as any)}
+        leftHeaderActionsComponent={(props) => (
+          <LeftControls {...props} saveLayout={saveLayout} />
+        )}
         onReady={onReady}
-        className={"dockview-theme-" + theme}
+        className={"dockview-theme-" + theme + " view"}
       />
     </div>
   );
