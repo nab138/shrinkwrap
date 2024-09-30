@@ -32,6 +32,10 @@ export const PrefsProvider: React.FC<{ children: ReactNode }> = ({
   }, [save, theme, connectionIP]);
 
   useEffect(() => {
+    savePrefs();
+  }, [savePrefs]);
+
+  useEffect(() => {
     if (!load) return;
     (async () => {
       const prefs = await load();

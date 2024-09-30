@@ -15,25 +15,10 @@ import {
 import LeftControls from "./LeftControls";
 
 const Hub: React.FC = () => {
-  const { connectionIP, theme, savePrefs } = usePrefs();
+  const { connectionIP, theme } = usePrefs();
   const [api, setApi] = useState<DockviewApi>();
   const [save, load] = useSaveLoad("layout.json");
   const { status } = useNetworktables();
-
-  const onReady = useCallback(async (event: DockviewReadyEvent) => {
-    setApi(event.api);
-    let layout: string | null = null;
-    try {
-      layout = await load();
-    } catch (e) {
-      console.warn("Failed to load saved layout", e);
-    }
-    if (layout != null) {
-      event.api.fromJSON(JSON.parse(layout));
-    } else {
-      openTab("welcome");
-    }
-  }, []);
 
   const openTab = useCallback(
     (tabId: string) => {
@@ -46,35 +31,9 @@ const Hub: React.FC = () => {
           params: { title: tab.title },
         })
         .setTitle(tab.title);
-      saveLayout();
     },
     [api]
   );
-
-  const saveLayout = useCallback(async () => {
-    if (api == null) return;
-    let json = api.toJSON();
-    if (json == null) return;
-    await save(JSON.stringify(json));
-  }, [api]);
-
-  useEffect(() => {
-    const setupListener = async () => {
-      const unlisten = await tauriWindow
-        .getCurrentWindow()
-        .onCloseRequested(async () => {
-          await saveLayout();
-          await savePrefs();
-        });
-      return unlisten;
-    };
-
-    const unlistenPromise = setupListener();
-
-    return () => {
-      unlistenPromise.then((unlisten) => unlisten());
-    };
-  }, [saveLayout, savePrefs]);
 
   useEffect(() => {
     const setupListener = async () => {
@@ -108,6 +67,30 @@ const Hub: React.FC = () => {
     document.body.className = `${theme}`;
   }, [theme]);
 
+  const onReady = useCallback(async (event: DockviewReadyEvent) => {
+    setApi(event.api);
+    let layout: string | null = null;
+    try {
+      layout = await load();
+    } catch (e) {
+      console.warn("Failed to load saved layout", e);
+    }
+    if (layout != null) {
+      event.api.fromJSON(JSON.parse(layout));
+    } else {
+      openTab("welcome");
+    }
+    let unlisten = event.api.onDidLayoutChange(async () => {
+      console.log("layout changed");
+      let json = event.api.toJSON();
+      if (json == null) return;
+      await save(JSON.stringify(json));
+    });
+    return () => {
+      unlisten.dispose();
+    };
+  }, []);
+
   return (
     <div className={`container`}>
       <DockviewReact
@@ -115,9 +98,7 @@ const Hub: React.FC = () => {
           acc[tab.id] = tab.component;
           return acc;
         }, {} as any)}
-        leftHeaderActionsComponent={(props) => (
-          <LeftControls {...props} saveLayout={saveLayout} />
-        )}
+        leftHeaderActionsComponent={LeftControls}
         onReady={onReady}
         className={"dockview-theme-" + theme + " view"}
       />

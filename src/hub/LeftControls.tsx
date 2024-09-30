@@ -3,12 +3,7 @@ import { IDockviewHeaderActionsProps } from "dockview";
 import { tabsConfig } from "../tabsConfig";
 import Dropdown from "./Dropdown";
 
-interface LeftControlsProps extends IDockviewHeaderActionsProps {
-  saveLayout: () => void;
-}
-
-const LeftControlsRaw: React.FC<LeftControlsProps> = ({
-  saveLayout,
+const LeftControlsRaw: React.FC<IDockviewHeaderActionsProps> = ({
   containerApi,
   group,
 }) => {
@@ -26,9 +21,8 @@ const LeftControlsRaw: React.FC<LeftControlsProps> = ({
           },
         })
         .setTitle(tab.title);
-      saveLayout();
     },
-    [containerApi, saveLayout]
+    [containerApi]
   );
 
   return (
