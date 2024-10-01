@@ -14,6 +14,8 @@ const LogViewer: React.FC = () => {
           height: "100%",
           margin: "5px",
           borderRadius: "5px",
+          textAlign: "left",
+          padding: "5px",
         }}
       >
         {log.map((msg, i) => (

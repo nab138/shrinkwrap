@@ -33,6 +33,7 @@ export const PrefsProvider: React.FC<{ children: ReactNode }> = ({
 
   useEffect(() => {
     savePrefs();
+    console.log("Saved prefs");
   }, [savePrefs]);
 
   useEffect(() => {
