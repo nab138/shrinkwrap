@@ -23,17 +23,17 @@ const PrefsContext = createContext<PrefsContextType | undefined>(undefined);
 export const PrefsProvider: React.FC<{ children: ReactNode }> = ({
   children,
 }) => {
-  const [save, load] = useSaveLoad("prefs.json");
+  const [save, load] = useSaveLoad("preferences.json");
   const [theme, setTheme] = useState<Theme>("light");
   const [connectionIP, setConnectionIP] = useState<string>("");
 
   const savePrefs = useCallback(() => {
+    console.log("New theme: ", theme);
     return save(JSON.stringify({ theme, connectionIP }));
   }, [save, theme, connectionIP]);
 
   useEffect(() => {
     savePrefs();
-    console.log("Saved prefs");
   }, [savePrefs]);
 
   useEffect(() => {
