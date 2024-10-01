@@ -19,6 +19,7 @@ const ThreeComponent: React.FC<ThreeComponentProps> = ({
   return (
     <>
       <Canvas
+        gl={{ powerPreference: "default", antialias: false }}
         shadows={cinematic}
         className="three-canvas"
         camera={{ position: [0, 10, -15] }}
