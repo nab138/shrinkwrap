@@ -137,8 +137,8 @@ jobs:
           security list-keychain -d user -s $KEYCHAIN_PATH
 
           # apply provisioning profile
-          mkdir -p /Users/alex/Library/MobileDevice/ProvisioningProfiles
-          cp $PP_PATH /Users/alex/Library/MobileDevice/ProvisioningProfiles
+          sudo mkdir -p /Users/alex/Library/MobileDevice/ProvisioningProfiles
+          sudo cp $PP_PATH /Users/alex/Library/MobileDevice/ProvisioningProfiles
       - name: Build macOS
         env:
           APPLE_DEVELOPMENT_TEAM: ${{ secrets.APPLE_DEVELOPMENT_TEAM }}
