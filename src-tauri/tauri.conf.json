@@ -33,9 +33,10 @@
     ],
     "category": "Utility",
     "macOS": {
+      "signingIdentity": "ZCRJ4S4F7X",
       "entitlements": "./Entitlements.plist",
       "files": {
-        "embedded.provisionprofile": "/Users/alex/Downloads/macos_shrinkwrap.provisionprofile"
+        "embedded.provisionprofile": "/Users/alex/Library/MobileDevice/ProvisioningProfiles/build_pp.provisionprofile"
       }
     }
   }
