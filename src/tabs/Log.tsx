@@ -1,5 +1,6 @@
 import React from "react";
 import { useLog } from "../utils/LogContext";
+import "./Log.css";
 
 const LogViewer: React.FC = () => {
   const { log } = useLog();
@@ -9,7 +10,7 @@ const LogViewer: React.FC = () => {
       <h2>Console Log</h2>
       <pre
         style={{
-          width: "calc(100% - 10px)",
+          width: "calc(100% - 20px)",
           backgroundColor: "#0005",
           height: "100%",
           margin: "5px",

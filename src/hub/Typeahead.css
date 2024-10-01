@@ -1,0 +1,36 @@
+/* Typeahead.css */
+
+.typeahead {
+  position: relative;
+}
+
+.typeahead-input {
+  width: 100%;
+  padding: 10px;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+  font-size: 16px;
+}
+
+.typeahead-list {
+  position: absolute;
+  top: 100%;
+  left: 0;
+  right: 0;
+  background-color: white;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+  max-height: 200px;
+  overflow-y: auto;
+  z-index: 1000;
+  margin-top: 5px;
+}
+
+.typeahead-item {
+  padding: 10px;
+  cursor: pointer;
+}
+
+.typeahead-item:hover {
+  background-color: #f1f1f1;
+}

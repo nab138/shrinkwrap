@@ -1,5 +1,7 @@
 import React from "react";
 import Dropdown from "./Dropdown";
+import "./NetworkArrayConfig.css";
+import NetworkTablesSelect from "./NetworkTablesSelect";
 
 interface Item {
   id: string;
@@ -10,12 +12,14 @@ interface ItemListProps {
   availableTypes: string[];
   items: Item[];
   onItemsChange: (items: Item[]) => void;
+  label: string;
 }
 
 const ItemList: React.FC<ItemListProps> = ({
   availableTypes,
   items,
   onItemsChange,
+  label,
 }) => {
   const addItem = (type: string) => {
     const newItem: Item = {
@@ -32,8 +36,9 @@ const ItemList: React.FC<ItemListProps> = ({
   };
 
   return (
-    <div>
-      <div>
+    <div className="arrayConfig">
+      <div className="listDropdownContainer">
+        <label>{label}</label>
         <Dropdown
           options={availableTypes.map((type) => ({ id: type, title: type }))}
           onSelect={addItem}
@@ -41,9 +46,16 @@ const ItemList: React.FC<ItemListProps> = ({
       </div>
       <ul>
         {items.map((item) => (
-          <li key={item.id}>
-            {item.type}
-            <button onClick={() => removeItem(item.id)}>Remove</button>
+          <li key={item.id} className="arrayItem">
+            <div className="arrayItemName">
+              {item.type}
+              <button onClick={() => removeItem(item.id)}>🗑️</button>
+            </div>
+            <NetworkTablesSelect
+              title="Network Table"
+              options={["Option 1", "Option 2", "Option 3"]}
+              onSelect={(selected) => console.log(selected)}
+            />
           </li>
         ))}
       </ul>

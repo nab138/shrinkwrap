@@ -62,7 +62,7 @@ const Sidebar: React.FC<SidebarProps> = ({
         <div className="settings">
           {localSettings.map((setting) => (
             <div key={setting.id} className="setting">
-              <label>{setting.label}</label>
+              {setting.type != "itemList" && <label>{setting.label}</label>}
               {setting.type === "boolean" && (
                 <input
                   type="checkbox"
@@ -110,6 +110,7 @@ const Sidebar: React.FC<SidebarProps> = ({
               )}
               {setting.type === "itemList" && (
                 <ItemList
+                  label={setting.label}
                   availableTypes={setting.options || []}
                   items={(setting.value as Item[]) || []}
                   onItemsChange={(items) =>

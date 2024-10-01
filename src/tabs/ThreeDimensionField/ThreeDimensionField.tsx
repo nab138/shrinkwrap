@@ -14,7 +14,7 @@ const ThreeDimensionField: React.FC<
       label: "Elements",
       type: "itemList",
       value: [],
-      options: ["Type1", "Type2", "Type3"],
+      options: ["Robot"],
     },
   ];
 
