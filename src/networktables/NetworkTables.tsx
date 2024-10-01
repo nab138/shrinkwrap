@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { NTClient } from "./NT4";
+import { NTClient, NTTopic } from "./NT4";
 
 export enum NetworkTablesStatus {
   IDLE,
@@ -31,7 +31,31 @@ export function createClient(ip: string) {
   client = new NTClient(
     ip,
     "ShrinkWrap",
-    () => {},
+    (topic: NTTopic) => {
+      // Announce
+      // if (this.noFieldsTimeout) clearTimeout(this.noFieldsTimeout);
+      // if (topic.name === "") return;
+      // let modifiedKey = this.getKeyFromTopic(topic);
+      // let structuredType: string | null = null;
+      // if (topic.type.startsWith(STRUCT_PREFIX)) {
+      //   structuredType = topic.type.split(STRUCT_PREFIX)[1];
+      //   if (structuredType.endsWith("[]")) {
+      //     structuredType = structuredType.slice(0, -2);
+      //   }
+      // } else if (topic.type.startsWith(PROTO_PREFIX)) {
+      //   structuredType = ProtoDecoder.getFriendlySchemaType(
+      //     topic.type.split(PROTO_PREFIX)[1]
+      //   );
+      // } else if (topic.type === "msgpack") {
+      //   structuredType = "MessagePack";
+      // } else if (topic.type === "json") {
+      //   structuredType = "JSON";
+      // }
+      // this.log.createBlankField(modifiedKey, this.getLogType(topic.type));
+      // this.log.setWpilibType(modifiedKey, topic.type);
+      // this.log.setStructuredType(modifiedKey, structuredType);
+      // this.shouldRunOutputCallback = true;
+    },
     () => {},
     () => {},
     onConnect,

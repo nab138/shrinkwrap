@@ -10,14 +10,15 @@ interface ModalProps {
 const Modal: React.FC<ModalProps> = ({ isOpen, onClose, children }) => {
   if (!isOpen) return null;
 
+  const handleOverlayClick = (e: React.MouseEvent<HTMLDivElement>) => {
+    if (e.target === e.currentTarget) {
+      onClose();
+    }
+  };
+
   return (
-    <div className="modal-overlay">
-      <div className="modal-content">
-        <button className="modal-close" onClick={onClose}>
-          &times;
-        </button>
-        {children}
-      </div>
+    <div className="modal-overlay" onClick={handleOverlayClick}>
+      <div className="modal-content">{children}</div>
     </div>
   );
 };

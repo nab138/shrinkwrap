@@ -5,9 +5,9 @@
 }
 
 .typeahead-input {
-  width: 100%;
+  width: calc(100% - 20px);
   padding: 10px;
-  border: 1px solid #ccc;
+  border: 1px solid var(--border-color);
   border-radius: 4px;
   font-size: 16px;
 }
@@ -17,8 +17,8 @@
   top: 100%;
   left: 0;
   right: 0;
-  background-color: white;
-  border: 1px solid #ccc;
+  background-color: var(--background-color-1);
+  border: 1px solid var(--border-color);
   border-radius: 4px;
   max-height: 200px;
   overflow-y: auto;
@@ -32,5 +32,5 @@
 }
 
 .typeahead-item:hover {
-  background-color: #f1f1f1;
+  background-color: var(--background-color-2);
 }
