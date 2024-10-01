@@ -2,7 +2,7 @@ name: Build
 on: [push, pull_request, workflow_dispatch]
 
 jobs:
-  test:
+  iOS:
     name: iOS - Deploy to TestFlight
     runs-on: macos-15
     steps:
@@ -79,7 +79,7 @@ jobs:
         with:
           path: src-tauri/gen/apple/build/arm64/shrinkwrap.ipa
           name: shrinkwrap.ipa
-  test:
+  macOS:
     name: macOS - Deploy to TestFlight
     runs-on: macos-15
     steps:
