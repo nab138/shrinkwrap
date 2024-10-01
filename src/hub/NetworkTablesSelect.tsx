@@ -2,19 +2,19 @@ import React, { useState } from "react";
 import "./NetworkTablesSelect.css";
 import Modal from "./Modal";
 import Typeahead from "./Typeahead";
+import { useNetworktables } from "../networktables/NetworkTables";
 
 export interface NetworkTablesSelectProps {
   title: string;
-  options: string[];
   onSelect: (selected: string) => void;
 }
 
 const NetworkTablesSelect: React.FC<NetworkTablesSelectProps> = ({
   title,
-  options,
   onSelect,
 }) => {
   const [isOpen, setIsOpen] = useState(false);
+  const { topics } = useNetworktables();
 
   const toggleModal = () => {
     setIsOpen((prev) => !prev);
@@ -31,7 +31,10 @@ const NetworkTablesSelect: React.FC<NetworkTablesSelectProps> = ({
         {title}
       </button>
       <Modal isOpen={isOpen} onClose={toggleModal}>
-        <Typeahead options={options} onSelect={handleSelect} />
+        <Typeahead
+          options={topics.map((t) => t.name)}
+          onSelect={handleSelect}
+        />
       </Modal>
     </div>
   );

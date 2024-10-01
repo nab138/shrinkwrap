@@ -4,15 +4,13 @@ import { Theme } from "@tauri-apps/api/window";
 import { platform } from "@tauri-apps/plugin-os";
 import { useEffect, useState } from "react";
 import {
-  connect,
-  createClient,
   NetworkTablesStatus,
   useNetworktables,
 } from "../networktables/NetworkTables";
 
 const Settings: React.FC<IDockviewPanelProps<{ title: string }>> = () => {
   const { theme, setTheme, connectionIP, setConnectionIP } = usePrefs();
-  const { status } = useNetworktables();
+  const { status, createClient, connect } = useNetworktables();
 
   const [mobile, setMobile] = useState(false);
   useEffect(() => {

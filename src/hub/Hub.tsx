@@ -7,18 +7,14 @@ import { window as tauriWindow } from "@tauri-apps/api";
 import { usePrefs } from "../utils/PrefsContext";
 import useSaveLoad from "../utils/saveload";
 import { listen } from "@tauri-apps/api/event";
-import {
-  connect,
-  createClient,
-  useNetworktables,
-} from "../networktables/NetworkTables";
+import { useNetworktables } from "../networktables/NetworkTables";
 import LeftControls from "./LeftControls";
 
 const Hub: React.FC = () => {
   const { connectionIP, theme } = usePrefs();
   const [api, setApi] = useState<DockviewApi>();
   const [save, load] = useSaveLoad("layout.json");
-  const { statusText } = useNetworktables();
+  const { statusText, createClient, connect } = useNetworktables();
 
   const openTab = useCallback(
     (tabId: string) => {
@@ -73,7 +69,6 @@ const Hub: React.FC = () => {
     async (event: DockviewReadyEvent) => {
       setApi(event.api);
       let openWelcomeTab = () => {
-        console.log("hi");
         let tab = tabsConfig.find((tab) => tab.id === "welcome");
         if (tab == null) return;
         console.log(tab);

@@ -53,7 +53,6 @@ const ItemList: React.FC<ItemListProps> = ({
             </div>
             <NetworkTablesSelect
               title="Network Table"
-              options={["Option 1", "Option 2", "Option 3"]}
               onSelect={(selected) => console.log(selected)}
             />
           </li>

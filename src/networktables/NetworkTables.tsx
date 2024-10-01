@@ -1,6 +1,5 @@
-import { useEffect, useState } from "react";
+import React, { createContext, useContext, useEffect, useState } from "react";
 import { NTClient, NTTopic } from "./NT4";
-import ProtoDecoder from "./ProtoDecoder";
 
 export enum NetworkTablesStatus {
   IDLE,
@@ -9,102 +8,124 @@ export enum NetworkTablesStatus {
   DISCONNECTED,
 }
 
-export const STRUCT_PREFIX = "struct:";
-export const PROTO_PREFIX = "proto:";
+// export const STRUCT_PREFIX = "struct:";
+// export const PROTO_PREFIX = "proto:";
 
 let client: NTClient | null = null;
-let setState: React.Dispatch<React.SetStateAction<NetworkTablesStatus>> | null =
-  null;
-let setIP: React.Dispatch<React.SetStateAction<string>> | null = null;
 
-let topics: NTTopic[] = [];
-
-function onConnect() {
-  if (setState) {
-    setState(NetworkTablesStatus.CONNECTED);
-  }
-}
-
-function onDisconnect() {
-  if (setState) {
-    setState(NetworkTablesStatus.DISCONNECTED);
-  }
-}
-export function createClient(ip: string) {
-  if (client !== null) {
-    client.disconnect();
-  }
-  client = new NTClient(
-    ip,
-    "ShrinkWrap",
-    (topic: NTTopic) => {
-      if (topic.name === "") return;
-      let structuredType: string | null = null;
-      if (topic.type.startsWith(STRUCT_PREFIX)) {
-        structuredType = topic.type.split(STRUCT_PREFIX)[1];
-        if (structuredType.endsWith("[]")) {
-          structuredType = structuredType.slice(0, -2);
-        }
-      } else if (topic.type.startsWith(PROTO_PREFIX)) {
-        structuredType = ProtoDecoder.getFriendlySchemaType(
-          topic.type.split(PROTO_PREFIX)[1]
-        );
-      } else if (topic.type === "msgpack") {
-        structuredType = "MessagePack";
-      } else if (topic.type === "json") {
-        structuredType = "JSON";
-      }
-      if (!topics.find((t) => t.name === topic.name)) {
-        topics.push(topic);
-      }
-    },
-    () => {},
-    () => {},
-    onConnect,
-    onDisconnect
-  );
-  if (setIP) {
-    setIP(ip);
-  }
-}
-
-export async function connect() {
-  if (client === null) {
-    throw new Error("Client not created");
-  }
-  client.connect();
-  if (setState) {
-    setState(NetworkTablesStatus.CONNECTING);
-  }
-}
-
-export type NetworktablesHook = {
+type NetworkTablesContextType = {
   status: NetworkTablesStatus;
   statusText: string;
   ip: string;
+  topics: NTTopic[];
+  createClient: (ip: string) => void;
+  connect: () => Promise<void>;
 };
 
-export function useNetworktables(): NetworktablesHook {
-  const [status, updateStatus] = useState(NetworkTablesStatus.IDLE);
-  const [ip, updateIp] = useState("");
+const NetworkTablesContext = createContext<
+  NetworkTablesContextType | undefined
+>(undefined);
+
+export const NetworkTablesProvider: React.FC<{ children: React.ReactNode }> = ({
+  children,
+}) => {
+  const [status, setStatus] = useState(NetworkTablesStatus.IDLE);
+  const [ip, setIP] = useState("");
+  const [topics, setTopics] = useState<NTTopic[]>([]);
 
   useEffect(() => {
-    setState = updateStatus;
-    setIP = updateIp;
     return () => {
-      setState = null;
-      setIP = null;
+      if (client !== null) {
+        client.disconnect();
+      }
     };
   }, []);
 
-  let statusText = "Idle";
-  if (client) statusText = getStatusText(status, ip);
-  return {
-    statusText,
-    status,
-    ip,
+  const onConnect = () => {
+    setStatus(NetworkTablesStatus.CONNECTED);
   };
-}
+
+  const onDisconnect = () => {
+    setStatus(NetworkTablesStatus.DISCONNECTED);
+  };
+
+  const onAnnounce = (topic: NTTopic) => {
+    if (topic.name === "") return;
+    // let structuredType: string | null = null;
+    // if (topic.type.startsWith(STRUCT_PREFIX)) {
+    //   structuredType = topic.type.split(STRUCT_PREFIX)[1];
+    //   if (structuredType.endsWith("[]")) {
+    //     structuredType = structuredType.slice(0, -2);
+    //   }
+    // } else if (topic.type.startsWith(PROTO_PREFIX)) {
+    //   structuredType = ProtoDecoder.getFriendlySchemaType(
+    //     topic.type.split(PROTO_PREFIX)[1]
+    //   );
+    // } else if (topic.type === "msgpack") {
+    //   structuredType = "MessagePack";
+    // } else if (topic.type === "json") {
+    //   structuredType = "JSON";
+    // }
+    setTopics((prevTopics) => {
+      if (!prevTopics.find((t) => t.name === topic.name)) {
+        return [...prevTopics, topic];
+      }
+      return prevTopics;
+    });
+  };
+
+  const onUnannounce = (topic: NTTopic) => {
+    setTopics((prevTopics) => {
+      return prevTopics.filter((t) => t.name !== topic.name);
+    });
+  };
+
+  const createClient = (ip: string) => {
+    if (client !== null) {
+      client.disconnect();
+    }
+    setTopics([]);
+    client = new NTClient(
+      ip,
+      "ShrinkWrap",
+      onAnnounce,
+      onUnannounce,
+      () => {},
+      onConnect,
+      onDisconnect
+    );
+    setIP(ip);
+  };
+
+  const connect = async () => {
+    if (client === null) {
+      throw new Error("Client not created");
+    }
+    client.connect();
+    client.subscribeTopicsOnly([""], true);
+    setStatus(NetworkTablesStatus.CONNECTING);
+  };
+
+  const statusText = getStatusText(status, ip);
+
+  return (
+    <NetworkTablesContext.Provider
+      value={{ status, statusText, ip, topics, createClient, connect }}
+    >
+      {children}
+    </NetworkTablesContext.Provider>
+  );
+};
+
+export const useNetworktables = (): NetworkTablesContextType => {
+  const context = useContext(NetworkTablesContext);
+  if (context === undefined) {
+    throw new Error(
+      "useNetworktables must be used within a NetworkTablesProvider"
+    );
+  }
+  return context;
+};
 
 function getStatusText(status: NetworkTablesStatus, ip: string): string {
   switch (status) {
