@@ -20,7 +20,7 @@
   background-color: var(--background-color-1);
   border: 1px solid var(--border-color);
   border-radius: 4px;
-  max-height: 200px;
+  max-height: 50vh;
   overflow-y: auto;
   z-index: 1000;
   margin-top: 5px;

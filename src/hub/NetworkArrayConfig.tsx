@@ -52,7 +52,6 @@ const ItemList: React.FC<ItemListProps> = ({
               <button onClick={() => removeItem(item.id)}>🗑️</button>
             </div>
             <NetworkTablesSelect
-              title="Network Table"
               onSelect={(selected) => console.log(selected)}
             />
           </li>

@@ -5,15 +5,14 @@ import Typeahead from "./Typeahead";
 import { useNetworktables } from "../networktables/NetworkTables";
 
 export interface NetworkTablesSelectProps {
-  title: string;
   onSelect: (selected: string) => void;
 }
 
 const NetworkTablesSelect: React.FC<NetworkTablesSelectProps> = ({
-  title,
   onSelect,
 }) => {
   const [isOpen, setIsOpen] = useState(false);
+  const [selected, setSelected] = useState("");
   const { topics } = useNetworktables();
 
   const toggleModal = () => {
@@ -22,13 +21,14 @@ const NetworkTablesSelect: React.FC<NetworkTablesSelectProps> = ({
 
   const handleSelect = (selected: string) => {
     onSelect(selected);
+    setSelected(selected);
     setIsOpen(false);
   };
 
   return (
     <div className="networkTablesSelect">
       <button className="networkTablesSelect-toggle" onClick={toggleModal}>
-        {title}
+        {selected || "Select a topic..."}
       </button>
       <Modal isOpen={isOpen} onClose={toggleModal}>
         <Typeahead

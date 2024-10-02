@@ -20,4 +20,6 @@
   position: relative;
   width: 80%;
   max-width: 500px;
+  /* Move to upper third of screen */
+  bottom: 20%;
 }
