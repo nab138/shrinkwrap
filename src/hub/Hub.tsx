@@ -7,14 +7,17 @@ import { window as tauriWindow } from "@tauri-apps/api";
 import { usePrefs } from "../utils/PrefsContext";
 import useSaveLoad from "../utils/saveload";
 import { listen } from "@tauri-apps/api/event";
-import { useNetworktables } from "../networktables/NetworkTables";
 import LeftControls from "./LeftControls";
+import useNTConnected from "../../node_modules/ntcore-react/src/lib/useNTConnected";
 
-const Hub: React.FC = () => {
+export interface HubProps {
+  setIp: React.Dispatch<React.SetStateAction<string>>;
+}
+const Hub: React.FC<HubProps> = ({ setIp }) => {
   const { connectionIP, theme } = usePrefs();
   const [api, setApi] = useState<DockviewApi>();
   const [save, load] = useSaveLoad("layout.json");
-  const { statusText, createClient, connect } = useNetworktables();
+  const connected = useNTConnected();
 
   const openTab = useCallback(
     (tabId: string) => {
@@ -33,13 +36,12 @@ const Hub: React.FC = () => {
 
   useEffect(() => {
     const setupListener = async () => {
+      setIp(connectionIP);
       const unlisten = await listen<boolean>("connect", (event) => {
         if (event.payload) {
-          createClient("127.0.0.1");
-          connect();
+          setIp("127.0.0.1");
         } else {
-          createClient(connectionIP);
-          connect();
+          setIp(connectionIP);
         }
       });
       return unlisten;
@@ -56,10 +58,14 @@ const Hub: React.FC = () => {
     const renameWindow = async () => {
       await tauriWindow
         .getCurrentWindow()
-        .setTitle(`ShrinkWrap - ${statusText}`);
+        .setTitle(
+          `ShrinkWrap - ${
+            connected ? "Connected to " + connectionIP : "Disconnected"
+          }`
+        );
     };
     renameWindow();
-  }, [statusText]);
+  }, [connected, connectionIP]);
 
   useEffect(() => {
     document.body.className = `${theme}`;

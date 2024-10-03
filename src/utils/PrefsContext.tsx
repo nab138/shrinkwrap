@@ -25,10 +25,9 @@ export const PrefsProvider: React.FC<{ children: ReactNode }> = ({
 }) => {
   const [save, load] = useSaveLoad("preferences.json");
   const [theme, setTheme] = useState<Theme>("light");
-  const [connectionIP, setConnectionIP] = useState<string>("");
+  const [connectionIP, setConnectionIP] = useState<string>("127.0.0.1");
 
   const savePrefs = useCallback(() => {
-    console.log("New theme: ", theme);
     return save(JSON.stringify({ theme, connectionIP }));
   }, [save, theme, connectionIP]);
 
