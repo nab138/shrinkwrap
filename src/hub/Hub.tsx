@@ -85,6 +85,7 @@ const Hub: React.FC<HubProps> = ({ setIp }) => {
       if (event.api.panels.length === 0) {
         openWelcomeTab();
       }
+
       let unlisten = event.api.onDidLayoutChange(async () => {
         if (event.api.panels.length === 0) {
           openWelcomeTab();
@@ -98,7 +99,7 @@ const Hub: React.FC<HubProps> = ({ setIp }) => {
         unlisten.dispose();
       };
     },
-    [load, save] // Removed openTab from dependencies
+    [load, save]
   );
 
   return (

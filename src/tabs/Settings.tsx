@@ -1,6 +1,9 @@
 import { IDockviewPanelProps } from "dockview";
 import { Theme } from "@tauri-apps/api/window";
 import { useStore } from "../utils/StoreContext";
+import Card from "../hub/Card";
+import "./Settings.css";
+import useNTConnected from "../../node_modules/ntcore-react/src/lib/useNTConnected";
 
 const Settings: React.FC<IDockviewPanelProps<{ title: string }>> = () => {
   const [theme, setTheme] = useStore<Theme>("theme", "light");
@@ -8,38 +11,39 @@ const Settings: React.FC<IDockviewPanelProps<{ title: string }>> = () => {
     "connectionIP",
     "127.0.0.1"
   );
+  const connected = useNTConnected();
 
   return (
-    <div className="pageContainer">
-      <h1>Settings</h1>
-      <ul
-        style={{
-          listStyleType: "none",
-          textAlign: "center",
-          paddingLeft: "0px",
-          lineHeight: "3em",
-        }}
-      >
-        <li>
+    <div className="pageContainer settingsContainer">
+      <div className="settings">
+        <Card title="NetworkTables">
+          <p
+            style={{ padding: 0, width: "100%", textAlign: "left", margin: 0 }}
+          >
+            Status: {connected ? "Connected" : "Disconnected"}
+          </p>
           <input
             id="ip"
             onChange={(e) => setConnectionIP(e.target.value)}
             placeholder="Connection IP..."
             value={connectionIP}
+            style={{ paddingLeft: "10px" }}
           />
-        </li>
-        <li>
-          <label>Theme: </label>
-          <select
-            value={theme}
-            onChange={(e) => setTheme(e.target.value as Theme)}
-          >
-            <option value="light">Light</option>
-            <option value="dark">Dark</option>
-            <option value="abyss">Abyss</option>
-          </select>
-        </li>
-      </ul>
+        </Card>
+        <Card title="Application Settings">
+          <div style={{ width: "fit-content" }}>
+            <label>Theme: </label>
+            <select
+              value={theme}
+              onChange={(e) => setTheme(e.target.value as Theme)}
+            >
+              <option value="light">Light</option>
+              <option value="dark">Dark</option>
+              <option value="abyss">Abyss</option>
+            </select>
+          </div>
+        </Card>
+      </div>
     </div>
   );
 };

@@ -1,7 +1,9 @@
-import React, { useCallback, useMemo } from "react";
+import React, { useCallback } from "react";
 import { IDockviewHeaderActionsProps } from "dockview";
 import { tabsConfig } from "../tabsConfig";
 import Dropdown from "./Dropdown";
+
+const options = tabsConfig.map((tab) => ({ id: tab.id, title: tab.title }));
 
 const LeftControlsRaw: React.FC<IDockviewHeaderActionsProps> = ({
   containerApi,
@@ -23,11 +25,6 @@ const LeftControlsRaw: React.FC<IDockviewHeaderActionsProps> = ({
         .setTitle(tab.title);
     },
     [containerApi, group]
-  );
-
-  const options = useMemo(
-    () => tabsConfig.map((tab) => ({ id: tab.id, title: tab.title })),
-    [tabsConfig]
   );
 
   return (
