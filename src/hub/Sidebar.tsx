@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 import "./Sidebar.css";
-import ItemList from "./NetworkArrayConfig";
+import ItemList, { Item } from "./NetworkArrayConfig";
 
 export interface Setting {
   id: string;
@@ -8,11 +8,6 @@ export interface Setting {
   type: "boolean" | "string" | "number" | "custom" | "itemList";
   value: boolean | string | number | Item[];
   options?: string[];
-}
-
-export interface Item {
-  id: string;
-  type: string;
 }
 
 export interface SidebarProps {
@@ -59,9 +54,9 @@ const Sidebar: React.FC<SidebarProps> = ({
         )}
       </div>
       {!isCollapsed && (
-        <div className="settings">
+        <div className="sidebar-settings">
           {localSettings.map((setting) => (
-            <div key={setting.id} className="setting">
+            <div key={setting.id} className="sidebar-setting">
               {setting.type != "itemList" && <label>{setting.label}</label>}
               {setting.type === "boolean" && (
                 <input

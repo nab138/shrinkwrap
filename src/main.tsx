@@ -6,7 +6,7 @@ import NTProvider from "../node_modules/ntcore-react/src/lib/NTProvider";
 import { StoreProvider } from "./utils/StoreContext";
 
 const MemoizedHub = React.memo(Hub);
-const MemoizedNTProvider = React.memo(NTProvider);
+export const MemoizedNTProvider = React.memo(NTProvider);
 const MemoizedLogProvider = React.memo(LogProvider);
 
 const AppComponent = () => {
@@ -17,13 +17,13 @@ const AppComponent = () => {
   }, []);
 
   return (
-    <StoreProvider>
-      <MemoizedNTProvider uri={ip}>
+    <MemoizedNTProvider uri={ip}>
+      <StoreProvider>
         <MemoizedLogProvider>
           <MemoizedHub setIp={stableSetIp} />
         </MemoizedLogProvider>
-      </MemoizedNTProvider>
-    </StoreProvider>
+      </StoreProvider>
+    </MemoizedNTProvider>
   );
 };
 

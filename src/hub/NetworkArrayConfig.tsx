@@ -3,9 +3,10 @@ import Dropdown from "./Dropdown";
 import "./NetworkArrayConfig.css";
 import NetworkTablesSelect from "./NetworkTablesSelect";
 
-interface Item {
+export interface Item {
   id: string;
   type: string;
+  value: string;
 }
 
 interface ItemListProps {
@@ -25,6 +26,7 @@ const ItemList: React.FC<ItemListProps> = ({
     const newItem: Item = {
       id: Math.random().toString(36).substr(2, 9),
       type: type,
+      value: "",
     };
     const updatedItems = [...items, newItem];
     onItemsChange(updatedItems);
@@ -52,7 +54,12 @@ const ItemList: React.FC<ItemListProps> = ({
               <button onClick={() => removeItem(item.id)}>🗑️</button>
             </div>
             <NetworkTablesSelect
-              onSelect={(selected) => console.log(selected)}
+              onSelect={(selected) => {
+                const updatedItems = items.map((i) =>
+                  i.id === item.id ? { ...i, value: selected } : i
+                );
+                onItemsChange(updatedItems);
+              }}
             />
           </li>
         ))}

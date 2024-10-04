@@ -1,7 +1,8 @@
 import React, { useCallback, useState } from "react";
 import { IDockviewPanelProps } from "dockview";
 import ThreeComponent from "./ThreeComponent";
-import Sidebar, { Item, Setting } from "../../hub/Sidebar";
+import Sidebar, { Setting } from "../../hub/Sidebar";
+import { Item } from "../../hub/NetworkArrayConfig";
 import "./ThreeDimensionField.css";
 
 const ThreeDimensionField: React.FC<
@@ -24,6 +25,7 @@ const ThreeDimensionField: React.FC<
     id: string,
     value: boolean | string | number | Item[]
   ) => {
+    console.log(value);
     setSettings((prevSettings) =>
       prevSettings.map((setting) =>
         setting.id === id ? { ...setting, value } : setting
@@ -43,9 +45,12 @@ const ThreeDimensionField: React.FC<
     <div className="pageContainer">
       <div className="fieldContainer">
         <ThreeComponent
-          position={[0, 0, 0]}
+          robots={(getSettingValue("elements") as Item[])
+            .filter((item) => item.type === "Robot" && item.value != "")
+            .map((item) => {
+              return { key: item.value, robot: "KitBot" };
+            })}
           field={`Field3d_2024.glb`}
-          robot={"KitBot"}
           cinematic={getSettingValue("cinematic") as boolean}
         />
       </div>
