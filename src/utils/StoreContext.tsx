@@ -4,6 +4,7 @@ import React, {
   useState,
   useEffect,
   useCallback,
+  useMemo,
 } from "react";
 import { createStore } from "@tauri-apps/plugin-store";
 
@@ -45,12 +46,17 @@ export const StoreProvider: React.FC<{ children: React.ReactNode }> = ({
     [store]
   );
 
+  const contextValue = useMemo(
+    () => ({ storeValues, setStoreValue }),
+    [storeValues, setStoreValue]
+  );
+
   if (!store) {
-    return null; // or a loading spinner
+    return null;
   }
 
   return (
-    <StoreContext.Provider value={{ storeValues, setStoreValue }}>
+    <StoreContext.Provider value={contextValue}>
       {children}
     </StoreContext.Provider>
   );

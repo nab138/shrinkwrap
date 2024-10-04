@@ -1,4 +1,4 @@
-import React, { useCallback } from "react";
+import React, { useCallback, useMemo } from "react";
 import { IDockviewHeaderActionsProps } from "dockview";
 import { tabsConfig } from "../tabsConfig";
 import Dropdown from "./Dropdown";
@@ -22,7 +22,12 @@ const LeftControlsRaw: React.FC<IDockviewHeaderActionsProps> = ({
         })
         .setTitle(tab.title);
     },
-    [containerApi]
+    [containerApi, group]
+  );
+
+  const options = useMemo(
+    () => tabsConfig.map((tab) => ({ id: tab.id, title: tab.title })),
+    [tabsConfig]
   );
 
   return (
@@ -36,12 +41,9 @@ const LeftControlsRaw: React.FC<IDockviewHeaderActionsProps> = ({
         color: "var(--dv-activegroup-visiblepanel-tab-color)",
       }}
     >
-      <Dropdown
-        className="tab-dropdown"
-        options={tabsConfig.map((tab) => ({ id: tab.id, title: tab.title }))}
-        onSelect={openTab}
-      />
+      <Dropdown className="tab-dropdown" options={options} onSelect={openTab} />
     </div>
   );
 };
+
 export default React.memo(LeftControlsRaw);

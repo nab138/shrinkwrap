@@ -1,4 +1,10 @@
-import React, { createContext, useContext, useState, useEffect } from "react";
+import React, {
+  createContext,
+  useContext,
+  useState,
+  useEffect,
+  useMemo,
+} from "react";
 
 type LogMessage = {
   level: "log" | "error" | "warn";
@@ -21,28 +27,23 @@ export const LogProvider: React.FC<{ children: React.ReactNode }> = ({
     const originalError = console.error;
     const originalWarn = console.warn;
 
+    const logMessage = (level: LogMessage["level"], ...args: any[]) => {
+      setLog((prevLog) => [...prevLog, { level, message: args.join(" ") }]);
+    };
+
     console.log = (...args: any[]) => {
       originalLog(...args);
-      setLog((prevLog) => [
-        ...prevLog,
-        { level: "log", message: args.join(" ") },
-      ]);
+      logMessage("log", ...args);
     };
 
     console.error = (...args: any[]) => {
       originalError(...args);
-      setLog((prevLog) => [
-        ...prevLog,
-        { level: "error", message: args.join(" ") },
-      ]);
+      logMessage("error", ...args);
     };
 
     console.warn = (...args: any[]) => {
       originalWarn(...args);
-      setLog((prevLog) => [
-        ...prevLog,
-        { level: "warn", message: args.join(" ") },
-      ]);
+      logMessage("warn", ...args);
     };
 
     return () => {
@@ -52,7 +53,11 @@ export const LogProvider: React.FC<{ children: React.ReactNode }> = ({
     };
   }, []);
 
-  return <LogContext.Provider value={{ log }}>{children}</LogContext.Provider>;
+  const contextValue = useMemo(() => ({ log }), [log]);
+
+  return (
+    <LogContext.Provider value={contextValue}>{children}</LogContext.Provider>
+  );
 };
 
 export const useLog = (): LogContextType => {

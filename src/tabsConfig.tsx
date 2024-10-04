@@ -25,3 +25,8 @@ export const tabsConfig = [
     title: "📜 Log",
   },
 ];
+
+export const components = tabsConfig.reduce((acc, tab) => {
+  acc[tab.id] = tab.component;
+  return acc;
+}, {} as any);

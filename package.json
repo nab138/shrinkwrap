@@ -13,6 +13,7 @@
     "ios-build": "tauri ios build -o"
   },
   "dependencies": {
+    "@million/lint": "^1.0.8",
     "@msgpack/msgpack": "^3.0.0-beta2",
     "@react-three/drei": "^9.114.0",
     "@react-three/fiber": "^8.17.8",

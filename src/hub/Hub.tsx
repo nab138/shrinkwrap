@@ -1,8 +1,8 @@
-import React, { useCallback, useEffect, useState } from "react";
-import { DockviewApi, DockviewReact, DockviewReadyEvent } from "dockview";
+import React, { useCallback, useEffect } from "react";
+import { DockviewReact, DockviewReadyEvent } from "dockview";
 import "./Hub.css";
 import "dockview/dist/styles/dockview.css";
-import { tabsConfig } from "../tabsConfig";
+import { tabsConfig, components } from "../tabsConfig";
 import { window as tauriWindow } from "@tauri-apps/api";
 import useSaveLoad from "../utils/saveload";
 import { listen } from "@tauri-apps/api/event";
@@ -11,29 +11,14 @@ import useNTConnected from "../../node_modules/ntcore-react/src/lib/useNTConnect
 import { useStore } from "../utils/StoreContext";
 
 export interface HubProps {
-  setIp: React.Dispatch<React.SetStateAction<string>>;
+  setIp: (ip: string) => void;
 }
+
 const Hub: React.FC<HubProps> = ({ setIp }) => {
   const [connectionIP] = useStore<string>("connectionIP", "127.0.0.1");
   const [theme] = useStore<string>("theme", "light");
-  const [api, setApi] = useState<DockviewApi>();
   const [save, load] = useSaveLoad("layout.json");
   const connected = useNTConnected();
-
-  const openTab = useCallback(
-    (tabId: string) => {
-      let tab = tabsConfig.find((tab) => tab.id === tabId);
-      if (tab == null) return;
-      api
-        ?.addPanel({
-          id: tabId + api.panels.length,
-          component: tabId,
-          params: { title: tab.title },
-        })
-        .setTitle(tab.title);
-    },
-    [api]
-  );
 
   useEffect(() => {
     const setupListener = async () => {
@@ -53,7 +38,7 @@ const Hub: React.FC<HubProps> = ({ setIp }) => {
     return () => {
       unlistenPromise.then((unlisten) => unlisten());
     };
-  }, [connectionIP]);
+  }, [connectionIP, setIp]);
 
   useEffect(() => {
     const renameWindow = async () => {
@@ -74,11 +59,9 @@ const Hub: React.FC<HubProps> = ({ setIp }) => {
 
   const onReady = useCallback(
     async (event: DockviewReadyEvent) => {
-      setApi(event.api);
       let openWelcomeTab = () => {
         let tab = tabsConfig.find((tab) => tab.id === "welcome");
         if (tab == null) return;
-        console.log(tab);
         event.api
           ?.addPanel({
             id: "welcome" + event.api.panels.length,
@@ -115,16 +98,13 @@ const Hub: React.FC<HubProps> = ({ setIp }) => {
         unlisten.dispose();
       };
     },
-    [openTab]
+    [load, save] // Removed openTab from dependencies
   );
 
   return (
     <div className={`container`}>
       <DockviewReact
-        components={tabsConfig.reduce((acc, tab) => {
-          acc[tab.id] = tab.component;
-          return acc;
-        }, {} as any)}
+        components={components}
         leftHeaderActionsComponent={LeftControls}
         onReady={onReady}
         className={"dockview-theme-" + theme + " view"}

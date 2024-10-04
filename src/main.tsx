@@ -5,15 +5,24 @@ import { LogProvider } from "./utils/LogContext";
 import NTProvider from "../node_modules/ntcore-react/src/lib/NTProvider";
 import { StoreProvider } from "./utils/StoreContext";
 
+const MemoizedHub = React.memo(Hub);
+const MemoizedNTProvider = React.memo(NTProvider);
+const MemoizedLogProvider = React.memo(LogProvider);
+
 const AppComponent = () => {
   const [ip, setIp] = React.useState("127.0.0.1");
+
+  const stableSetIp = React.useCallback((newIp: string) => {
+    setIp(newIp);
+  }, []);
+
   return (
     <StoreProvider>
-      <NTProvider uri={ip}>
-        <LogProvider>
-          <Hub setIp={setIp} />
-        </LogProvider>
-      </NTProvider>
+      <MemoizedNTProvider uri={ip}>
+        <MemoizedLogProvider>
+          <MemoizedHub setIp={stableSetIp} />
+        </MemoizedLogProvider>
+      </MemoizedNTProvider>
     </StoreProvider>
   );
 };
