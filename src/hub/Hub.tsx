@@ -4,17 +4,18 @@ import "./Hub.css";
 import "dockview/dist/styles/dockview.css";
 import { tabsConfig } from "../tabsConfig";
 import { window as tauriWindow } from "@tauri-apps/api";
-import { usePrefs } from "../utils/PrefsContext";
 import useSaveLoad from "../utils/saveload";
 import { listen } from "@tauri-apps/api/event";
 import LeftControls from "./LeftControls";
 import useNTConnected from "../../node_modules/ntcore-react/src/lib/useNTConnected";
+import { useStore } from "../utils/StoreContext";
 
 export interface HubProps {
   setIp: React.Dispatch<React.SetStateAction<string>>;
 }
 const Hub: React.FC<HubProps> = ({ setIp }) => {
-  const { connectionIP, theme } = usePrefs();
+  const [connectionIP] = useStore<string>("connectionIP", "127.0.0.1");
+  const [theme] = useStore<string>("theme", "light");
   const [api, setApi] = useState<DockviewApi>();
   const [save, load] = useSaveLoad("layout.json");
   const connected = useNTConnected();

@@ -7,18 +7,7 @@ const LogViewer: React.FC = () => {
 
   return (
     <div className="pageContainer">
-      <h2>Console Log</h2>
-      <pre
-        style={{
-          width: "calc(100% - 20px)",
-          backgroundColor: "#0005",
-          height: "100%",
-          margin: "5px",
-          borderRadius: "5px",
-          textAlign: "left",
-          padding: "5px",
-        }}
-      >
+      <pre className="logBox">
         {log.map((msg, i) => (
           <div key={i} className={msg.level}>
             {msg.message}

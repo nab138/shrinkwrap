@@ -1,20 +1,20 @@
 import React from "react";
 import ReactDOM from "react-dom/client";
 import Hub from "./hub/Hub";
-import { PrefsProvider } from "./utils/PrefsContext";
 import { LogProvider } from "./utils/LogContext";
 import NTProvider from "../node_modules/ntcore-react/src/lib/NTProvider";
+import { StoreProvider } from "./utils/StoreContext";
 
 const AppComponent = () => {
-  const [ip, setIp] = React.useState("0.0.0.0");
+  const [ip, setIp] = React.useState("127.0.0.1");
   return (
-    <NTProvider uri={ip}>
-      <LogProvider>
-        <PrefsProvider>
+    <StoreProvider>
+      <NTProvider uri={ip}>
+        <LogProvider>
           <Hub setIp={setIp} />
-        </PrefsProvider>
-      </LogProvider>
-    </NTProvider>
+        </LogProvider>
+      </NTProvider>
+    </StoreProvider>
   );
 };
 

@@ -1,9 +1,13 @@
 import { IDockviewPanelProps } from "dockview";
-import { usePrefs } from "../utils/PrefsContext";
 import { Theme } from "@tauri-apps/api/window";
+import { useStore } from "../utils/StoreContext";
 
 const Settings: React.FC<IDockviewPanelProps<{ title: string }>> = () => {
-  const { theme, setTheme, connectionIP, setConnectionIP } = usePrefs();
+  const [theme, setTheme] = useStore<Theme>("theme", "light");
+  const [connectionIP, setConnectionIP] = useStore<string>(
+    "connectionIP",
+    "127.0.0.1"
+  );
 
   return (
     <div className="pageContainer">
