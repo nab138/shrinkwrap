@@ -2,8 +2,8 @@ import React from "react";
 import ReactDOM from "react-dom/client";
 import Hub from "./hub/Hub";
 import { LogProvider } from "./utils/LogContext";
-import NTProvider from "../node_modules/ntcore-react/src/lib/NTProvider";
 import { StoreProvider } from "./utils/StoreContext";
+import NTProvider from "./ntcore-react/NTProvider";
 
 const MemoizedHub = React.memo(Hub);
 export const MemoizedNTProvider = React.memo(NTProvider);

@@ -3,7 +3,7 @@ import { Theme } from "@tauri-apps/api/window";
 import { useStore } from "../utils/StoreContext";
 import Card from "../hub/Card";
 import "./Settings.css";
-import useNTConnected from "../../node_modules/ntcore-react/src/lib/useNTConnected";
+import useNTConnected from "../ntcore-react/useNTConnected";
 
 const Settings: React.FC<IDockviewPanelProps<{ title: string }>> = () => {
   const [theme, setTheme] = useStore<Theme>("theme", "light");

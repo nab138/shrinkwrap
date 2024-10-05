@@ -1,10 +1,9 @@
 import { useGLTF } from "@react-three/drei";
 import { useContext, useEffect, useState } from "react";
 import * as THREE from "three";
-import useNTValue from "../../../node_modules/ntcore-react/src/lib/useNTValue";
 import { NetworkTablesTypeInfos } from "../../../node_modules/ntcore-ts-client-monorepo/packages/ntcore-ts-client/src/lib/types/types";
-
-import NTContext from "../../../node_modules/ntcore-react/src/lib/NTContext.tsx";
+import NTContext from "../../ntcore-react/NTContext";
+import useNTValue from "../../ntcore-react/useNTValue";
 
 export interface RobotConfig {
   position: [number, number, number];
@@ -47,14 +46,13 @@ const RobotModel: React.FC<RobotModelProps> = ({
   cinematic,
   ntKey,
 }) => {
-  let position = useNTValue(
+  let position = useNTValue<number[]>(
     ntKey,
-    NetworkTablesTypeInfos.kStringArray,
-    [0, 0, 0]
+    NetworkTablesTypeInfos.kDoubleArray,
+    [0, 0, 0],
+    0.01
   );
   let context = useContext(NTContext);
-  console.log("robot model context", context);
-  // let position = [0, 0, 0];
   let MATERIAL_SPECULAR: THREE.Color = new THREE.Color(0x666666);
   let MATERIAL_SHININESS: number = 100;
   const robotInner = useGLTF("Robot_" + robotName + ".glb").scene;

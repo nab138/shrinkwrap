@@ -7,8 +7,8 @@ import { window as tauriWindow } from "@tauri-apps/api";
 import useSaveLoad from "../utils/saveload";
 import { listen } from "@tauri-apps/api/event";
 import LeftControls from "./LeftControls";
-import useNTConnected from "../../node_modules/ntcore-react/src/lib/useNTConnected";
 import { useStore } from "../utils/StoreContext";
+import useNTConnected from "../ntcore-react/useNTConnected";
 
 export interface HubProps {
   setIp: (ip: string) => void;

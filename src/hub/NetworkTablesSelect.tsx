@@ -2,7 +2,7 @@ import React, { useContext, useState } from "react";
 import "./NetworkTablesSelect.css";
 import Modal from "./Modal";
 import Typeahead from "./Typeahead";
-import NTContext from "../../node_modules/ntcore-react/src/lib/NTContext";
+import NTContext from "../ntcore-react/NTContext";
 
 export interface NetworkTablesSelectProps {
   onSelect: (selected: string) => void;
