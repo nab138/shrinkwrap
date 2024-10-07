@@ -1,10 +1,10 @@
 import FieldModel from "./FieldModel";
 import React from "react";
-import { OrbitControls, useContextBridge } from "@react-three/drei";
+import { useContextBridge } from "@react-three/drei";
 import RobotModel from "./RobotModel";
 import { Canvas } from "@react-three/fiber";
-import { platform } from "@tauri-apps/plugin-os";
 import NTContext from "../../ntcore-react/NTContext";
+import OrbitControls from "./OrbitControls.tsx";
 
 export interface RobotData {
   key: string;
@@ -36,16 +36,13 @@ const ThreeComponent: React.FC<ThreeComponentProps> = ({
           <RobotModel key={field + r.key} ntKey={r.key} robot={r.robot} />
         ))}
       </ContextBridge>
-      {platform() != "linux" && (
-        <OrbitControls
-          maxPolarAngle={Math.PI / 2}
-          maxDistance={30}
-          enableDamping={true}
-          dampingFactor={0.25}
-        />
-      )}
+      <OrbitControls
+        maxPolarAngle={Math.PI / 2}
+        maxDistance={30}
+        enableDamping={true}
+        dampingFactor={0.25}
+      />
     </Canvas>
   );
 };
-
 export default ThreeComponent;
