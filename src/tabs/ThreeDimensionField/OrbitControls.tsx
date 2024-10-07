@@ -26,6 +26,9 @@
     SOFTWARE.
 */
 
+// This file is copied because it caused strange issues on linux that I still don't understand
+// Moving it into the source tree fixed the issue
+
 import { OrbitControlsProps } from "@react-three/drei";
 import { useThree, useFrame } from "@react-three/fiber";
 import { OrbitControls as OrbitControlsImpl } from "three-stdlib";

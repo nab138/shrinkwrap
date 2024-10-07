@@ -11,6 +11,10 @@ const Settings: React.FC<IDockviewPanelProps<{ title: string }>> = () => {
     "connectionIP",
     "127.0.0.1"
   );
+  const [displayConnection, setDisplayConnection] = useStore(
+    "displayConnection",
+    false
+  );
   const connected = useNTConnected();
 
   return (
@@ -42,6 +46,16 @@ const Settings: React.FC<IDockviewPanelProps<{ title: string }>> = () => {
               <option value="abyss">Abyss</option>
             </select>
           </div>
+        </Card>
+        <Card title="Debug">
+          <label style={{ display: "flex", justifyContent: "space-between" }}>
+            Display Connection Errors
+            <input
+              type="checkbox"
+              checked={displayConnection}
+              onChange={(e) => setDisplayConnection(e.target.checked)}
+            />
+          </label>
         </Card>
       </div>
     </div>

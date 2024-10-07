@@ -14,6 +14,8 @@
   -webkit-user-select: none;
   -moz-user-select: none;
   -ms-user-select: none;
+
+  --accent-color: #646cff;
 }
 
 .dark {
@@ -21,6 +23,7 @@
   --background-color-1: #252526;
   --background-color-2: #0e0e0e;
   --background-color-3: #0a0a0a;
+  --background-color-0: #444;
 
   --border-color: #3a3a3a;
 }
@@ -146,4 +149,10 @@ button {
   .view {
     --dv-tabs-and-actions-container-font-size: 1em;
   }
+}
+
+input[type="checkbox"] {
+  accent-color: var(--accent-color);
+  width: 0.9rem;
+  height: 0.9rem;
 }
