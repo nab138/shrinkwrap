@@ -6,13 +6,15 @@ import NTContext from "../ntcore-react/NTContext";
 
 export interface NetworkTablesSelectProps {
   onSelect: (selected: string) => void;
+  defaultSelected?: string;
 }
 
 const NetworkTablesSelect: React.FC<NetworkTablesSelectProps> = ({
   onSelect,
+  defaultSelected = "",
 }) => {
   const [isOpen, setIsOpen] = useState(false);
-  const [selected, setSelected] = useState("");
+  const [selected, setSelected] = useState(defaultSelected);
   const { topicNames } = useContext(NTContext);
 
   const toggleModal = () => {

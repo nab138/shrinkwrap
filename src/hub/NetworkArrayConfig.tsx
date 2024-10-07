@@ -54,6 +54,7 @@ const ItemList: React.FC<ItemListProps> = ({
               <button onClick={() => removeItem(item.id)}>🗑️</button>
             </div>
             <NetworkTablesSelect
+              defaultSelected={item.value}
               onSelect={(selected) => {
                 const updatedItems = items.map((i) =>
                   i.id === item.id ? { ...i, value: selected } : i
