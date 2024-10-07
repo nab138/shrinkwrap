@@ -2,6 +2,7 @@ import React from "react";
 import Dropdown from "./Dropdown";
 import "./NetworkArrayConfig.css";
 import NetworkTablesSelect from "./NetworkTablesSelect";
+import { NetworkTablesTypeInfo } from "ntcore-ts-client-monorepo/packages/ntcore-ts-client/src";
 
 export interface Item {
   id: string;
@@ -14,6 +15,7 @@ interface ItemListProps {
   items: Item[];
   onItemsChange: (items: Item[]) => void;
   label: string;
+  types?: NetworkTablesTypeInfo[] | null;
 }
 
 const ItemList: React.FC<ItemListProps> = ({
@@ -21,6 +23,7 @@ const ItemList: React.FC<ItemListProps> = ({
   items,
   onItemsChange,
   label,
+  types = null,
 }) => {
   const addItem = (type: string) => {
     const newItem: Item = {
@@ -55,6 +58,7 @@ const ItemList: React.FC<ItemListProps> = ({
             </div>
             <NetworkTablesSelect
               defaultSelected={item.value}
+              types={types ?? null}
               onSelect={(selected) => {
                 const updatedItems = items.map((i) =>
                   i.id === item.id ? { ...i, value: selected } : i

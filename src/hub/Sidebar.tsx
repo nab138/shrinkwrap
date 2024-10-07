@@ -1,6 +1,7 @@
 import React, { useState } from "react";
 import "./Sidebar.css";
 import ItemList, { Item } from "./NetworkArrayConfig";
+import { NetworkTablesTypeInfo } from "ntcore-ts-client-monorepo/packages/ntcore-ts-client/src";
 
 export interface Setting {
   id: string;
@@ -8,6 +9,7 @@ export interface Setting {
   type: "boolean" | "string" | "number" | "custom" | "itemList";
   value: boolean | string | number | Item[];
   options?: string[];
+  ntTypes?: NetworkTablesTypeInfo[] | null;
 }
 
 export interface SidebarProps {
@@ -108,6 +110,7 @@ const Sidebar: React.FC<SidebarProps> = ({
                   label={setting.label}
                   availableTypes={setting.options || []}
                   items={(setting.value as Item[]) || []}
+                  types={setting.ntTypes || null}
                   onItemsChange={(items) =>
                     handleSettingChange(setting.id, items)
                   }

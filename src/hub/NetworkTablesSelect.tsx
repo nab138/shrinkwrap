@@ -1,21 +1,25 @@
-import React, { useContext, useState } from "react";
+import React, { useContext, useEffect, useState } from "react";
 import "./NetworkTablesSelect.css";
 import Modal from "./Modal";
 import Typeahead from "./Typeahead";
 import NTContext from "../ntcore-react/NTContext";
+import { NetworkTablesTypeInfo } from "ntcore-ts-client-monorepo/packages/ntcore-ts-client/src/index";
 
 export interface NetworkTablesSelectProps {
   onSelect: (selected: string) => void;
   defaultSelected?: string;
+  types?: NetworkTablesTypeInfo[] | null;
 }
 
 const NetworkTablesSelect: React.FC<NetworkTablesSelectProps> = ({
   onSelect,
   defaultSelected = "",
+  types = null,
 }) => {
   const [isOpen, setIsOpen] = useState(false);
   const [selected, setSelected] = useState(defaultSelected);
-  const { topicNames } = useContext(NTContext);
+  const { topics } = useContext(NTContext);
+  const [validTopics, setValidTopics] = useState<string[]>([]);
 
   const toggleModal = () => {
     setIsOpen((prev) => !prev);
@@ -27,13 +31,26 @@ const NetworkTablesSelect: React.FC<NetworkTablesSelectProps> = ({
     setIsOpen(false);
   };
 
+  useEffect(() => {
+    console.log(topics, types);
+    if (topics) {
+      const newValidTopics = topics
+        .filter((topic) => {
+          if (!types) return true;
+          return types.some((type) => type === topic.type);
+        })
+        .map((topic) => topic.name);
+      setValidTopics(newValidTopics);
+    }
+  }, [topics, types]);
+
   return (
     <div className="networkTablesSelect">
       <button className="networkTablesSelect-toggle" onClick={toggleModal}>
         {selected || "Select a topic..."}
       </button>
       <Modal isOpen={isOpen} onClose={toggleModal}>
-        <Typeahead options={topicNames} onSelect={handleSelect} />
+        <Typeahead options={validTopics} onSelect={handleSelect} />
       </Modal>
     </div>
   );

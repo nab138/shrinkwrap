@@ -1,4 +1,5 @@
 import { useEffect, useState, useRef } from "react";
+import { TopicInfo } from "ntcore-ts-client-monorepo/packages/ntcore-ts-client/src/lib/pubsub/pubsub";
 import {
   NetworkTables,
   NetworkTablesTypeInfos,
@@ -33,6 +34,7 @@ export default function NTProvider({
     setNtConnectionCreatedUsingTeamNumber,
   ] = useState<boolean>(false);
   const [topicNames, setTopicNames] = useState<string[]>([]);
+  const [topics, setTopics] = useState<TopicInfo[]>([]);
 
   const oldTeamNumber = useRef<number | undefined>();
 
@@ -78,6 +80,7 @@ export default function NTProvider({
     let id = topic?.subscribe(
       () => {
         setTopicNames(ntConnection.client.getTopicNames());
+        setTopics(ntConnection.client.getTopicInfos());
       },
       true,
       {
@@ -94,7 +97,7 @@ export default function NTProvider({
   }, [ntConnection]);
 
   return (
-    <NTContext.Provider value={{ client: ntConnection, topicNames }}>
+    <NTContext.Provider value={{ client: ntConnection, topicNames, topics }}>
       {ntConnection ? children : null}
     </NTContext.Provider>
   );
