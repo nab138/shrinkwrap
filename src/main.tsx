@@ -17,7 +17,7 @@ const AppComponent = () => {
   }, []);
 
   return (
-    <MemoizedNTProvider uri={ip}>
+    <MemoizedNTProvider uri={ip === "" ? "0" : ip}>
       <StoreProvider>
         <MemoizedLogProvider>
           <MemoizedHub setIp={stableSetIp} />
