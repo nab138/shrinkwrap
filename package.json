@@ -22,7 +22,7 @@
     "@tauri-apps/plugin-shell": "^2.0.0",
     "@tauri-apps/plugin-store": "~2",
     "dockview": "^1.17.1",
-    "ntcore-ts-client-monorepo": "github:nab138/ntcore-ts-client#7b1dfea",
+    "ntcore-ts-client-monorepo": "github:nab138/ntcore-ts-client#a9433b1",
     "react": "^18.3.1",
     "react-dom": "^18.3.1",
     "three": "^0.169.0"
