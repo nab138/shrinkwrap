@@ -29,16 +29,11 @@ const Sidebar: React.FC<SidebarProps> = ({
   collapsible = true,
 }) => {
   const [isCollapsed, setIsCollapsed] = useState(false);
-  const [localSettings, setLocalSettings] = useState(settings);
 
   const handleSettingChange = (
     id: string,
     value: boolean | string | number | Item[]
   ) => {
-    const updatedSettings = localSettings.map((setting) =>
-      setting.id === id ? { ...setting, value } : setting
-    );
-    setLocalSettings(updatedSettings);
     onSettingChange(id, value);
   };
 
@@ -57,7 +52,7 @@ const Sidebar: React.FC<SidebarProps> = ({
       </div>
       {!isCollapsed && (
         <div className="sidebar-settings">
-          {localSettings.map((setting) => (
+          {settings.map((setting) => (
             <div key={setting.id} className="sidebar-setting">
               {setting.type != "itemList" && <label>{setting.label}</label>}
               {setting.type === "boolean" && (

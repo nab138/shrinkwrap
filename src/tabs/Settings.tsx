@@ -5,7 +5,7 @@ import Card from "../hub/Card";
 import "./Settings.css";
 import useNTConnected from "../ntcore-react/useNTConnected";
 
-const Settings: React.FC<IDockviewPanelProps<{ title: string }>> = () => {
+const Settings: React.FC<IDockviewPanelProps<{ id: string }>> = () => {
   const [theme, setTheme] = useStore<Theme>("theme", "light");
   const [connectionIP, setConnectionIP] = useStore<string>(
     "connectionIP",

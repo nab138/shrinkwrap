@@ -6,15 +6,18 @@ import React, {
   useCallback,
   useMemo,
 } from "react";
-import { createStore } from "@tauri-apps/plugin-store";
+import { createStore, Store } from "@tauri-apps/plugin-store";
 
-const StoreContext = createContext<{ [key: string]: any }>({});
+export const StoreContext = createContext<{
+  storeValues: { [key: string]: any };
+  setStoreValue: (key: string, value: any) => void;
+}>({ storeValues: {}, setStoreValue: () => {} });
 
 export const StoreProvider: React.FC<{ children: React.ReactNode }> = ({
   children,
 }) => {
   const [storeValues, setStoreValues] = useState<{ [key: string]: any }>({});
-  const [store, setStore] = useState<any>(null);
+  const [store, setStore] = useState<Store | null>(null);
 
   useEffect(() => {
     const initializeStore = async () => {
@@ -70,8 +73,10 @@ export const useStore = <T,>(
   const [value, setValue] = useState<T>(storeValues[key] ?? initialValue);
 
   useEffect(() => {
-    setValue(storeValues[key] ?? initialValue);
-  }, [storeValues, key, initialValue]);
+    if (storeValues[key] !== undefined && storeValues[key] !== value) {
+      setValue(storeValues[key] ?? initialValue);
+    }
+  }, [storeValues, key, initialValue, value]);
 
   const setStoredValue = useCallback(
     (newValue: T) => {

@@ -1,14 +1,16 @@
-import React, { useCallback, useState } from "react";
+import React, { useCallback, useState, useContext, useEffect } from "react";
 import { IDockviewPanelProps } from "dockview";
 import ThreeComponent from "./ThreeComponent";
 import Sidebar, { Setting } from "../../hub/Sidebar";
 import { Item } from "../../hub/NetworkArrayConfig";
 import "./ThreeDimensionField.css";
 import { NetworkTablesTypeInfos } from "ntcore-ts-client-monorepo/packages/ntcore-ts-client/src";
+import { StoreContext } from "../../utils/StoreContext";
 
-const ThreeDimensionField: React.FC<
-  IDockviewPanelProps<{ title: string }>
-> = () => {
+const ThreeDimensionField: React.FC<IDockviewPanelProps<{ id: string }>> = ({
+  params,
+}) => {
+  const { storeValues, setStoreValue } = useContext(StoreContext);
   const initialSettings: Setting[] = [
     { id: "cinematic", label: "Cinematic Mode", type: "boolean", value: false },
     {
@@ -23,11 +25,24 @@ const ThreeDimensionField: React.FC<
 
   const [settings, setSettings] = useState<Setting[]>(initialSettings);
 
+  useEffect(() => {
+    if (params.id === undefined || params.id === "") return;
+    if (storeValues[params.id] === undefined) {
+      setStoreValue(params.id, settings);
+    } else if (settings !== storeValues[params.id]) {
+      setSettings(storeValues[params.id]);
+    }
+  }, [storeValues, params.id]);
+
+  useEffect(() => {
+    if (params.id === undefined || params.id === "") return;
+    setStoreValue(params.id, settings);
+  }, [settings, params.id]);
+
   const handleSettingChange = (
     id: string,
     value: boolean | string | number | Item[]
   ) => {
-    console.log(value);
     setSettings((prevSettings) =>
       prevSettings.map((setting) =>
         setting.id === id ? { ...setting, value } : setting

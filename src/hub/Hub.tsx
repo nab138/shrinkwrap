@@ -62,11 +62,12 @@ const Hub: React.FC<HubProps> = ({ setIp }) => {
       let openWelcomeTab = () => {
         let tab = tabsConfig.find((tab) => tab.id === "welcome");
         if (tab == null) return;
+        let newId = "welcome" + event.api.panels.length;
         event.api
           ?.addPanel({
-            id: "welcome" + event.api.panels.length,
+            id: newId,
             component: "welcome",
-            params: { title: tab.title },
+            params: { id: newId },
           })
           .setTitle(tab.title);
       };
@@ -95,6 +96,7 @@ const Hub: React.FC<HubProps> = ({ setIp }) => {
         if (json == null) return;
         await save(JSON.stringify(json));
       });
+
       return () => {
         unlisten.dispose();
       };

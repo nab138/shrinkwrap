@@ -13,11 +13,12 @@ const LeftControlsRaw: React.FC<IDockviewHeaderActionsProps> = ({
     (tabId: string) => {
       let tab = tabsConfig.find((tab) => tab.id === tabId);
       if (tab == null) return;
+      let newId = tabId + containerApi.panels.length;
       containerApi
         ?.addPanel({
-          id: tabId + containerApi.panels.length,
+          id: newId,
           component: tabId,
-          params: { title: tab.title },
+          params: { id: newId },
           position: {
             referenceGroup: group,
           },
