@@ -68,7 +68,7 @@ export const StoreProvider: React.FC<{ children: React.ReactNode }> = ({
 export const useStore = <T,>(
   key: string,
   initialValue: T
-): [T, (value: T) => void] => {
+): [T, (value: T | ((oldValue: T) => T)) => void] => {
   const { storeValues, setStoreValue } = useContext(StoreContext);
   const [value, setValue] = useState<T>(storeValues[key] ?? initialValue);
 
@@ -79,11 +79,15 @@ export const useStore = <T,>(
   }, [storeValues, key, initialValue, value]);
 
   const setStoredValue = useCallback(
-    (newValue: T) => {
-      setValue(newValue);
-      setStoreValue(key, newValue);
+    (newValue: T | ((oldValue: T) => T)) => {
+      const valueToStore =
+        typeof newValue === "function"
+          ? (newValue as (oldValue: T) => T)(value)
+          : newValue;
+      setValue(valueToStore);
+      setStoreValue(key, valueToStore);
     },
-    [key, setStoreValue]
+    [key, setStoreValue, value]
   );
 
   return [value, setStoredValue];
