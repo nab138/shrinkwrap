@@ -4,6 +4,7 @@ import { useStore } from "../utils/StoreContext";
 import Card from "../hub/Card";
 import "./Settings.css";
 import useNTConnected from "../ntcore-react/useNTConnected";
+import { open } from "@tauri-apps/plugin-dialog";
 
 const Settings: React.FC<IDockviewPanelProps<{ id: string }>> = () => {
   const [theme, setTheme] = useStore<Theme>("theme", "light");
@@ -15,15 +16,14 @@ const Settings: React.FC<IDockviewPanelProps<{ id: string }>> = () => {
     "displayConnection",
     false
   );
+  const [deployDir, setDeployDir] = useStore("deployDir", "");
   const connected = useNTConnected();
 
   return (
     <div className="pageContainer settingsContainer">
       <div className="settings">
         <Card title="NetworkTables">
-          <p
-            style={{ padding: 0, width: "100%", textAlign: "left", margin: 0 }}
-          >
+          <p className="settings-text">
             Status: {connected ? "Connected" : "Disconnected"}
           </p>
           <input
@@ -46,6 +46,29 @@ const Settings: React.FC<IDockviewPanelProps<{ id: string }>> = () => {
               <option value="abyss">Abyss</option>
             </select>
           </div>
+        </Card>
+        <Card title="OxConfig">
+          <label
+            style={{
+              display: "flex",
+              justifyContent: "left",
+              alignItems: "center",
+              gap: "10px",
+            }}
+          >
+            Deploy Directory
+            <button
+              onClick={async () => {
+                let deployDirNew = await open({ directory: true });
+                if (deployDirNew) setDeployDir(deployDirNew);
+              }}
+            >
+              Select
+            </button>
+          </label>
+          <p className="settings-text">
+            {deployDir === "" ? "Not Set" : deployDir}
+          </p>
         </Card>
         <Card title="Debug">
           <label style={{ display: "flex", justifyContent: "space-between" }}>

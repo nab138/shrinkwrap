@@ -12,3 +12,10 @@
   margin-top: 20px;
   gap: 20px;
 }
+
+.settings-text {
+  padding: 0;
+  width: 100%;
+  text-align: left;
+  margin: 0;
+}

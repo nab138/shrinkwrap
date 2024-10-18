@@ -1,0 +1,279 @@
+.config-editor h2 {
+  display: inline-block;
+  margin-bottom: 0px;
+}
+
+.config-editor table th {
+  padding-left: 8px;
+}
+
+.param-table td div,
+.tuning-table td div {
+  width: 100%;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  text-align: left;
+}
+
+.param-table th {
+  min-width: 50px;
+  max-width: 400px;
+}
+
+.search {
+  display: flex;
+  height: fit-content;
+  margin: 0;
+  padding: 8px 0;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.search > h3 {
+  margin: 0 15px 0 0;
+  padding: 5px 0;
+}
+
+.search > input {
+  width: 40%;
+  border: 1px solid var(--border-color);
+  margin-right: 10px;
+}
+
+.highlighted {
+  color: #fd6767;
+}
+
+.mode-dropdown {
+  margin: 0;
+  margin-left: 10px;
+}
+
+.mode-text {
+  display: inline;
+}
+
+.deploy-tuner {
+  margin-left: 0 !important;
+}
+
+.ce-warning {
+  background-color: rgb(145, 33, 45);
+  border-radius: 5px;
+  border: 2px solid darkred;
+  padding: 5px 10px;
+  margin: 5px 0;
+  display: none;
+}
+
+.success {
+  background-color: rgb(16, 119, 30);
+  border: 2px solid limegreen;
+  opacity: 1;
+  transition: opacity 0.5s linear;
+}
+
+.warning-container {
+  position: fixed;
+  bottom: 0;
+  right: 0;
+  display: flex;
+  flex-direction: row-reverse;
+  margin: 10px;
+  z-index: 999;
+}
+
+.warning-prefix {
+  font-weight: bolder;
+  color: #f8d330;
+}
+
+.success-prefix {
+  font-weight: bolder;
+  color: #167903;
+}
+
+@media (prefers-color-scheme: dark) {
+  .success-prefix {
+    font-weight: bolder;
+    color: #93ff7d;
+  }
+}
+
+.warning-text {
+  font-size: medium;
+  margin: 4px 0;
+}
+
+.param-table-header {
+  width: 25%;
+}
+
+.comment-table-header {
+  width: 25%;
+}
+.param-table-container {
+  overflow-y: auto;
+  border: 1px solid var(--border-color);
+  position: absolute;
+  top: 150px;
+  bottom: 30px;
+  right: 30px;
+  left: 30px;
+}
+
+.config-editor table td {
+  max-width: 0;
+  text-overflow: ellipsis;
+}
+
+/* Style for the question mark icon */
+.question-icon {
+  display: inline-block;
+  width: 15px;
+  height: 15px;
+  border-radius: 50%;
+  border: 2px solid var(--border-color);
+  text-align: center;
+  font-weight: bold;
+  font-size: 12px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  align-self: center;
+  margin: 0 0 0 5px;
+}
+
+.deploy-dir {
+  position: relative;
+  max-width: 100%;
+  display: flex;
+  justify-content: left;
+  margin: 0;
+}
+
+.config-editor-line h2 {
+  margin: 0;
+}
+
+.deploy-dir-path {
+  white-space: normal;
+  overflow-wrap: break-word;
+  max-width: 100%;
+  font-family: monospace;
+}
+
+.extra-info {
+  display: none;
+  position: absolute;
+  left: 10px;
+  top: 20px;
+  font-size: small;
+  padding: 6px;
+  background-color: var(--background-color-2);
+  border: 1px solid var(--border-color);
+  border-radius: 3px;
+  z-index: 1;
+}
+
+/* Show extra information on hover */
+.question-icon:hover + .extra-info {
+  display: block;
+  z-index: 999 !important;
+}
+
+.tuner-mode {
+  margin-top: 10px;
+  margin-left: 8px;
+}
+.controller-dropdown {
+  margin-top: 25px;
+}
+
+td input::-webkit-outer-spin-button,
+td input::-webkit-inner-spin-button {
+  -webkit-appearance: none;
+  margin: 0;
+}
+
+.copy-one {
+  color: #fff;
+  width: fit-content;
+  height: 30px;
+  text-align: center;
+  text-decoration: none;
+  font-size: 14px;
+  border-radius: 5px;
+  margin: 10px 0 0 0;
+  background-color: #1987b9;
+  padding: 5px;
+  width: fit-content;
+}
+
+.copy-all {
+  color: #fff;
+  width: fit-content;
+  height: 30px;
+  text-align: center;
+  text-decoration: none;
+  font-size: 14px;
+  border-radius: 5px;
+  margin: 2px 0;
+  background-color: #b42006;
+  padding: 5px;
+}
+
+.copy-header {
+  margin-top: 50px;
+}
+
+.tuner-copy-mode {
+  margin-bottom: 20px;
+}
+
+.resizer {
+  position: absolute;
+  top: 0;
+  right: -3px;
+  bottom: 0;
+  width: 6px;
+  background: transparent;
+  cursor: col-resize;
+  z-index: 999;
+}
+
+.deploy-path-cfg {
+  width: calc(100% - 170px);
+}
+
+.config-editor table {
+  border: 1px solid var(--border-color);
+  table-layout: fixed;
+  width: 100%;
+  white-space: nowrap;
+  overflow: hidden;
+  margin-bottom: 0;
+}
+
+.deploy-path-cfg {
+  width: calc(100% - 170px);
+}
+
+.config-editor-line {
+  width: calc(100% - 40px);
+  padding: 0 20px;
+  display: flex;
+  justify-content: space-around;
+  align-items: center;
+}
+
+.search,
+.config-search {
+  flex-grow: 1;
+}
+
+.mode-dropdown-container {
+  flex-grow: 0.05;
+}

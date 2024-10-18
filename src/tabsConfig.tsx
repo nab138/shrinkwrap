@@ -1,4 +1,5 @@
 import LogViewer from "./tabs/Log";
+import OxConfigEditor from "./tabs/OxConfigEditor";
 import Settings from "./tabs/Settings";
 import ThreeDimensionField from "./tabs/ThreeDimensionField/ThreeDimensionField";
 import Welcome from "./tabs/Welcome";
@@ -23,6 +24,11 @@ export const tabsConfig = [
     id: "log",
     component: LogViewer,
     title: "📜 Log",
+  },
+  {
+    id: "oxconfig",
+    component: OxConfigEditor,
+    title: "⚙️ OxConfig (Editor)",
   },
 ];
 

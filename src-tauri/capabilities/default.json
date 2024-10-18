@@ -9,6 +9,7 @@
     "core:default",
     "shell:allow-open",
     "core:window:allow-set-title",
-    "store:default"
+    "store:default",
+    "dialog:default"
   ]
 }
