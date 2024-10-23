@@ -11,6 +11,12 @@ import { platform } from "@tauri-apps/plugin-os";
 const isMobile = platform() === "ios" || platform() === "android";
 
 export type ScreenSize = "small" | "medium" | "large";
+export type Parameter = {
+  key: string;
+  values: string[];
+  comment: string;
+  type: string;
+};
 
 const OxConfigEditor: React.FC = () => {
   const [screenSize, setMobileScreen] = useState<ScreenSize>(
@@ -98,6 +104,25 @@ const OxConfigEditor: React.FC = () => {
   const currentMode = useNTValue<string>(
     "/OxConfig/CurrentMode",
     NetworkTablesTypeInfos.kString,
+    ""
+  );
+
+  const parameters = useComputedNTValue<string, Parameter[]>(
+    "/OxConfig/Params",
+    NetworkTablesTypeInfos.kString,
+    (params) => {
+      if (params == "") return [];
+      let paramsRaw = JSON.parse(params);
+      let parametersMap: Parameter[] = [];
+      for (let paramRaw of paramsRaw) {
+        if (paramRaw[0] == "root/mode") continue;
+        let key = paramRaw[0];
+        let comment = paramRaw[1];
+        let type = paramRaw[2].toLowerCase();
+        parametersMap.push({ key, values: paramRaw.slice(3), comment, type });
+      }
+      return parametersMap;
+    },
     ""
   );
 
@@ -215,7 +240,35 @@ const OxConfigEditor: React.FC = () => {
                 )}
               </tr>
             </thead>
-            <tbody className="parameter-table" ref={table}></tbody>
+            <tbody className="parameter-table" ref={table}>
+              {parameters.map((param) => (
+                <tr key={param.key}>
+                  <td>{param.key}</td>
+                  <td>
+                    <div>
+                      <input value={param.comment}></input>
+                    </div>
+                  </td>
+                  {screenSize !== "small" &&
+                    param.values.map((value) => (
+                      <td>
+                        <div>
+                          <input value={value}></input>
+                        </div>
+                      </td>
+                    ))}
+                  {screenSize === "small" && (
+                    <td>
+                      <div>
+                        <input
+                          value={param.values[modes.indexOf(currentMode)]}
+                        ></input>
+                      </div>
+                    </td>
+                  )}
+                </tr>
+              ))}
+            </tbody>
           </table>
         </div>
       </div>
