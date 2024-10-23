@@ -149,6 +149,7 @@ button {
 
 .view {
   --dv-tabs-and-actions-container-font-size: 0.9em;
+  --dv-tabs-container-scrollbar-color: #fff;
 }
 
 @media screen and (max-width: 600px) {

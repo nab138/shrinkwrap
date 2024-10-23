@@ -6,6 +6,9 @@ import useNTValue from "../ntcore-react/useNTValue";
 //import useNTConnected from "../ntcore-react/useNTConnected";
 import { useStore } from "../utils/StoreContext";
 import "./OxConfigEditor.css";
+import { platform } from "@tauri-apps/plugin-os";
+
+const isMobile = platform() === "ios" || platform() === "android";
 
 const OxConfigEditor: React.FC = () => {
   const [deployDir] = useStore("deployDir", "");
@@ -16,6 +19,16 @@ const OxConfigEditor: React.FC = () => {
     ""
   );
   const [modes, setModes] = useState<string[]>([]);
+
+  const [mobileScreen, setMobileScreen] = useState(isMobile);
+
+  useEffect(() => {
+    const handleResize = () => {
+      setMobileScreen(window.innerWidth < 890);
+    };
+    window.addEventListener("resize", handleResize);
+    return () => window.removeEventListener("resize", handleResize);
+  }, [isMobile]);
   useEffect(() => {
     if (!modesRaw) return;
     let split = modesRaw.split(",");
@@ -31,20 +44,45 @@ const OxConfigEditor: React.FC = () => {
             style={{ padding: "20px", paddingBottom: "10px" }}
           >
             <h2>Config Editor</h2>
-            <p className="deploy-dir deploy-path-cfg">
-              Deploy Directory
-              <span className="question-icon">?</span>
-              <span className="extra-info">
-                The config file is modified directly on the rio, which will be
-                overwritten on code rebuild. To save locally to prevent this and
-                for source control, you must select a deploy directory in
-                Settings.
-              </span>
-              <span style={{ marginRight: "5px" }}>:</span>
-              <code className="deploy-dir-path">
-                {deployDir === "" ? "Not Set" : deployDir}
-              </code>
-            </p>
+            {!mobileScreen && (
+              <p className="deploy-dir deploy-path-cfg">
+                Deploy Directory
+                <span className="question-icon">?</span>
+                <span className="extra-info">
+                  The config file is modified directly on the rio, which will be
+                  overwritten on code rebuild. To save locally to prevent this
+                  and for source control, you must select a deploy directory in
+                  Settings.
+                </span>
+                <span style={{ marginRight: "5px" }}>:</span>
+                <code className="deploy-dir-path">
+                  {deployDir === "" ? "Not Set" : deployDir}
+                </code>
+              </p>
+            )}
+          </div>
+          <div className="config-editor-line">
+            <div className="search">
+              <h3>Search</h3>
+              <input
+                className="config-search"
+                type="text"
+                placeholder="Search..."
+              />
+            </div>
+            <div className="mode-dropdown-container">
+              <h3 className="mode-text">Mode</h3>
+              <select className="dropdown mode-dropdown">
+                {modes.length == 0 && (
+                  <option value="failed">Not connected</option>
+                )}
+                {modes.map((mode) => (
+                  <option key={mode} value={mode}>
+                    {mode.charAt(0).toUpperCase() + mode.slice(1)}
+                  </option>
+                ))}
+              </select>
+            </div>
           </div>
           <div className="warning-container">
             <div className="ce-warning">
@@ -77,29 +115,6 @@ const OxConfigEditor: React.FC = () => {
                   Wrote config to deploy folder.
                 </span>
               </h3>
-            </div>
-          </div>
-          <div className="config-editor-line">
-            <div className="search">
-              <h3>Search</h3>
-              <input
-                className="config-search"
-                type="text"
-                placeholder="Search..."
-              />
-            </div>
-            <div className="mode-dropdown-container">
-              <h3 className="mode-text">Mode</h3>
-              <select className="dropdown mode-dropdown">
-                {modes.length == 0 && (
-                  <option value="failed">Not connected</option>
-                )}
-                {modes.map((mode) => (
-                  <option key={mode} value={mode}>
-                    {mode.charAt(0).toUpperCase() + mode.slice(1)}
-                  </option>
-                ))}
-              </select>
             </div>
           </div>
         </div>

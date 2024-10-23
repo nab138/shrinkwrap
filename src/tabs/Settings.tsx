@@ -5,6 +5,9 @@ import Card from "../hub/Card";
 import "./Settings.css";
 import useNTConnected from "../ntcore-react/useNTConnected";
 import { open } from "@tauri-apps/plugin-dialog";
+import { platform } from "@tauri-apps/plugin-os";
+
+const isMobile = platform() === "ios" || platform() === "android";
 
 const Settings: React.FC<IDockviewPanelProps<{ id: string }>> = () => {
   const [theme, setTheme] = useStore<Theme>("theme", "light");
@@ -48,27 +51,31 @@ const Settings: React.FC<IDockviewPanelProps<{ id: string }>> = () => {
           </div>
         </Card>
         <Card title="OxConfig">
-          <label
-            style={{
-              display: "flex",
-              justifyContent: "left",
-              alignItems: "center",
-              gap: "10px",
-            }}
-          >
-            Deploy Directory
-            <button
-              onClick={async () => {
-                let deployDirNew = await open({ directory: true });
-                if (deployDirNew) setDeployDir(deployDirNew);
+          {!isMobile && (
+            <label
+              style={{
+                display: "flex",
+                justifyContent: "left",
+                alignItems: "center",
+                gap: "10px",
               }}
             >
-              Select
-            </button>
-          </label>
-          <p className="settings-text">
-            {deployDir === "" ? "Not Set" : deployDir}
-          </p>
+              Deploy Directory
+              <button
+                onClick={async () => {
+                  let deployDirNew = await open({ directory: true });
+                  if (deployDirNew) setDeployDir(deployDirNew);
+                }}
+              >
+                Select
+              </button>
+            </label>
+          )}
+          {!isMobile && (
+            <p className="settings-text">
+              {deployDir === "" ? "Not Set" : deployDir}
+            </p>
+          )}
         </Card>
         <Card title="Debug">
           <label style={{ display: "flex", justifyContent: "space-between" }}>

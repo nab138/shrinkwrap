@@ -1,3 +1,7 @@
+.config-editor {
+  position: relative;
+}
+
 .config-editor h2 {
   display: inline-block;
   margin-bottom: 0px;
@@ -117,10 +121,24 @@
   overflow-y: auto;
   border: 1px solid var(--border-color);
   position: absolute;
-  top: 150px;
+  top: 120px;
   bottom: 30px;
   right: 30px;
   left: 30px;
+}
+
+@media screen and (max-width: 575px) {
+  .param-table-container {
+    top: 150px;
+  }
+}
+
+@media screen and (max-width: 650px) {
+  .param-table-container {
+    left: 10px;
+    right: 10px;
+    bottom: 10px;
+  }
 }
 
 .config-editor table td {
@@ -150,7 +168,7 @@
   position: relative;
   max-width: 100%;
   display: flex;
-  justify-content: left;
+  justify-content: right;
   margin: 0;
 }
 
@@ -257,21 +275,22 @@ td input::-webkit-inner-spin-button {
   margin-bottom: 0;
 }
 
-.deploy-path-cfg {
-  width: calc(100% - 170px);
-}
-
 .config-editor-line {
   width: calc(100% - 40px);
   padding: 0 20px;
   display: flex;
   justify-content: space-around;
   align-items: center;
+  flex-wrap: wrap;
 }
 
 .search,
 .config-search {
   flex-grow: 1;
+}
+
+.config-search {
+  min-width: 200px;
 }
 
 .mode-dropdown-container {
