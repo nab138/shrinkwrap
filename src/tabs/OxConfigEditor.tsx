@@ -2,7 +2,7 @@ import React, { useState, useEffect, useRef } from "react";
 //import fuzzysort from "fuzzysort";
 //import useNTState from "../ntcore-react/useNTState";
 import { NetworkTablesTypeInfos } from "ntcore-ts-client-monorepo/packages/ntcore-ts-client/src";
-import useNTValue from "../ntcore-react/useNTValue";
+import { useComputedNTValue, useNTValue } from "../ntcore-react/useNTValue";
 //import useNTConnected from "../ntcore-react/useNTConnected";
 import { useStore } from "../utils/StoreContext";
 import "./OxConfigEditor.css";
@@ -10,12 +10,19 @@ import { platform } from "@tauri-apps/plugin-os";
 
 const isMobile = platform() === "ios" || platform() === "android";
 
+export type ScreenSize = "small" | "medium" | "large";
+
 const OxConfigEditor: React.FC = () => {
-  const [mobileScreen, setMobileScreen] = useState(isMobile);
+  const [screenSize, setMobileScreen] = useState<ScreenSize>(
+    isMobile ? "small" : "large"
+  );
 
   useEffect(() => {
     const handleResize = () => {
-      setMobileScreen(window.innerWidth < 890);
+      if (isMobile) return;
+      if (window.innerWidth < 600) return setMobileScreen("small");
+      if (window.innerWidth < 890) return setMobileScreen("medium");
+      return setMobileScreen("large");
     };
     handleResize();
     window.addEventListener("resize", handleResize);
@@ -82,18 +89,17 @@ const OxConfigEditor: React.FC = () => {
     };
   }, [table.current]);
 
-  const modesRaw = useNTValue<string>(
+  const modes = useComputedNTValue<string, string[]>(
     "/OxConfig/Modes",
+    NetworkTablesTypeInfos.kString,
+    (val) => val.split(",").filter((v) => v !== ""),
+    ""
+  );
+  const currentMode = useNTValue<string>(
+    "/OxConfig/CurrentMode",
     NetworkTablesTypeInfos.kString,
     ""
   );
-  const [modes, setModes] = useState<string[]>([]);
-
-  useEffect(() => {
-    if (!modesRaw) return;
-    let split = modesRaw.split(",");
-    if (split.length > 0) setModes(modesRaw.split(","));
-  }, [modesRaw]);
 
   return (
     <div className="pageContainer config-editor">
@@ -104,7 +110,7 @@ const OxConfigEditor: React.FC = () => {
             style={{ padding: "20px", paddingBottom: "10px" }}
           >
             <h2>Config Editor</h2>
-            {!mobileScreen && (
+            {screenSize === "large" && (
               <p className="deploy-dir deploy-path-cfg">
                 Deploy Directory
                 <span className="question-icon">?</span>
@@ -132,8 +138,11 @@ const OxConfigEditor: React.FC = () => {
             </div>
             <div className="mode-dropdown-container">
               <h3 className="mode-text">Mode</h3>
-              <select className="dropdown mode-dropdown">
-                {modes.length == 0 && (
+              <select
+                className="dropdown mode-dropdown"
+                value={currentMode === "" ? undefined : currentMode}
+              >
+                {modes.length === 0 && (
                   <option value="failed">Not connected</option>
                 )}
                 {modes.map((mode) => (
@@ -188,12 +197,22 @@ const OxConfigEditor: React.FC = () => {
                 <th className="comment-table-header">
                   <div>Comment</div> <div className="resizer" />
                 </th>
-                {modes.map((mode) => (
-                  <th key={mode}>
-                    <div>{mode.charAt(0).toUpperCase() + mode.slice(1)}</div>
+                {screenSize !== "small" &&
+                  modes.map((mode) => (
+                    <th key={mode}>
+                      <div>{mode.charAt(0).toUpperCase() + mode.slice(1)}</div>
+                      <div className="resizer" />
+                    </th>
+                  ))}
+                {screenSize === "small" && (
+                  <th>
+                    <div>
+                      {currentMode.charAt(0).toUpperCase() +
+                        currentMode.slice(1)}
+                    </div>
                     <div className="resizer" />
                   </th>
-                ))}
+                )}
               </tr>
             </thead>
             <tbody className="parameter-table" ref={table}></tbody>

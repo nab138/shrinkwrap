@@ -3,11 +3,11 @@ import { useContext, useEffect, useState } from "react";
 import NTContext from "./NTContext";
 import NTTopicTypes from "./NTTopicType";
 
-const useNTValue = <T extends NTTopicTypes>(
+export const useNTValue = <T extends NTTopicTypes>(
   key: string,
   ntType: NetworkTablesTypeInfo,
   defaultValue: T,
-  period = 1
+  period = 1,
 ) => {
   const context = useContext(NTContext);
   const [value, setValue] = useState<T>(defaultValue);
@@ -38,4 +38,22 @@ const useNTValue = <T extends NTTopicTypes>(
   return value;
 };
 
-export default useNTValue;
+// Provide a useComputedNTValue hook that takes a function that returns a value
+// and the function is called whenever the value is updated.
+// It can return any type, but should still be typesafe (generics)
+
+export const useComputedNTValue = <T extends NTTopicTypes, B>(
+  key: string,
+  ntType: NetworkTablesTypeInfo,
+  compute: (t: T) => B,
+  defaultValue: T,
+  period = 1,
+) => {
+  const [computedValue, setComputedValue] = useState<B>(compute(defaultValue));
+  const value = useNTValue(key, ntType, defaultValue, period);
+  useEffect(() => {
+    setComputedValue(compute(value));
+  }, [value]);
+
+  return computedValue;
+};
