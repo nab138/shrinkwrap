@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef } from "react";
 //import fuzzysort from "fuzzysort";
 //import useNTState from "../ntcore-react/useNTState";
 import { NetworkTablesTypeInfos } from "ntcore-ts-client-monorepo/packages/ntcore-ts-client/src";
@@ -11,7 +11,76 @@ import { platform } from "@tauri-apps/plugin-os";
 const isMobile = platform() === "ios" || platform() === "android";
 
 const OxConfigEditor: React.FC = () => {
+  const [mobileScreen, setMobileScreen] = useState(isMobile);
+
+  useEffect(() => {
+    const handleResize = () => {
+      setMobileScreen(window.innerWidth < 890);
+    };
+    handleResize();
+    window.addEventListener("resize", handleResize);
+    return () => window.removeEventListener("resize", handleResize);
+  }, [isMobile]);
   const [deployDir] = useStore("deployDir", "");
+
+  const table = useRef<HTMLTableSectionElement>(null);
+
+  useEffect(() => {
+    if (table.current == null) return;
+    let isResizing = false;
+    let resizingColumn: any = null;
+    let startX = 0;
+    let startWidth = 0;
+
+    let onMouseDown = (e: MouseEvent) => {
+      if (e.target == null) return;
+      let target = e.target as HTMLElement;
+      if (target.classList.contains("resizer")) {
+        const column = target.closest("th");
+        if (column == null) return;
+        const nextColumn = column.nextElementSibling;
+
+        if (nextColumn && !nextColumn.classList.contains("no-resize")) {
+          isResizing = true;
+          resizingColumn = column;
+          startX = e.pageX;
+          startWidth = column.offsetWidth;
+
+          table.current?.classList.add("resizing");
+        }
+      }
+    };
+
+    let onMouseMove = (e: MouseEvent) => {
+      if (isResizing) {
+        const offset = e.pageX - startX;
+        const newWidth = startWidth + offset;
+
+        resizingColumn.style.width = newWidth + "px";
+      }
+    };
+
+    let onMouseUp = () => {
+      if (isResizing) {
+        isResizing = false;
+        resizingColumn = null;
+        startX = 0;
+        startWidth = 0;
+
+        table.current?.classList.remove("resizing");
+      }
+    };
+
+    window.addEventListener("mousedown", onMouseDown);
+    window.addEventListener("mousemove", onMouseMove);
+    document.addEventListener("mouseup", onMouseUp);
+
+    return () => {
+      window.removeEventListener("mousedown", onMouseDown);
+      window.removeEventListener("mousemove", onMouseMove);
+      document.removeEventListener("mouseup", onMouseUp);
+    };
+  }, [table.current]);
 
   const modesRaw = useNTValue<string>(
     "/OxConfig/Modes",
@@ -20,15 +89,6 @@ const OxConfigEditor: React.FC = () => {
   );
   const [modes, setModes] = useState<string[]>([]);
 
-  const [mobileScreen, setMobileScreen] = useState(isMobile);
-
-  useEffect(() => {
-    const handleResize = () => {
-      setMobileScreen(window.innerWidth < 890);
-    };
-    window.addEventListener("resize", handleResize);
-    return () => window.removeEventListener("resize", handleResize);
-  }, [isMobile]);
   useEffect(() => {
     if (!modesRaw) return;
     let split = modesRaw.split(",");
@@ -122,17 +182,21 @@ const OxConfigEditor: React.FC = () => {
           <table className="data-table param-table">
             <thead>
               <tr className="parameter-table-headers">
-                <th className="param-table-header">Parameter</th>
-                <th className="comment-table-header">Comment</th>
+                <th className="param-table-header">
+                  <div>Parameter</div> <div className="resizer" />
+                </th>
+                <th className="comment-table-header">
+                  <div>Comment</div> <div className="resizer" />
+                </th>
                 {modes.map((mode) => (
                   <th key={mode}>
-                    {mode.charAt(0).toUpperCase() + mode.slice(1)}
+                    <div>{mode.charAt(0).toUpperCase() + mode.slice(1)}</div>
                     <div className="resizer" />
                   </th>
                 ))}
               </tr>
             </thead>
-            <tbody className="parameter-table"></tbody>
+            <tbody className="parameter-table" ref={table}></tbody>
           </table>
         </div>
       </div>

@@ -296,3 +296,8 @@ td input::-webkit-inner-spin-button {
 .mode-dropdown-container {
   flex-grow: 0.05;
 }
+
+.parameter-table-headers > th {
+  position: sticky;
+  border-right: 1px solid var(--border-color);
+}
