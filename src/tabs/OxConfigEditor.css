@@ -125,6 +125,7 @@
   bottom: 30px;
   right: 30px;
   left: 30px;
+  scrollbar-color: #888 var(--background-color-1);
 }
 
 @media screen and (max-width: 575px) {
@@ -299,5 +300,38 @@ td input::-webkit-inner-spin-button {
 
 .parameter-table-headers > th {
   position: sticky;
-  border-right: 1px solid var(--border-color);
+}
+
+.parameter-table-headers th + th {
+  border-left: 1px solid var(--border-color);
+}
+
+.param-table-container input {
+  background-color: transparent;
+}
+
+.param-table-container td + td {
+  border-left: 1px solid var(--border-color);
+  margin: 0;
+  padding: 0;
+}
+
+.param-table td {
+  overflow: auto;
+  scrollbar-width: thin;
+}
+
+.param-table td div,
+.param-table td div input {
+  width: calc(100% - 4px);
+  padding: 2px;
+  box-shadow: none;
+}
+.param-table-container tr {
+  border-top: 1px solid var(--border-color);
+}
+
+.param-table {
+  border-collapse: collapse;
+  border-spacing: 0;
 }
