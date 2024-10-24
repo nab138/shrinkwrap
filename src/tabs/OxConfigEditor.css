@@ -68,7 +68,7 @@
   border: 2px solid darkred;
   padding: 5px 10px;
   margin: 5px 0;
-  display: none;
+  margin-left: 5px;
 }
 
 .success {
@@ -326,6 +326,10 @@ td input::-webkit-inner-spin-button {
   width: calc(100% - 4px);
   padding: 2px;
   box-shadow: none;
+}
+.param-table td {
+  text-align: left;
+  padding-left: 5px;
 }
 .param-table-container tr {
   border-top: 1px solid var(--border-color);

@@ -7,6 +7,7 @@ import { useComputedNTValue, useNTValue } from "../ntcore-react/useNTValue";
 import { useStore } from "../utils/StoreContext";
 import "./OxConfigEditor.css";
 import { platform } from "@tauri-apps/plugin-os";
+import useNTConnected from "../ntcore-react/useNTConnected";
 
 const isMobile = platform() === "ios" || platform() === "android";
 
@@ -35,6 +36,15 @@ const OxConfigEditor: React.FC = () => {
     return () => window.removeEventListener("resize", handleResize);
   }, [isMobile]);
   const [deployDir] = useStore("deployDir", "");
+
+  const connected = useNTConnected();
+  const [hasConnected, setHasConnected] = useState(false);
+
+  useEffect(() => {
+    if (connected && !hasConnected) {
+      setHasConnected(true);
+    }
+  }, [connected, hasConnected]);
 
   const table = useRef<HTMLTableSectionElement>(null);
 
@@ -179,20 +189,25 @@ const OxConfigEditor: React.FC = () => {
             </div>
           </div>
           <div className="warning-container">
-            <div className="ce-warning">
-              <h3 className="warning-text">
-                <span className="warning-prefix">⚠️ Warning! </span>The robot is
-                disconnected. All changes from now until reconnection will be
-                lost.
-              </h3>
-            </div>
-            <div className="ce-warning">
-              <h3 className="warning-text">
-                <span className="warning-prefix">⚠️ Warning! </span>The deploy
-                directory is unset. Changes will be overwritten on code rebuild.
-              </h3>
-            </div>
-            <div className="ce-warning">
+            {!connected && hasConnected && (
+              <div className="ce-warning">
+                <h3 className="warning-text">
+                  <span className="warning-prefix">⚠️ Warning! </span>The robot
+                  is disconnected. All changes from now until reconnection will
+                  be lost.
+                </h3>
+              </div>
+            )}
+            {deployDir === "" && (
+              <div className="ce-warning">
+                <h3 className="warning-text">
+                  <span className="warning-prefix">⚠️ Warning! </span>The deploy
+                  directory is unset. Changes will be overwritten on code
+                  rebuild.
+                </h3>
+              </div>
+            )}
+            <div className="ce-warning" style={{ display: "none" }}>
               <h3 className="warning-text">
                 <span className="warning-prefix">⚠️ Warning! </span>
                 <span className="warning-content">
@@ -201,7 +216,7 @@ const OxConfigEditor: React.FC = () => {
                 </span>
               </h3>
             </div>
-            <div className="ce-warning success">
+            <div className="ce-warning success" style={{ display: "none" }}>
               <h3 className="warning-text">
                 <span className="success-prefix">✅ Success! </span>
                 <span className="warning-content">
@@ -250,22 +265,24 @@ const OxConfigEditor: React.FC = () => {
                     </div>
                   </td>
                   {screenSize !== "small" &&
-                    param.values.map((value) => (
-                      <td>
-                        <div>
-                          <input value={value}></input>
-                        </div>
-                      </td>
-                    ))}
-                  {screenSize === "small" && (
-                    <td>
-                      <div>
-                        <input
-                          value={param.values[modes.indexOf(currentMode)]}
-                        ></input>
-                      </div>
-                    </td>
-                  )}
+                    param.values.map((value) => {
+                      let type = paramToInputType(param.type);
+                      return (
+                        <td>
+                          <div>
+                            <input
+                              type={type}
+                              value={type === "checkbox" ? undefined : value}
+                              checked={
+                                type === "checkbox"
+                                  ? value === "true"
+                                  : undefined
+                              }
+                            ></input>
+                          </div>
+                        </td>
+                      );
+                    })}
                 </tr>
               ))}
             </tbody>
@@ -277,3 +294,11 @@ const OxConfigEditor: React.FC = () => {
 };
 
 export default OxConfigEditor;
+
+function paramToInputType(typeRaw: string) {
+  let type = typeRaw.toLowerCase();
+  if (type == "boolean") return "checkbox";
+  if (["integer", "short", "long", "double", "float"].includes(type))
+    return "number";
+  return "text";
+}
