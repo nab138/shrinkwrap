@@ -32,7 +32,6 @@ const NetworkTablesSelect: React.FC<NetworkTablesSelectProps> = ({
   };
 
   useEffect(() => {
-    console.log(topics, types);
     if (topics) {
       const newValidTopics = topics
         .filter((topic) => {

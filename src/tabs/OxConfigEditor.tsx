@@ -8,6 +8,7 @@ import { useStore } from "../utils/StoreContext";
 import "./OxConfigEditor.css";
 import { platform } from "@tauri-apps/plugin-os";
 import useNTConnected from "../ntcore-react/useNTConnected";
+import useNTState from "../ntcore-react/useNTState";
 
 const isMobile = platform() === "ios" || platform() === "android";
 
@@ -136,6 +137,43 @@ const OxConfigEditor: React.FC = () => {
     ""
   );
 
+  const [_, setKey] = useNTState<string>(
+    "/OxConfig/KeySetter",
+    NetworkTablesTypeInfos.kString,
+    ""
+  );
+
+  const raw = useNTValue<string>(
+    "/OxConfig/Raw",
+    NetworkTablesTypeInfos.kString,
+    ""
+  );
+  const successWarning = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    if (successWarning.current == null) return;
+    successWarning.current.style.display = "block";
+    successWarning.current.style.opacity = "1";
+    let interval: any = null;
+    let timeout = setTimeout(() => {
+      let opacity = 1;
+      interval = setInterval(() => {
+        if (successWarning.current == null) return;
+
+        opacity -= 0.01;
+        successWarning.current.style.opacity = opacity.toString();
+        if (opacity < -0.5) {
+          successWarning.current.style.display = "none";
+          clearInterval(interval);
+        }
+      }, 5);
+    }, 2000);
+    return () => {
+      clearTimeout(timeout);
+      if (interval !== null) clearInterval(interval);
+    };
+  }, [raw]);
+
   return (
     <div className="pageContainer config-editor">
       <div>
@@ -216,7 +254,11 @@ const OxConfigEditor: React.FC = () => {
                 </span>
               </h3>
             </div>
-            <div className="ce-warning success" style={{ display: "none" }}>
+            <div
+              ref={successWarning}
+              className="ce-warning success"
+              style={{ display: "none" }}
+            >
               <h3 className="warning-text">
                 <span className="success-prefix">✅ Success! </span>
                 <span className="warning-content">
@@ -265,14 +307,31 @@ const OxConfigEditor: React.FC = () => {
                     </div>
                   </td>
                   {screenSize !== "small" &&
-                    param.values.map((value) => {
+                    param.values.map((value, i) => {
                       let type = paramToInputType(param.type);
                       return (
-                        <td>
+                        <td key={i}>
                           <div>
                             <input
+                              key={value}
                               type={type}
-                              value={type === "checkbox" ? undefined : value}
+                              onBlur={(e) => {
+                                let newValues = [...param.values];
+                                if (type === "checkbox")
+                                  newValues[i] = e.currentTarget.checked
+                                    ? "true"
+                                    : "false";
+                                else newValues[i] = e.currentTarget.value;
+                                if (newValues[i] === param.values[i]) return;
+                                setKey(
+                                  [param.key, param.comment, ...newValues].join(
+                                    ","
+                                  )
+                                );
+                              }}
+                              defaultValue={
+                                type === "checkbox" ? undefined : value
+                              }
                               checked={
                                 type === "checkbox"
                                   ? value === "true"

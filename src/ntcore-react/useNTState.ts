@@ -1,7 +1,7 @@
-import { NetworkTablesTopic, NetworkTablesTypeInfo } from "ntcore-ts-client-monorepo/packages/ntcore-ts-client/src/index";
 import { useContext, useEffect, useState } from "react";
 import NTContext from "./NTContext";
 import NTTopicTypes from "./NTTopicType";
+import { NetworkTablesTopic, NetworkTablesTypeInfo } from "ntcore-ts-client-monorepo/packages/ntcore-ts-client/src";
 
 const useNTState = <T extends NTTopicTypes>(
     key: string,
@@ -30,7 +30,7 @@ const useNTState = <T extends NTTopicTypes>(
             const clientTopic = client.createTopic(key, ntType, defaultValue);
             setTopic(clientTopic);
             const subscriptionUID = clientTopic.subscribe(listener);
-            clientTopic.publish();
+            clientTopic.publish(undefined, undefined, true);
 
             return () => {
                 if (subscriptionUID && clientTopic) {
@@ -60,8 +60,9 @@ const useNTState = <T extends NTTopicTypes>(
         }
     ) => {
         if (topic) {
-            topic.publish(publishProperties);
+            topic.publish(publishProperties, undefined, true);
             topic.setValue(value);
+            topic.unpublish();
             setValue(value);
         }
     };

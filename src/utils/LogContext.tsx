@@ -30,6 +30,7 @@ export const LogProvider: React.FC<{ children: React.ReactNode }> = ({
   const [log, setLog] = useState<LogMessage[]>([]);
 
   useEffect(() => {
+    if (import.meta.env.DEV) return;
     const logMessage = (level: LogMessage["level"], ...args: any[]) => {
       setLog((prevLog) => [...prevLog, { level, message: args.join(" ") }]);
     };

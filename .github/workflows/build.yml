@@ -25,7 +25,7 @@ jobs:
         with:
           bun-version: latest
       - name: Install dependencies
-        run: bun i
+        run: bun i --frozen-lockfile
       - name: Install private API key P8
         env:
           PRIVATE_API_KEY_BASE64: ${{ secrets.PRIVATE_API_KEY_BASE64 }}
