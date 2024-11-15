@@ -1,10 +1,23 @@
 import { useEffect, useState, useRef } from "react";
-import { TopicInfo } from "ntcore-ts-client-monorepo/packages/ntcore-ts-client/src/lib/pubsub/pubsub";
 import {
   NetworkTables,
+  NetworkTablesTypeInfo,
   NetworkTablesTypeInfos,
-} from "ntcore-ts-client-monorepo/packages/ntcore-ts-client/src/index";
-import NTContext from "./NTContext";
+} from "ntcore-ts-client";
+import NTContext, { TopicInfo } from "./NTContext";
+
+export const NetworkTablesTypeInfosLookup = {
+  boolean: NetworkTablesTypeInfos.kBoolean,
+  double: NetworkTablesTypeInfos.kDouble,
+  int: NetworkTablesTypeInfos.kInteger,
+  float: [3, "float"] as NetworkTablesTypeInfo,
+  string: NetworkTablesTypeInfos.kString,
+  raw: NetworkTablesTypeInfos.kArrayBuffer,
+  "boolean[]": NetworkTablesTypeInfos.kBooleanArray,
+  "double[]": NetworkTablesTypeInfos.kDoubleArray,
+  "int[]": NetworkTablesTypeInfos.kIntegerArray,
+  "string[]": NetworkTablesTypeInfos.kStringArray,
+};
 
 type NTProviderProps = {
   children?: React.ReactNode;
@@ -33,7 +46,6 @@ export default function NTProvider({
     ntConnectionCreatedUsingTeamNumber,
     setNtConnectionCreatedUsingTeamNumber,
   ] = useState<boolean>(false);
-  const [topicNames, setTopicNames] = useState<string[]>([]);
   const [topics, setTopics] = useState<TopicInfo[]>([]);
 
   const oldTeamNumber = useRef<number | undefined>();
@@ -73,31 +85,36 @@ export default function NTProvider({
 
   useEffect(() => {
     if (ntConnection === null) return;
-    let topic = ntConnection.createTopic<string>(
-      "/",
-      NetworkTablesTypeInfos.kString
-    );
-    let id = topic?.subscribe(
-      () => {
-        setTopicNames(ntConnection.client.getTopicNames());
-        setTopics(ntConnection.client.getTopicInfos());
+    const allTopics = ntConnection.createPrefixTopic("/");
+
+    let id = allTopics?.subscribe(
+      (_, params) => {
+        if (params.name.includes("Robot Pos")) console.log(_);
+        const topic = {
+          name: params.name,
+          type: NetworkTablesTypeInfosLookup[
+            params.type as keyof typeof NetworkTablesTypeInfosLookup
+          ],
+        };
+        setTopics((prev) => {
+          if (prev.some((t) => t.name === topic.name)) {
+            return prev;
+          } else {
+            return [...prev, topic];
+          }
+        });
       },
-      true,
       {
-        periodic: 1,
-        topicsonly: true,
-        prefix: true,
-      },
-      undefined,
-      false
+        periodic: 3,
+      }
     );
     return () => {
-      topic.unsubscribe(id);
+      allTopics.unsubscribe(id);
     };
   }, [ntConnection]);
 
   return (
-    <NTContext.Provider value={{ client: ntConnection, topicNames, topics }}>
+    <NTContext.Provider value={{ client: ntConnection, topics }}>
       {ntConnection ? children : null}
     </NTContext.Provider>
   );

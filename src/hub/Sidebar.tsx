@@ -1,7 +1,7 @@
 import React, { useState } from "react";
 import "./Sidebar.css";
 import ItemList, { Item } from "./NetworkArrayConfig";
-import { NetworkTablesTypeInfo } from "ntcore-ts-client-monorepo/packages/ntcore-ts-client/src";
+import { NetworkTablesTypeInfo } from "ntcore-ts-client";
 
 export interface Setting {
   id: string;

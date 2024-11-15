@@ -2,7 +2,7 @@ import React from "react";
 import Dropdown from "./Dropdown";
 import "./NetworkArrayConfig.css";
 import NetworkTablesSelect from "./NetworkTablesSelect";
-import { NetworkTablesTypeInfo } from "ntcore-ts-client-monorepo/packages/ntcore-ts-client/src";
+import { NetworkTablesTypeInfo } from "ntcore-ts-client";
 
 export interface Item {
   id: string;

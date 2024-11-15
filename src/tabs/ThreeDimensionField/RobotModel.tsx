@@ -1,7 +1,7 @@
 import { useGLTF } from "@react-three/drei";
 import { useEffect, useState } from "react";
 import * as THREE from "three";
-import { NetworkTablesTypeInfos } from "../../../node_modules/ntcore-ts-client-monorepo/packages/ntcore-ts-client/src/lib/types/types";
+import { NetworkTablesTypeInfos } from "ntcore-ts-client";
 import { useNTValue } from "../../ntcore-react/useNTValue";
 
 export interface RobotConfig {

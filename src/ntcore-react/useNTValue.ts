@@ -1,4 +1,4 @@
-import { NetworkTablesTypeInfo } from "ntcore-ts-client-monorepo/packages/ntcore-ts-client/src/index";
+import { NetworkTablesTypeInfo } from "ntcore-ts-client";
 import { useContext, useEffect, useState } from "react";
 import NTContext from "./NTContext";
 import NTTopicTypes from "./NTTopicType";
@@ -7,7 +7,7 @@ export const useNTValue = <T extends NTTopicTypes>(
   key: string,
   ntType: NetworkTablesTypeInfo,
   defaultValue: T,
-  period = 1,
+  period = 1
 ) => {
   const context = useContext(NTContext);
   const [value, setValue] = useState<T>(defaultValue);
@@ -19,9 +19,12 @@ export const useNTValue = <T extends NTTopicTypes>(
         setValue(value ?? defaultValue);
       };
       const clientTopic = context.client.createTopic(key, ntType, defaultValue);
-      const subscriptionUID = clientTopic.subscribe(listener, true, {
+      console.log(clientTopic.isRegular());
+      console.log(context.client.client.getTopicFromName(key));
+      const subscriptionUID = clientTopic.subscribe(listener, {
         periodic: period,
       });
+      console.log("Subscribed to", key);
 
       return () => {
         if (subscriptionUID && clientTopic) {
@@ -47,7 +50,7 @@ export const useComputedNTValue = <T extends NTTopicTypes, B>(
   ntType: NetworkTablesTypeInfo,
   compute: (t: T) => B,
   defaultValue: T,
-  period = 1,
+  period = 1
 ) => {
   const [computedValue, setComputedValue] = useState<B>(compute(defaultValue));
   const value = useNTValue(key, ntType, defaultValue, period);

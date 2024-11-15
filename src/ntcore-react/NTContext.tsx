@@ -1,16 +1,18 @@
 import { createContext } from "react";
-import { TopicInfo } from "ntcore-ts-client-monorepo/packages/ntcore-ts-client/src/lib/pubsub/pubsub";
-import { NetworkTables } from "ntcore-ts-client-monorepo/packages/ntcore-ts-client/src";
+import { NetworkTables, NetworkTablesTypeInfo } from "ntcore-ts-client";
+
+export type TopicInfo = {
+  name: string;
+  type: NetworkTablesTypeInfo;
+};
 
 type NTContextType = {
   client: NetworkTables | null;
-  topicNames: string[];
   topics: TopicInfo[];
 };
 
 const NTContext = createContext<NTContextType>({
   client: null,
-  topicNames: [],
   topics: [],
 });
 

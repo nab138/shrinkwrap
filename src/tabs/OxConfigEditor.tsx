@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useRef } from "react";
 //import fuzzysort from "fuzzysort";
 //import useNTState from "../ntcore-react/useNTState";
-import { NetworkTablesTypeInfos } from "ntcore-ts-client-monorepo/packages/ntcore-ts-client/src";
+import { NetworkTablesTypeInfos } from "ntcore-ts-client";
 import { useComputedNTValue, useNTValue } from "../ntcore-react/useNTValue";
 //import useNTConnected from "../ntcore-react/useNTConnected";
 import { useStore } from "../utils/StoreContext";

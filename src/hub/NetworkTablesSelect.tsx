@@ -3,7 +3,7 @@ import "./NetworkTablesSelect.css";
 import Modal from "./Modal";
 import Typeahead from "./Typeahead";
 import NTContext from "../ntcore-react/NTContext";
-import { NetworkTablesTypeInfo } from "ntcore-ts-client-monorepo/packages/ntcore-ts-client/src/index";
+import { NetworkTablesTypeInfo } from "ntcore-ts-client";
 
 export interface NetworkTablesSelectProps {
   onSelect: (selected: string) => void;
@@ -36,7 +36,7 @@ const NetworkTablesSelect: React.FC<NetworkTablesSelectProps> = ({
       const newValidTopics = topics
         .filter((topic) => {
           if (!types) return true;
-          return types.some((type) => type === topic.type);
+          return types.some((type) => type[0] === topic.type[0]);
         })
         .map((topic) => topic.name);
       setValidTopics(newValidTopics);
