@@ -9,6 +9,7 @@ import { listen } from "@tauri-apps/api/event";
 import LeftControls from "./LeftControls";
 import { useStore } from "../utils/StoreContext";
 import useNTConnected from "../ntcore-react/useNTConnected";
+import { toast, Toaster } from "sonner";
 
 export interface HubProps {
   setIp: (ip: string) => void;
@@ -49,6 +50,11 @@ const Hub: React.FC<HubProps> = ({ setIp }) => {
             connected ? "Connected to " + connectionIP : "Disconnected"
           }`
         );
+      if (connected) {
+        toast.success("Connected to " + connectionIP);
+      } else {
+        toast.warning("Disconnected from " + connectionIP);
+      }
     };
     renameWindow();
   }, [connected, connectionIP]);
@@ -106,6 +112,7 @@ const Hub: React.FC<HubProps> = ({ setIp }) => {
 
   return (
     <div className={`container`}>
+      <Toaster />
       <DockviewReact
         components={components}
         leftHeaderActionsComponent={LeftControls}
