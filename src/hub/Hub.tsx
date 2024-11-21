@@ -112,7 +112,7 @@ const Hub: React.FC<HubProps> = ({ setIp }) => {
 
   return (
     <div className={`container`}>
-      <Toaster />
+      <Toaster richColors />
       <DockviewReact
         components={components}
         leftHeaderActionsComponent={LeftControls}
