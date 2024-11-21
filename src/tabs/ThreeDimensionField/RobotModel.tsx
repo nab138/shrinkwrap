@@ -1,7 +1,6 @@
 import { useGLTF } from "@react-three/drei";
 import { useEffect, useState } from "react";
 import * as THREE from "three";
-import { NetworkTablesTypeInfos } from "ntcore-ts-client";
 import { useNTValue } from "../../ntcore-react/useNTValue";
 
 export interface RobotConfig {
@@ -45,12 +44,7 @@ const RobotModel: React.FC<RobotModelProps> = ({
   cinematic,
   ntKey,
 }) => {
-  let position = useNTValue<number[]>(
-    ntKey,
-    NetworkTablesTypeInfos.kDoubleArray,
-    [0, 0, 0],
-    0.01
-  );
+  let position = useNTValue<number[]>(ntKey, [0, 0, 0], 0.001);
   let MATERIAL_SPECULAR: THREE.Color = new THREE.Color(0x666666);
   let MATERIAL_SHININESS: number = 100;
   const robotInner = useGLTF("Robot_" + robotName + ".glb").scene;

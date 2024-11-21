@@ -21,7 +21,7 @@ export const StoreProvider: React.FC<{ children: React.ReactNode }> = ({
 
   useEffect(() => {
     const initializeStore = async () => {
-      const storeInstance = await createStore("prefs.bin");
+      const storeInstance = await createStore("preferences.bin");
       setStore(storeInstance);
 
       const keys = await storeInstance.keys();

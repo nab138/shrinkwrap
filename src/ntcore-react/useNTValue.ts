@@ -1,42 +1,37 @@
-import { NetworkTablesTypeInfo } from "ntcore-ts-client";
 import { useContext, useEffect, useState } from "react";
 import NTContext from "./NTContext";
 import NTTopicTypes from "./NTTopicType";
 
 export const useNTValue = <T extends NTTopicTypes>(
   key: string,
-  ntType: NetworkTablesTypeInfo,
   defaultValue: T,
   period = 1
 ) => {
-  const context = useContext(NTContext);
+  const client = useContext(NTContext);
   const [value, setValue] = useState<T>(defaultValue);
 
   useEffect(() => {
-    if (context) {
-      if (!context.client) return;
+    if (client) {
       const listener = (value: T | null) => {
         setValue(value ?? defaultValue);
       };
-      const clientTopic = context.client.createTopic(key, ntType, defaultValue);
-      console.log(clientTopic.isRegular());
-      console.log(context.client.client.getTopicFromName(key));
-      const subscriptionUID = clientTopic.subscribe(listener, {
-        periodic: period,
-      });
-      console.log("Subscribed to", key);
+      const subscription = client.subscribe(
+        key,
+        listener,
+        false,
+        false,
+        period
+      );
 
       return () => {
-        if (subscriptionUID && clientTopic) {
-          clientTopic.unsubscribe(subscriptionUID);
-        }
+        subscription.unsubscribe();
       };
     } else {
       throw new Error(
         "No NTProvider found. Please wrap your application in an NTProvider"
       );
     }
-  }, [key, context, context.client]);
+  }, [key, client]);
 
   return value;
 };
@@ -47,13 +42,12 @@ export const useNTValue = <T extends NTTopicTypes>(
 
 export const useComputedNTValue = <T extends NTTopicTypes, B>(
   key: string,
-  ntType: NetworkTablesTypeInfo,
   compute: (t: T) => B,
   defaultValue: T,
   period = 1
 ) => {
   const [computedValue, setComputedValue] = useState<B>(compute(defaultValue));
-  const value = useNTValue(key, ntType, defaultValue, period);
+  const value = useNTValue(key, defaultValue, period);
   useEffect(() => {
     setComputedValue(compute(value));
   }, [value]);

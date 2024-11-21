@@ -1,7 +1,6 @@
 import React, { useState, useEffect, useRef } from "react";
 //import fuzzysort from "fuzzysort";
 //import useNTState from "../ntcore-react/useNTState";
-import { NetworkTablesTypeInfos } from "ntcore-ts-client";
 import { useComputedNTValue, useNTValue } from "../ntcore-react/useNTValue";
 //import useNTConnected from "../ntcore-react/useNTConnected";
 import { useStore } from "../utils/StoreContext";
@@ -108,19 +107,13 @@ const OxConfigEditor: React.FC = () => {
 
   const modes = useComputedNTValue<string, string[]>(
     "/OxConfig/Modes",
-    NetworkTablesTypeInfos.kString,
     (val) => val.split(",").filter((v) => v !== ""),
     ""
   );
-  const currentMode = useNTValue<string>(
-    "/OxConfig/CurrentMode",
-    NetworkTablesTypeInfos.kString,
-    ""
-  );
+  const currentMode = useNTValue<string>("/OxConfig/CurrentMode", "");
 
   const parameters = useComputedNTValue<string, Parameter[]>(
     "/OxConfig/Params",
-    NetworkTablesTypeInfos.kString,
     (params) => {
       if (params == "") return [];
       let paramsRaw = JSON.parse(params);
@@ -137,17 +130,9 @@ const OxConfigEditor: React.FC = () => {
     ""
   );
 
-  const [_, setKey] = useNTState<string>(
-    "/OxConfig/KeySetter",
-    NetworkTablesTypeInfos.kString,
-    ""
-  );
+  const [_, setKey] = useNTState<string>("/OxConfig/KeySetter", "string", "");
 
-  const raw = useNTValue<string>(
-    "/OxConfig/Raw",
-    NetworkTablesTypeInfos.kString,
-    ""
-  );
+  const raw = useNTValue<string>("/OxConfig/Raw", "");
   const successWarning = useRef<HTMLDivElement>(null);
 
   useEffect(() => {

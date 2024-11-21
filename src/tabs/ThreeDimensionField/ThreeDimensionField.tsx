@@ -4,7 +4,6 @@ import ThreeComponent from "./ThreeComponent";
 import Sidebar, { Setting } from "../../hub/Sidebar";
 import { Item } from "../../hub/NetworkArrayConfig";
 import "./ThreeDimensionField.css";
-import { NetworkTablesTypeInfos } from "ntcore-ts-client";
 import { useStore } from "../../utils/StoreContext";
 
 const ThreeDimensionField: React.FC<IDockviewPanelProps<{ id: string }>> = ({
@@ -18,7 +17,7 @@ const ThreeDimensionField: React.FC<IDockviewPanelProps<{ id: string }>> = ({
       type: "itemList",
       value: [],
       options: ["Robot"],
-      ntTypes: [NetworkTablesTypeInfos.kDoubleArray],
+      ntTypes: ["double[]"],
     },
   ];
 

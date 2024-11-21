@@ -1,13 +1,15 @@
 import { useContext, useEffect, useState } from "react";
 import NTContext from "./NTContext";
+import { NT4_Topic } from "./NT4";
 
-const useNTConnected = () => {
+const useNTTopics = () => {
   const client = useContext(NTContext);
-  const [connected, setConnected] = useState(false);
+  const [topics, setTopics] = useState<Map<string, NT4_Topic>>(new Map());
+
   useEffect(() => {
     if (client) {
-      const cleanup = client.addRobotConnectionListener((connected) => {
-        setConnected(connected);
+      const cleanup = client.addTopicsListener((connected) => {
+        setTopics(connected);
       });
       return () => {
         if (cleanup) {
@@ -17,7 +19,7 @@ const useNTConnected = () => {
     }
   }, [client]);
 
-  return connected;
+  return topics;
 };
 
-export default useNTConnected;
+export default useNTTopics;

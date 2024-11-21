@@ -1,14 +1,13 @@
-import React, { useContext, useEffect, useState } from "react";
+import React, { useEffect, useState } from "react";
 import "./NetworkTablesSelect.css";
 import Modal from "./Modal";
 import Typeahead from "./Typeahead";
-import NTContext from "../ntcore-react/NTContext";
-import { NetworkTablesTypeInfo } from "ntcore-ts-client";
+import useNTTopics from "../ntcore-react/useNTTopics";
 
 export interface NetworkTablesSelectProps {
   onSelect: (selected: string) => void;
   defaultSelected?: string;
-  types?: NetworkTablesTypeInfo[] | null;
+  types?: string[];
 }
 
 const NetworkTablesSelect: React.FC<NetworkTablesSelectProps> = ({
@@ -18,7 +17,7 @@ const NetworkTablesSelect: React.FC<NetworkTablesSelectProps> = ({
 }) => {
   const [isOpen, setIsOpen] = useState(false);
   const [selected, setSelected] = useState(defaultSelected);
-  const { topics } = useContext(NTContext);
+  const topics = useNTTopics();
   const [validTopics, setValidTopics] = useState<string[]>([]);
 
   const toggleModal = () => {
@@ -33,13 +32,14 @@ const NetworkTablesSelect: React.FC<NetworkTablesSelectProps> = ({
 
   useEffect(() => {
     if (topics) {
-      const newValidTopics = topics
-        .filter((topic) => {
-          if (!types) return true;
-          return types.some((type) => type[0] === topic.type[0]);
-        })
-        .map((topic) => topic.name);
-      setValidTopics(newValidTopics);
+      let valid: string[] = [];
+      topics.forEach((topic) => {
+        if (!types) return;
+        if (types.includes(topic.type)) {
+          valid.push(topic.name);
+        }
+      });
+      setValidTopics(valid);
     }
   }, [topics, types]);
 

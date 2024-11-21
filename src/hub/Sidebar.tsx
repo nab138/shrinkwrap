@@ -1,7 +1,6 @@
 import React, { useState } from "react";
 import "./Sidebar.css";
 import ItemList, { Item } from "./NetworkArrayConfig";
-import { NetworkTablesTypeInfo } from "ntcore-ts-client";
 
 export interface Setting {
   id: string;
@@ -9,7 +8,7 @@ export interface Setting {
   type: "boolean" | "string" | "number" | "custom" | "itemList";
   value: boolean | string | number | Item[];
   options?: string[];
-  ntTypes?: NetworkTablesTypeInfo[] | null;
+  ntTypes?: string[] | null;
 }
 
 export interface SidebarProps {

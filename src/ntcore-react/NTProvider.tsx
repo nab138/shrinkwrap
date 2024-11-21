@@ -1,27 +1,9 @@
 import { useEffect, useState, useRef } from "react";
-import {
-  NetworkTables,
-  NetworkTablesTypeInfo,
-  NetworkTablesTypeInfos,
-} from "ntcore-ts-client";
-import NTContext, { TopicInfo } from "./NTContext";
-
-export const NetworkTablesTypeInfosLookup = {
-  boolean: NetworkTablesTypeInfos.kBoolean,
-  double: NetworkTablesTypeInfos.kDouble,
-  int: NetworkTablesTypeInfos.kInteger,
-  float: [3, "float"] as NetworkTablesTypeInfo,
-  string: NetworkTablesTypeInfos.kString,
-  raw: NetworkTablesTypeInfos.kArrayBuffer,
-  "boolean[]": NetworkTablesTypeInfos.kBooleanArray,
-  "double[]": NetworkTablesTypeInfos.kDoubleArray,
-  "int[]": NetworkTablesTypeInfos.kIntegerArray,
-  "string[]": NetworkTablesTypeInfos.kStringArray,
-};
+import NTContext from "./NTContext";
+import { NTClient } from "./NT4UserFriendly";
 
 type NTProviderProps = {
   children?: React.ReactNode;
-  port?: number;
   teamNumber?: number;
   uri?: string;
 };
@@ -39,14 +21,12 @@ export default function NTProvider({
   children = null,
   uri,
   teamNumber,
-  port,
 }: NTProviderProps) {
-  const [ntConnection, setNtConnection] = useState<NetworkTables | null>(null);
+  const [ntConnection, setNtConnection] = useState<NTClient | null>(null);
   const [
     ntConnectionCreatedUsingTeamNumber,
     setNtConnectionCreatedUsingTeamNumber,
   ] = useState<boolean>(false);
-  const [topics, setTopics] = useState<TopicInfo[]>([]);
 
   const oldTeamNumber = useRef<number | undefined>();
 
@@ -55,10 +35,10 @@ export default function NTProvider({
     // Otherwise, reconnect using the uri, or throw an error if a team number is provided
     if (ntConnection === null) {
       if (uri) {
-        setNtConnection(NetworkTables.getInstanceByURI(uri, port));
+        setNtConnection(NTClient.getInstanceByURI(uri));
         setNtConnectionCreatedUsingTeamNumber(false);
       } else if (teamNumber) {
-        setNtConnection(NetworkTables.getInstanceByTeam(teamNumber, port));
+        setNtConnection(NTClient.getInstanceByTeam(teamNumber));
         setNtConnectionCreatedUsingTeamNumber(true);
         oldTeamNumber.current = teamNumber;
       } else {
@@ -67,7 +47,7 @@ export default function NTProvider({
         );
       }
     } else if (uri) {
-      ntConnection.changeURI(uri, port);
+      //ntConnection.changeURI(uri, port);
       setNtConnectionCreatedUsingTeamNumber(false);
     } else if (
       teamNumber !== oldTeamNumber.current &&
@@ -81,40 +61,18 @@ export default function NTProvider({
         "Either a uri or a team number must be provided to create a network tables connection"
       );
     }
-  }, [uri, teamNumber, port]);
+  }, [uri, teamNumber]);
 
   useEffect(() => {
     if (ntConnection === null) return;
-    const allTopics = ntConnection.createPrefixTopic("/");
-
-    let id = allTopics?.subscribe(
-      (_, params) => {
-        if (params.name.includes("Robot Pos")) console.log(_);
-        const topic = {
-          name: params.name,
-          type: NetworkTablesTypeInfosLookup[
-            params.type as keyof typeof NetworkTablesTypeInfosLookup
-          ],
-        };
-        setTopics((prev) => {
-          if (prev.some((t) => t.name === topic.name)) {
-            return prev;
-          } else {
-            return [...prev, topic];
-          }
-        });
-      },
-      {
-        periodic: 3,
-      }
-    );
+    const allTopics = ntConnection.subscribeRoot();
     return () => {
-      allTopics.unsubscribe(id);
+      allTopics.unsubscribe();
     };
   }, [ntConnection]);
 
   return (
-    <NTContext.Provider value={{ client: ntConnection, topics }}>
+    <NTContext.Provider value={ntConnection}>
       {ntConnection ? children : null}
     </NTContext.Provider>
   );

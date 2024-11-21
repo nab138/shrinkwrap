@@ -1,11 +1,10 @@
 import { useContext, useEffect, useState } from "react";
 import NTContext from "./NTContext";
 import NTTopicTypes from "./NTTopicType";
-import { NetworkTablesTopic, NetworkTablesTypeInfo } from "ntcore-ts-client";
 
 const useNTState = <T extends NTTopicTypes>(
   key: string,
-  ntType: NetworkTablesTypeInfo,
+  type: string,
   defaultValue: T
 ): [
   T,
@@ -18,8 +17,7 @@ const useNTState = <T extends NTTopicTypes>(
     }
   ) => void
 ] => {
-  const { client } = useContext(NTContext);
-  const [topic, setTopic] = useState<NetworkTablesTopic<T> | null>(null);
+  const client = useContext(NTContext);
   const [value, setValue] = useState<T>(defaultValue);
 
   useEffect(() => {
@@ -27,15 +25,11 @@ const useNTState = <T extends NTTopicTypes>(
       const listener = (value: T | null) => {
         setValue(value ?? defaultValue);
       };
-      const clientTopic = client.createTopic(key, ntType, defaultValue);
-      setTopic(clientTopic);
-      const subscriptionUID = clientTopic.subscribe(listener);
-      clientTopic.publish(undefined);
+      const subscription = client.subscribe(key, listener);
+      client.publish(key, type);
 
       return () => {
-        if (subscriptionUID && clientTopic) {
-          clientTopic.unsubscribe(subscriptionUID);
-        }
+        subscription.unsubscribe();
       };
     } else {
       throw new Error(
@@ -51,20 +45,11 @@ const useNTState = <T extends NTTopicTypes>(
    * @param value Value to set
    * @param publishProperties Properties to pass to the publish method
    */
-  const setNTValue = (
-    value: T,
-    publishProperties?: {
-      persistent?: boolean;
-      retained?: boolean;
-      id?: number;
-    }
-  ) => {
-    if (topic) {
-      topic.publish(publishProperties);
-      topic.setValue(value);
-      topic.unpublish();
-      setValue(value);
-    }
+  const setNTValue = (value: T) => {
+    if (!client) return;
+    client.publish(key, type);
+    client.setValue(key, value);
+    setValue(value);
   };
 
   return [value, setNTValue];
