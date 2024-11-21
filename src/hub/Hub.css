@@ -57,10 +57,21 @@ body,
   background-color: var(--background-color-1);
 }
 
+html,
+body {
+  margin: 0; /* Remove default margin */
+  padding: 0; /* Remove default padding */
+  box-sizing: border-box; /* Include padding and border in the element's total width and height */
+  height: 100%; /* Ensure html element takes full height */
+  overflow: hidden; /* Prevent scrolling */
+}
+
 body {
   padding-top: env(safe-area-inset-top);
   padding-bottom: env(safe-area-inset-bottom);
-  height: 100vh;
+  min-height: 100vh; /* Ensure body takes at least the full viewport height */
+  display: flex;
+  flex-direction: column;
 }
 
 .container {
