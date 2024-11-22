@@ -27,6 +27,7 @@ const OxConfigEditor: React.FC<IDockviewPanelProps> = (params) => {
   );
 
   const { addToast, removeToast } = useToast();
+  const [theme] = useStore("theme", "light");
 
   useEffect(() => {
     const handleResize = () => {
@@ -157,17 +158,6 @@ const OxConfigEditor: React.FC<IDockviewPanelProps> = (params) => {
     };
   }, [raw, connected]);
 
-  useEffect(() => {
-    if (!connected && hasConnected) {
-      let disconnected = addToast.warning(
-        "[OxConfig] Robot is disconnected, editing has been disabled"
-      );
-      return () => {
-        removeToast(disconnected.id);
-      };
-    }
-  }, [connected, hasConnected, params.api.isVisible]);
-
   return (
     <div className="pageContainer config-editor">
       <div>
@@ -190,7 +180,12 @@ const OxConfigEditor: React.FC<IDockviewPanelProps> = (params) => {
                 <span style={{ marginRight: "5px" }}>:</span>
                 <code className="deploy-dir-path">
                   {deployDir === "" ? (
-                    <span style={{ fontWeight: "bold", color: "darkred" }}>
+                    <span
+                      style={{
+                        fontWeight: "bold",
+                        color: theme === "light" ? "darkred" : "red",
+                      }}
+                    >
                       Not Set
                     </span>
                   ) : (
@@ -272,7 +267,11 @@ const OxConfigEditor: React.FC<IDockviewPanelProps> = (params) => {
                   <td>{param.key}</td>
                   <td>
                     <div>
-                      <input value={param.comment}></input>
+                      <input
+                        style={connected ? undefined : { color: "gray" }}
+                        disabled={!connected}
+                        value={param.comment}
+                      ></input>
                     </div>
                   </td>
                   {screenSize !== "small" &&
@@ -282,6 +281,8 @@ const OxConfigEditor: React.FC<IDockviewPanelProps> = (params) => {
                         <td key={i}>
                           <div>
                             <input
+                              style={connected ? undefined : { color: "gray" }}
+                              disabled={!connected}
                               key={value}
                               type={type}
                               onBlur={(e) => {
