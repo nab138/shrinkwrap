@@ -1,8 +1,6 @@
 import React, { useState, useEffect, useRef } from "react";
-//import fuzzysort from "fuzzysort";
-//import useNTState from "../ntcore-react/useNTState";
+import fuzzysort from "fuzzysort";
 import { useComputedNTValue, useNTValue } from "../ntcore-react/useNTValue";
-//import useNTConnected from "../ntcore-react/useNTConnected";
 import { useStore } from "../utils/StoreContext";
 import "./OxConfigEditor.css";
 import { platform } from "@tauri-apps/plugin-os";
@@ -19,9 +17,10 @@ export type Parameter = {
   values: string[];
   comment: string;
   type: string;
+  displayKey?: string;
 };
 
-const OxConfigEditor: React.FC<IDockviewPanelProps> = (params) => {
+const OxConfigEditor: React.FC<IDockviewPanelProps> = () => {
   const [screenSize, setMobileScreen] = useState<ScreenSize>(
     isMobile ? "small" : "large"
   );
@@ -135,6 +134,37 @@ const OxConfigEditor: React.FC<IDockviewPanelProps> = (params) => {
     ""
   );
 
+  const [displayParameters, setDisplayParameters] = useState<Parameter[]>([]);
+
+  useEffect(() => {
+    if (parameters.length === 0) return;
+    let search = document.querySelector(".config-search") as HTMLInputElement;
+    if (search == null) return;
+    if (search.value === "") setDisplayParameters(parameters);
+    let searchHandler = () => {
+      let searchValue = search.value;
+      if (searchValue === "") return setDisplayParameters(parameters);
+      let filteredParams: Parameter[] = [];
+      parameters.forEach((param) => {
+        let result = fuzzysort.single(searchValue, param.key);
+        if (result) {
+          filteredParams.push({
+            ...param,
+            displayKey: result.highlight(
+              '<span style="color: red">',
+              "</span>"
+            ),
+          });
+        }
+      });
+      setDisplayParameters(filteredParams);
+    };
+    search.addEventListener("input", searchHandler);
+    return () => {
+      search.removeEventListener("input", searchHandler);
+    };
+  }, [parameters]);
+
   const [_, setKey] = useNTState<string>("/OxConfig/KeySetter", "string", "");
 
   const raw = useNTValue<string>("/OxConfig/Raw", "");
@@ -167,7 +197,7 @@ const OxConfigEditor: React.FC<IDockviewPanelProps> = (params) => {
             style={{ padding: "20px", paddingBottom: "10px" }}
           >
             <h2>Config Editor</h2>
-            {screenSize === "large" && (
+            {(screenSize === "large" || deployDir === "") && (
               <p className="deploy-dir deploy-path-cfg">
                 Deploy Directory
                 <span className="question-icon">?</span>
@@ -262,9 +292,13 @@ const OxConfigEditor: React.FC<IDockviewPanelProps> = (params) => {
               </tr>
             </thead>
             <tbody className="parameter-table" ref={table}>
-              {parameters.map((param) => (
+              {displayParameters.map((param) => (
                 <tr key={param.key}>
-                  <td>{param.key}</td>
+                  <td
+                    dangerouslySetInnerHTML={{
+                      __html: param.displayKey ?? param.key,
+                    }}
+                  ></td>
                   <td>
                     <div>
                       <input
