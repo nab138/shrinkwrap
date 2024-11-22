@@ -8,6 +8,8 @@ import "./OxConfigEditor.css";
 import { platform } from "@tauri-apps/plugin-os";
 import useNTConnected from "../ntcore-react/useNTConnected";
 import useNTState from "../ntcore-react/useNTState";
+import { IDockviewPanelProps } from "dockview";
+import { toast } from "react-simple-toasts";
 
 const isMobile = platform() === "ios" || platform() === "android";
 
@@ -19,7 +21,7 @@ export type Parameter = {
   type: string;
 };
 
-const OxConfigEditor: React.FC = () => {
+const OxConfigEditor: React.FC<IDockviewPanelProps> = (params) => {
   const [screenSize, setMobileScreen] = useState<ScreenSize>(
     isMobile ? "small" : "large"
   );
@@ -133,31 +135,40 @@ const OxConfigEditor: React.FC = () => {
   const [_, setKey] = useNTState<string>("/OxConfig/KeySetter", "string", "");
 
   const raw = useNTValue<string>("/OxConfig/Raw", "");
-  const successWarning = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
-    if (successWarning.current == null) return;
-    successWarning.current.style.display = "block";
-    successWarning.current.style.opacity = "1";
-    let interval: any = null;
-    let timeout = setTimeout(() => {
-      let opacity = 1;
-      interval = setInterval(() => {
-        if (successWarning.current == null) return;
+    if (!params.api.isFocused) return;
 
-        opacity -= 0.01;
-        successWarning.current.style.opacity = opacity.toString();
-        if (opacity < -0.5) {
-          successWarning.current.style.display = "none";
-          clearInterval(interval);
+    if (deployDir === "") {
+      let warning = toast(
+        "[OxConfig] Deploy directory is unset. Changes will be overwritten on code rebuild.",
+        {
+          duration: Infinity,
         }
-      }, 5);
-    }, 2000);
+      );
+      return () => {
+        warning.close();
+      };
+    }
+  }, [deployDir, params.api.isFocused]);
+
+  useEffect(() => {
+    let success = toast("[OxConfig] Wrote config to deploy folder");
     return () => {
-      clearTimeout(timeout);
-      if (interval !== null) clearInterval(interval);
+      success.close();
     };
   }, [raw]);
+
+  useEffect(() => {
+    if (!connected && hasConnected) {
+      let disconnected = toast("Robot is disconnected", {
+        duration: Infinity,
+      });
+      return () => {
+        disconnected.close();
+      };
+    }
+  }, [connected, hasConnected, params.api.isFocused]);
 
   return (
     <div className="pageContainer config-editor">
@@ -212,43 +223,12 @@ const OxConfigEditor: React.FC = () => {
             </div>
           </div>
           <div className="warning-container">
-            {!connected && hasConnected && (
-              <div className="ce-warning">
-                <h3 className="warning-text">
-                  <span className="warning-prefix">⚠️ Warning! </span>The robot
-                  is disconnected. All changes from now until reconnection will
-                  be lost.
-                </h3>
-              </div>
-            )}
-            {deployDir === "" && (
-              <div className="ce-warning">
-                <h3 className="warning-text">
-                  <span className="warning-prefix">⚠️ Warning! </span>The deploy
-                  directory is unset. Changes will be overwritten on code
-                  rebuild.
-                </h3>
-              </div>
-            )}
             <div className="ce-warning" style={{ display: "none" }}>
               <h3 className="warning-text">
                 <span className="warning-prefix">⚠️ Warning! </span>
                 <span className="warning-content">
                   Failed to write file: Deploy directory is missing or doesn't
                   contain config.json.
-                </span>
-              </h3>
-            </div>
-            <div
-              ref={successWarning}
-              className="ce-warning success"
-              style={{ display: "none" }}
-            >
-              <h3 className="warning-text">
-                <span className="success-prefix">✅ Success! </span>
-                <span className="warning-content">
-                  {" "}
-                  Wrote config to deploy folder.
                 </span>
               </h3>
             </div>
