@@ -5,6 +5,7 @@ import { LogProvider } from "./utils/LogContext";
 import { StoreProvider } from "./utils/StoreContext";
 import NTProvider from "./ntcore-react/NTProvider";
 import { ToastProvider } from "react-toast-plus";
+import { platform } from "@tauri-apps/plugin-os";
 
 const MemoizedHub = React.memo(Hub);
 const MemoizedNTProvider = React.memo(NTProvider);
@@ -25,6 +26,8 @@ const AppComponent = () => {
             toastOptions={{
               closeOnClick: true,
               placement: "bottom-right",
+              pauseOnFocusLoss:
+                platform() !== "ios" && platform() !== "android",
             }}
           >
             <MemoizedHub setIp={stableSetIp} />

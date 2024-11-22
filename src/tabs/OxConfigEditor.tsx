@@ -160,12 +160,7 @@ const OxConfigEditor: React.FC<IDockviewPanelProps> = (params) => {
   useEffect(() => {
     if (!connected && hasConnected) {
       let disconnected = addToast.warning(
-        "[OxConfig] Robot is disconnected, editing has been disabled",
-        {
-          autoClose: false,
-          draggableClose: false,
-          closeOnClick: false,
-        }
+        "[OxConfig] Robot is disconnected, editing has been disabled"
       );
       return () => {
         removeToast(disconnected.id);

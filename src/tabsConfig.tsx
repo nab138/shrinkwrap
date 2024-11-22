@@ -28,7 +28,7 @@ export const tabsConfig = [
   {
     id: "oxconfig",
     component: OxConfigEditor,
-    title: "⚙️ OxConfig (Editor)",
+    title: "🛠️ OxConfig (Editor)",
   },
 ];
 
