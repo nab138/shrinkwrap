@@ -8,6 +8,7 @@ import useNTConnected from "../ntcore-react/useNTConnected";
 import useNTState from "../ntcore-react/useNTState";
 import { IDockviewPanelProps } from "dockview";
 import { useToast } from "react-toast-plus";
+import { invoke } from "@tauri-apps/api/core";
 
 const isMobile = platform() === "ios" || platform() === "android";
 
@@ -27,6 +28,7 @@ const OxConfigEditor: React.FC<IDockviewPanelProps> = () => {
 
   const { addToast, removeToast } = useToast();
   const [theme] = useStore("theme", "light");
+  const lastTimestamp = useRef<number>(0);
 
   useEffect(() => {
     const handleResize = () => {
@@ -115,6 +117,11 @@ const OxConfigEditor: React.FC<IDockviewPanelProps> = () => {
     ""
   );
   const currentMode = useNTValue<string>("/OxConfig/CurrentMode", "");
+  const [__, setMode] = useNTState<string>(
+    "/OxConfig/ModeSetter",
+    "string",
+    ""
+  );
 
   const parameters = useComputedNTValue<string, Parameter[]>(
     "/OxConfig/Params",
@@ -181,12 +188,27 @@ const OxConfigEditor: React.FC<IDockviewPanelProps> = () => {
   }, [deployDir]);
 
   useEffect(() => {
-    if (raw === "" || !connected) return;
-    let success = addToast.success("[OxConfig] Wrote config to deploy folder");
-    return () => {
-      removeToast(success.id);
-    };
-  }, [raw, connected]);
+    if (raw === "" || !connected || deployDir == "") return;
+    (async () => {
+      let split = raw.split(",");
+      let timestamp = parseInt(split.shift() ?? "0");
+      if (timestamp <= lastTimestamp.current) return;
+      lastTimestamp.current = timestamp;
+      let result = await invoke("write_oxconfig", {
+        deploy: deployDir,
+        data: split.join(","),
+        timestamp,
+      });
+      if (result === "success")
+        addToast.success("[OxConfig] Wrote config to deploy folder");
+      else if (result === "no-exist")
+        addToast.error(
+          "[OxConfig] Deploy directory missing or doesn't contain config.json"
+        );
+      else if (result !== "time")
+        addToast.error("[OxConfig] Failed to save config, check permissions");
+    })();
+  }, [raw, connected, deployDir]);
 
   return (
     <div className="pageContainer config-editor">
@@ -242,6 +264,9 @@ const OxConfigEditor: React.FC<IDockviewPanelProps> = () => {
               <select
                 className="dropdown mode-dropdown"
                 value={currentMode === "" ? undefined : currentMode}
+                onChange={(e) => {
+                  setMode(e.currentTarget.value);
+                }}
               >
                 {modes.length === 0 && (
                   <option value="failed">Not connected</option>

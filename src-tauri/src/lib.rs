@@ -1,6 +1,10 @@
 use std::fs::read_to_string;
-use std::fs::{self, write};
+use std::fs::{self, write, File};
+use std::path::Path;
+use std::io::Write;
+use std::sync::Mutex;
 use tauri::Manager;
+
 
 #[cfg(desktop)]
 use tauri::menu::{MenuBuilder, MenuItemBuilder, SubmenuBuilder};
@@ -10,6 +14,10 @@ use tauri::Emitter;
 
 #[cfg(desktop)]
 use tauri_plugin_global_shortcut::{Code, GlobalShortcutExt, Modifiers, Shortcut, ShortcutState};
+
+lazy_static::lazy_static! {
+    static ref LAST_TIMESTAMP: Mutex<u64> = Mutex::new(0);
+}
 
 #[cfg_attr(mobile, tauri::mobile_entry_point)]
 pub fn run() {
@@ -70,7 +78,7 @@ pub fn run() {
         })
         .plugin(tauri_plugin_shell::init())
         .plugin(tauri_plugin_os::init())
-        .invoke_handler(tauri::generate_handler![save_json, load_json])
+        .invoke_handler(tauri::generate_handler![save_json, load_json, write_oxconfig])
         .run(tauri::generate_context!())
         .expect("error while running tauri application");
 }
@@ -90,4 +98,30 @@ fn load_json(path: String, app_handle: tauri::AppHandle) -> Result<String, Strin
     let config_dir = app_handle.path().app_config_dir().unwrap();
     let p = config_dir.join(path);
     read_to_string(p).map_err(|e| e.to_string())
+}
+
+#[tauri::command]
+fn write_oxconfig(deploy: String, data: String, timestamp: u64) -> String {
+    let config_path = format!("{}/config.json", deploy);
+    let path = Path::new(&config_path);
+
+    if !path.exists() {
+        return "no-exist".to_string();
+    }
+
+    let mut last_timestamp = LAST_TIMESTAMP.lock().unwrap();
+    if timestamp <= *last_timestamp {
+        return "time".to_string();
+    }
+
+    match File::create(&path) {
+        Ok(mut file) => {
+            if let Err(_) = file.write_all(data.as_bytes()) {
+                return "failed".to_string();
+            }
+            *last_timestamp = timestamp;
+            "success".to_string()
+        }
+        Err(_) => "failed".to_string(),
+    }
 }
