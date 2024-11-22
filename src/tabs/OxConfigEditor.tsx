@@ -197,7 +197,10 @@ const OxConfigEditor: React.FC<IDockviewPanelProps> = () => {
             style={{ padding: "20px", paddingBottom: "10px" }}
           >
             <h2>Config Editor</h2>
-            {(screenSize === "large" || deployDir === "") && (
+            {(screenSize === "large" ||
+              (deployDir === "" &&
+                platform() !== "ios" &&
+                platform() !== "android")) && (
               <p className="deploy-dir deploy-path-cfg">
                 Deploy Directory
                 <span className="question-icon">?</span>
@@ -318,46 +321,44 @@ const OxConfigEditor: React.FC<IDockviewPanelProps> = () => {
                       ></input>
                     </div>
                   </td>
-                  {screenSize !== "small" &&
-                    param.values.map((value, i) => {
-                      let type = paramToInputType(param.type);
-                      let update = (e: any) => {
-                        let newValues = [...param.values];
-                        if (type === "checkbox")
-                          newValues[i] = e.currentTarget.checked
-                            ? "true"
-                            : "false";
-                        else newValues[i] = e.currentTarget.value;
-                        if (newValues[i] === param.values[i]) return;
-                        setKey(
-                          [param.key, param.comment, ...newValues].join(",")
-                        );
-                      };
-                      return (
-                        <td key={i}>
-                          <div>
-                            <input
-                              style={connected ? undefined : { color: "gray" }}
-                              disabled={!connected}
-                              key={value}
-                              type={type}
-                              onBlur={type === "checkbox" ? undefined : update}
-                              onChange={
-                                type === "checkbox" ? update : undefined
-                              }
-                              defaultValue={
-                                type === "checkbox" ? undefined : value
-                              }
-                              checked={
-                                type === "checkbox"
-                                  ? value === "true"
-                                  : undefined
-                              }
-                            ></input>
-                          </div>
-                        </td>
+                  {(screenSize !== "small"
+                    ? param.values
+                    : [param.values[modes.indexOf(currentMode)]]
+                  ).map((value, i) => {
+                    let type = paramToInputType(param.type);
+                    let update = (e: any) => {
+                      let newValues = [...param.values];
+                      if (type === "checkbox")
+                        newValues[i] = e.currentTarget.checked
+                          ? "true"
+                          : "false";
+                      else newValues[i] = e.currentTarget.value;
+                      if (newValues[i] === param.values[i]) return;
+                      setKey(
+                        [param.key, param.comment, ...newValues].join(",")
                       );
-                    })}
+                    };
+                    return (
+                      <td key={i}>
+                        <div>
+                          <input
+                            style={connected ? undefined : { color: "gray" }}
+                            disabled={!connected}
+                            key={value}
+                            type={type}
+                            onBlur={type === "checkbox" ? undefined : update}
+                            onChange={type === "checkbox" ? update : undefined}
+                            defaultValue={
+                              type === "checkbox" ? undefined : value
+                            }
+                            checked={
+                              type === "checkbox" ? value === "true" : undefined
+                            }
+                          ></input>
+                        </div>
+                      </td>
+                    );
+                  })}
                 </tr>
               ))}
             </tbody>
