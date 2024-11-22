@@ -9,7 +9,7 @@ import { platform } from "@tauri-apps/plugin-os";
 import useNTConnected from "../ntcore-react/useNTConnected";
 import useNTState from "../ntcore-react/useNTState";
 import { IDockviewPanelProps } from "dockview";
-import { toast } from "react-simple-toasts";
+import { useToast } from "react-toast-plus";
 
 const isMobile = platform() === "ios" || platform() === "android";
 
@@ -25,6 +25,8 @@ const OxConfigEditor: React.FC<IDockviewPanelProps> = (params) => {
   const [screenSize, setMobileScreen] = useState<ScreenSize>(
     isMobile ? "small" : "large"
   );
+
+  const { addToast, removeToast } = useToast();
 
   useEffect(() => {
     const handleResize = () => {
@@ -137,38 +139,44 @@ const OxConfigEditor: React.FC<IDockviewPanelProps> = (params) => {
   const raw = useNTValue<string>("/OxConfig/Raw", "");
 
   useEffect(() => {
-    if (!params.api.isFocused) return;
-
     if (deployDir === "") {
-      let warning = toast(
+      let warning = addToast.error(
         "[OxConfig] Deploy directory is unset. Changes will be overwritten on code rebuild.",
         {
-          duration: Infinity,
+          autoClose: false,
+          draggableClose: false,
+          closeOnClick: false,
         }
       );
       return () => {
-        warning.close();
+        removeToast(warning.id);
       };
     }
-  }, [deployDir, params.api.isFocused]);
+  }, [deployDir]);
 
   useEffect(() => {
-    let success = toast("[OxConfig] Wrote config to deploy folder");
+    if (raw === "" || !connected) return;
+    let success = addToast.success("[OxConfig] Wrote config to deploy folder");
     return () => {
-      success.close();
+      removeToast(success.id);
     };
-  }, [raw]);
+  }, [raw, connected]);
 
   useEffect(() => {
     if (!connected && hasConnected) {
-      let disconnected = toast("Robot is disconnected", {
-        duration: Infinity,
-      });
+      let disconnected = addToast.warning(
+        "[OxConfig] Robot is disconnected, editing has been disabled",
+        {
+          autoClose: false,
+          draggableClose: false,
+          closeOnClick: false,
+        }
+      );
       return () => {
-        disconnected.close();
+        removeToast(disconnected.id);
       };
     }
-  }, [connected, hasConnected, params.api.isFocused]);
+  }, [connected, hasConnected, params.api.isVisible]);
 
   return (
     <div className="pageContainer config-editor">

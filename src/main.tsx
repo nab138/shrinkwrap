@@ -4,9 +4,10 @@ import Hub from "./hub/Hub";
 import { LogProvider } from "./utils/LogContext";
 import { StoreProvider } from "./utils/StoreContext";
 import NTProvider from "./ntcore-react/NTProvider";
+import { ToastProvider } from "react-toast-plus";
 
 const MemoizedHub = React.memo(Hub);
-export const MemoizedNTProvider = React.memo(NTProvider);
+const MemoizedNTProvider = React.memo(NTProvider);
 const MemoizedLogProvider = React.memo(LogProvider);
 
 const AppComponent = () => {
@@ -20,7 +21,14 @@ const AppComponent = () => {
     <MemoizedNTProvider uri={ip === "" ? "0" : ip}>
       <StoreProvider>
         <MemoizedLogProvider>
-          <MemoizedHub setIp={stableSetIp} />
+          <ToastProvider
+            toastOptions={{
+              closeOnClick: true,
+              placement: "bottom-right",
+            }}
+          >
+            <MemoizedHub setIp={stableSetIp} />
+          </ToastProvider>
         </MemoizedLogProvider>
       </StoreProvider>
     </MemoizedNTProvider>
@@ -28,7 +36,5 @@ const AppComponent = () => {
 };
 
 ReactDOM.createRoot(document.getElementById("root") as HTMLElement).render(
-  <React.StrictMode>
-    <AppComponent />
-  </React.StrictMode>
+  <AppComponent />
 );

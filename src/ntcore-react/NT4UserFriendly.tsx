@@ -111,9 +111,13 @@ export class NTClient {
     this.client.addSample(topic, value);
   }
 
-  subscribeRoot(): SubscriptionData<any> {
+  public subscribeRoot(): SubscriptionData<any> {
     let sub = this.client.subscribeTopicsOnly(["/"], true);
     return new SubscriptionData(this.client, sub, () => {});
+  }
+
+  public disconnect() {
+    this.client.disconnect();
   }
 
   public static getInstanceByURI(uri: string) {

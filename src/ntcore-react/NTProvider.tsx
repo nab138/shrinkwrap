@@ -23,44 +23,27 @@ export default function NTProvider({
   teamNumber,
 }: NTProviderProps) {
   const [ntConnection, setNtConnection] = useState<NTClient | null>(null);
-  const [
-    ntConnectionCreatedUsingTeamNumber,
-    setNtConnectionCreatedUsingTeamNumber,
-  ] = useState<boolean>(false);
-
   const oldTeamNumber = useRef<number | undefined>();
 
   useEffect(() => {
     // Create a network tables connection if one doesn't exist
     // Otherwise, reconnect using the uri, or throw an error if a team number is provided
-    if (ntConnection === null) {
-      if (uri) {
-        setNtConnection(NTClient.getInstanceByURI(uri));
-        setNtConnectionCreatedUsingTeamNumber(false);
-      } else if (teamNumber) {
-        setNtConnection(NTClient.getInstanceByTeam(teamNumber));
-        setNtConnectionCreatedUsingTeamNumber(true);
-        oldTeamNumber.current = teamNumber;
-      } else {
-        throw new Error(
-          "Either a uri or a team number must be provided to create a network tables connection"
-        );
-      }
-    } else if (uri) {
-      //ntConnection.changeURI(uri, port);
-      setNtConnectionCreatedUsingTeamNumber(false);
-    } else if (
-      teamNumber !== oldTeamNumber.current &&
-      ntConnectionCreatedUsingTeamNumber
-    ) {
-      throw new Error(
-        "There is currently no support for changing a team number after the connection has been created. Use a uri instead."
-      );
+    if (uri) {
+      setNtConnection(NTClient.getInstanceByURI(uri));
+    } else if (teamNumber) {
+      setNtConnection(NTClient.getInstanceByTeam(teamNumber));
+      oldTeamNumber.current = teamNumber;
     } else {
       throw new Error(
         "Either a uri or a team number must be provided to create a network tables connection"
       );
     }
+
+    return () => {
+      if (ntConnection) {
+        ntConnection.disconnect();
+      }
+    };
   }, [uri, teamNumber]);
 
   useEffect(() => {

@@ -9,11 +9,7 @@ import { listen } from "@tauri-apps/api/event";
 import LeftControls from "./LeftControls";
 import { useStore } from "../utils/StoreContext";
 import useNTConnected from "../ntcore-react/useNTConnected";
-import toast, { toastConfig } from "react-simple-toasts";
-import "react-simple-toasts/dist/style.css";
-import "./toasttheme/light.css";
-import "./toasttheme/dark.css";
-import "./toasttheme/success.css";
+import { useToast } from "react-toast-plus";
 
 export interface HubProps {
   setIp: (ip: string) => void;
@@ -25,15 +21,7 @@ const Hub: React.FC<HubProps> = ({ setIp }) => {
   const [save, load] = useSaveLoad("layout.json");
   const connected = useNTConnected();
   const hasConnected = useRef<boolean>();
-
-  useEffect(() => {
-    let toastTheme = theme;
-    if (theme === "abyss") toastTheme = "dark";
-    toastConfig({
-      theme: toastTheme,
-      clickClosable: true,
-    });
-  }, [theme]);
+  const { addToast } = useToast();
 
   useEffect(() => {
     const setupListener = async () => {
@@ -65,12 +53,11 @@ const Hub: React.FC<HubProps> = ({ setIp }) => {
           }`
         );
       if (connected) {
-        toast("Connected to " + connectionIP, {
-          theme: "success",
-        });
+        addToast.success("Connected to " + connectionIP);
         hasConnected.current = true;
       } else {
-        if (hasConnected.current) toast("Disconnected from " + connectionIP);
+        if (hasConnected.current)
+          addToast.warning("Disconnected from " + connectionIP);
       }
     };
     renameWindow();
