@@ -270,13 +270,35 @@ const OxConfigEditor: React.FC<IDockviewPanelProps> = (params) => {
                       <input
                         style={connected ? undefined : { color: "gray" }}
                         disabled={!connected}
-                        value={param.comment}
+                        defaultValue={param.comment}
+                        onBlur={(e) => {
+                          if (param.comment === e.currentTarget.value) return;
+                          setKey(
+                            [
+                              param.key,
+                              e.currentTarget.value,
+                              ...param.values,
+                            ].join(",")
+                          );
+                        }}
                       ></input>
                     </div>
                   </td>
                   {screenSize !== "small" &&
                     param.values.map((value, i) => {
                       let type = paramToInputType(param.type);
+                      let update = (e: any) => {
+                        let newValues = [...param.values];
+                        if (type === "checkbox")
+                          newValues[i] = e.currentTarget.checked
+                            ? "true"
+                            : "false";
+                        else newValues[i] = e.currentTarget.value;
+                        if (newValues[i] === param.values[i]) return;
+                        setKey(
+                          [param.key, param.comment, ...newValues].join(",")
+                        );
+                      };
                       return (
                         <td key={i}>
                           <div>
@@ -285,20 +307,10 @@ const OxConfigEditor: React.FC<IDockviewPanelProps> = (params) => {
                               disabled={!connected}
                               key={value}
                               type={type}
-                              onBlur={(e) => {
-                                let newValues = [...param.values];
-                                if (type === "checkbox")
-                                  newValues[i] = e.currentTarget.checked
-                                    ? "true"
-                                    : "false";
-                                else newValues[i] = e.currentTarget.value;
-                                if (newValues[i] === param.values[i]) return;
-                                setKey(
-                                  [param.key, param.comment, ...newValues].join(
-                                    ","
-                                  )
-                                );
-                              }}
+                              onBlur={type === "checkbox" ? undefined : update}
+                              onChange={
+                                type === "checkbox" ? update : undefined
+                              }
                               defaultValue={
                                 type === "checkbox" ? undefined : value
                               }
