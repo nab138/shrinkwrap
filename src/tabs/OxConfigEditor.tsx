@@ -141,12 +141,7 @@ const OxConfigEditor: React.FC<IDockviewPanelProps> = (params) => {
   useEffect(() => {
     if (deployDir === "") {
       let warning = addToast.error(
-        "[OxConfig] Deploy directory is unset. Changes will be overwritten on code rebuild.",
-        {
-          autoClose: false,
-          draggableClose: false,
-          closeOnClick: false,
-        }
+        "[OxConfig] Deploy directory is unset. Changes will be overwritten on code rebuild."
       );
       return () => {
         removeToast(warning.id);
@@ -199,7 +194,13 @@ const OxConfigEditor: React.FC<IDockviewPanelProps> = (params) => {
                 </span>
                 <span style={{ marginRight: "5px" }}>:</span>
                 <code className="deploy-dir-path">
-                  {deployDir === "" ? "Not Set" : deployDir}
+                  {deployDir === "" ? (
+                    <span style={{ fontWeight: "bold", color: "darkred" }}>
+                      Not Set
+                    </span>
+                  ) : (
+                    deployDir
+                  )}
                 </code>
               </p>
             )}
