@@ -77,9 +77,7 @@ body {
 body {
   padding-top: env(safe-area-inset-top);
   padding-bottom: env(safe-area-inset-bottom);
-  min-height: calc(
-    100vh + env(safe-area-inset-bottom)
-  ); /* Ensure body takes at least the full viewport height */
+  min-height: 100vh;
   display: flex;
   flex-direction: column;
 }
