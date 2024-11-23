@@ -91,8 +91,7 @@ body {
   justify-content: center;
   text-align: center;
   width: 100%;
-  padding-bottom: env(safe-area-inset-bottom);
-  height: calc(100% - env(safe-area-inset-bottom));
+  height: calc(100%);
 }
 
 .logo {
