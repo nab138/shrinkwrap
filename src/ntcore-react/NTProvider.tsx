@@ -28,10 +28,13 @@ export default function NTProvider({
   useEffect(() => {
     // Create a network tables connection if one doesn't exist
     // Otherwise, reconnect using the uri, or throw an error if a team number is provided
+    let connection;
     if (uri) {
-      setNtConnection(NTClient.getInstanceByURI(uri));
+      connection = NTClient.getInstanceByURI(uri);
+      setNtConnection(connection);
     } else if (teamNumber) {
-      setNtConnection(NTClient.getInstanceByTeam(teamNumber));
+      connection = NTClient.getInstanceByTeam(teamNumber);
+      setNtConnection(connection);
       oldTeamNumber.current = teamNumber;
     } else {
       throw new Error(
@@ -40,8 +43,8 @@ export default function NTProvider({
     }
 
     return () => {
-      if (ntConnection) {
-        ntConnection.disconnect();
+      if (connection) {
+        connection.disconnect();
       }
     };
   }, [uri, teamNumber]);

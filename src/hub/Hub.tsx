@@ -13,14 +13,15 @@ import { useToast } from "react-toast-plus";
 
 export interface HubProps {
   setIp: (ip: string) => void;
+  ip: string;
 }
 
-const Hub: React.FC<HubProps> = ({ setIp }) => {
+const Hub: React.FC<HubProps> = ({ setIp, ip }) => {
   const [connectionIP] = useStore<string>("connectionIP", "127.0.0.1");
   const [theme] = useStore<string>("theme", "light");
   const [save, load] = useSaveLoad("layout.json");
   const connected = useNTConnected();
-  const hasConnected = useRef<boolean>();
+  const hasConnected = useRef<string | null>();
   const { addToast } = useToast();
 
   useEffect(() => {
@@ -48,20 +49,18 @@ const Hub: React.FC<HubProps> = ({ setIp }) => {
       await tauriWindow
         .getCurrentWindow()
         .setTitle(
-          `ShrinkWrap - ${
-            connected ? "Connected to " + connectionIP : "Disconnected"
-          }`
+          `ShrinkWrap - ${connected ? "Connected to " + ip : "Disconnected"}`
         );
       if (connected) {
-        addToast.success("Connected to " + connectionIP);
-        hasConnected.current = true;
+        addToast.success("Connected to " + ip);
+        hasConnected.current = ip;
       } else {
-        if (hasConnected.current)
-          addToast.warning("Disconnected from " + connectionIP);
+        if (hasConnected.current === ip)
+          addToast.warning("Disconnected from " + ip);
       }
     };
     renameWindow();
-  }, [connected, connectionIP]);
+  }, [connected, ip]);
 
   useEffect(() => {
     document.body.className = `${theme}`;

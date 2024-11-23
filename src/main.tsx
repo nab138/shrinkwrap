@@ -30,7 +30,7 @@ const AppComponent = () => {
                 platform() !== "ios" && platform() !== "android",
             }}
           >
-            <MemoizedHub setIp={stableSetIp} />
+            <MemoizedHub setIp={stableSetIp} ip={ip === "" ? "0" : ip} />
           </ToastProvider>
         </MemoizedLogProvider>
       </StoreProvider>
