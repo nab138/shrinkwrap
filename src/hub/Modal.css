@@ -19,7 +19,7 @@
   border-radius: 4px;
   position: relative;
   width: 80%;
-  max-width: 500px;
+  max-width: min(500px, 80%);
   /* Move to upper third of screen */
   bottom: 20%;
 }

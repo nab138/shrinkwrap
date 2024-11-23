@@ -10,6 +10,7 @@ import { IDockviewPanelProps } from "dockview";
 import { useToast } from "react-toast-plus";
 import { invoke } from "@tauri-apps/api/core";
 import { decode } from "@msgpack/msgpack";
+import Modal from "../hub/Modal";
 
 const isMobile = platform() === "ios" || platform() === "android";
 
@@ -246,6 +247,8 @@ const OxConfigEditor: React.FC<IDockviewPanelProps> = () => {
     })();
   }, [raw, connected, deployDir, connectedClients]);
 
+  let [openKey, setOpenKey] = useState<string | null>(null);
+
   return (
     <div className="pageContainer config-editor">
       <div>
@@ -264,8 +267,8 @@ const OxConfigEditor: React.FC<IDockviewPanelProps> = () => {
                     return false;
                   return client.id.includes("ShrinkWrapDesktop");
                 })
-                  ? "Desktop ✔️"
-                  : "Desktop ❌"}
+                  ? "PC Conneted"
+                  : "No PC Connected"}
               </p>
             )}
             {(screenSize === "large" || (deployDir === "" && !isMobile)) && (
@@ -344,9 +347,11 @@ const OxConfigEditor: React.FC<IDockviewPanelProps> = () => {
                 <th className="param-table-header">
                   <div>Parameter</div> <div className="resizer" />
                 </th>
-                <th className="comment-table-header">
-                  <div>Comment</div> <div className="resizer" />
-                </th>
+                {screenSize !== "small" && (
+                  <th className="comment-table-header">
+                    <div>Comment</div> <div className="resizer" />
+                  </th>
+                )}
                 {screenSize !== "small" &&
                   modes.map((mode) => (
                     <th key={mode}>
@@ -354,15 +359,6 @@ const OxConfigEditor: React.FC<IDockviewPanelProps> = () => {
                       <div className="resizer" />
                     </th>
                   ))}
-                {screenSize === "small" && (
-                  <th>
-                    <div>
-                      {currentMode.charAt(0).toUpperCase() +
-                        currentMode.slice(1)}
-                    </div>
-                    <div className="resizer" />
-                  </th>
-                )}
               </tr>
             </thead>
             <tbody className="parameter-table" ref={table}>
@@ -372,64 +368,86 @@ const OxConfigEditor: React.FC<IDockviewPanelProps> = () => {
                     dangerouslySetInnerHTML={{
                       __html: param.displayKey ?? param.key,
                     }}
+                    onClick={() => {
+                      if (screenSize !== "small") return;
+                      setOpenKey(param.key);
+                    }}
                   ></td>
-                  <td>
-                    <div>
-                      <input
-                        style={connected ? undefined : { color: "gray" }}
-                        disabled={!connected}
-                        defaultValue={param.comment}
-                        onBlur={(e) => {
-                          if (param.comment === e.currentTarget.value) return;
-                          setKey(
-                            [
-                              param.key,
-                              e.currentTarget.value,
-                              ...param.values,
-                            ].join(",")
+                  {screenSize !== "small" && (
+                    <td>
+                      <div>
+                        <input
+                          style={connected ? undefined : { color: "gray" }}
+                          disabled={!connected}
+                          defaultValue={param.comment}
+                          onBlur={(e) => {
+                            if (param.comment === e.currentTarget.value) return;
+                            setKey(
+                              [
+                                param.key,
+                                e.currentTarget.value,
+                                ...param.values,
+                              ].join(",")
+                            );
+                          }}
+                        ></input>
+                      </div>
+                    </td>
+                  )}
+
+                  {screenSize === "small" && (
+                    <Modal
+                      isOpen={openKey === param.key}
+                      onClose={() => setOpenKey(null)}
+                      key={param.key}
+                    >
+                      <h2 style={{ marginTop: 0 }}>{param.key}</h2>
+                      <table className="data-table param-table">
+                        <thead>
+                          <tr>
+                            <th>Mode</th>
+                            <th>Value</th>
+                          </tr>
+                        </thead>
+                        {param.values.map((value, i) => {
+                          let inputElem = getInputElem(
+                            param,
+                            value,
+                            i,
+                            connected,
+                            setKey
                           );
-                        }}
-                      ></input>
-                    </div>
-                  </td>
-                  {(screenSize !== "small"
-                    ? param.values
-                    : [param.values[modes.indexOf(currentMode)]]
-                  ).map((value, i) => {
-                    let type = paramToInputType(param.type);
-                    let update = (e: any) => {
-                      let newValues = [...param.values];
-                      if (type === "checkbox")
-                        newValues[i] = e.currentTarget.checked
-                          ? "true"
-                          : "false";
-                      else newValues[i] = e.currentTarget.value;
-                      if (newValues[i] === param.values[i]) return;
-                      setKey(
-                        [param.key, param.comment, ...newValues].join(",")
+                          return (
+                            <tr>
+                              <td>
+                                {modes[i].charAt(0).toUpperCase() +
+                                  modes[i].slice(1)}
+                              </td>
+                              <td>
+                                <div>{inputElem}</div>
+                              </td>
+                            </tr>
+                          );
+                        })}
+                      </table>
+                    </Modal>
+                  )}
+
+                  {screenSize !== "small" &&
+                    param.values.map((value, i) => {
+                      let inputElem = getInputElem(
+                        param,
+                        value,
+                        i,
+                        connected,
+                        setKey
                       );
-                    };
-                    return (
-                      <td key={i}>
-                        <div>
-                          <input
-                            style={connected ? undefined : { color: "gray" }}
-                            disabled={!connected}
-                            key={value}
-                            type={type}
-                            onBlur={type === "checkbox" ? undefined : update}
-                            onChange={type === "checkbox" ? update : undefined}
-                            defaultValue={
-                              type === "checkbox" ? undefined : value
-                            }
-                            checked={
-                              type === "checkbox" ? value === "true" : undefined
-                            }
-                          ></input>
-                        </div>
-                      </td>
-                    );
-                  })}
+                      return (
+                        <td key={i}>
+                          <div>{inputElem}</div>
+                        </td>
+                      );
+                    })}
                 </tr>
               ))}
             </tbody>
@@ -441,6 +459,37 @@ const OxConfigEditor: React.FC<IDockviewPanelProps> = () => {
 };
 
 export default OxConfigEditor;
+
+function getInputElem(
+  param: Parameter,
+  value: any,
+  i: number,
+  connected: boolean,
+  setKey: (key: string) => void
+) {
+  let type = paramToInputType(param.type);
+  let update = (e: any) => {
+    let newValues = [...param.values];
+    if (type === "checkbox")
+      newValues[i] = e.currentTarget.checked ? "true" : "false";
+    else newValues[i] = e.currentTarget.value;
+    if (newValues[i] === param.values[i]) return;
+    setKey([param.key, param.comment, ...newValues].join(","));
+  };
+  let inputElem = (
+    <input
+      style={connected ? undefined : { color: "gray" }}
+      disabled={!connected}
+      key={value}
+      type={type}
+      onBlur={type === "checkbox" ? undefined : update}
+      onChange={type === "checkbox" ? update : undefined}
+      defaultValue={type === "checkbox" ? undefined : value}
+      checked={type === "checkbox" ? value === "true" : undefined}
+    />
+  );
+  return inputElem;
+}
 
 function paramToInputType(typeRaw: string) {
   let type = typeRaw.toLowerCase();
