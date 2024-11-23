@@ -9,6 +9,7 @@ import useNTState from "../ntcore-react/useNTState";
 import { IDockviewPanelProps } from "dockview";
 import { useToast } from "react-toast-plus";
 import { invoke } from "@tauri-apps/api/core";
+import { decode } from "@msgpack/msgpack";
 
 const isMobile = platform() === "ios" || platform() === "android";
 
@@ -174,9 +175,28 @@ const OxConfigEditor: React.FC<IDockviewPanelProps> = () => {
 
   const [_, setKey] = useNTState<string>("/OxConfig/KeySetter", "string", "");
 
+  const connectedClients = useComputedNTValue<Uint8Array, any>(
+    "$clients",
+    (val) => {
+      try {
+        // Ensure val is a valid Uint8Array before decoding
+        if (val instanceof Uint8Array) {
+          return decode(val);
+        } else {
+          console.error("Expected Uint8Array but received:", val);
+          return [];
+        }
+      } catch (error) {
+        return [];
+      }
+    },
+    new Uint8Array()
+  );
+
   const raw = useNTValue<string>("/OxConfig/Raw", "");
 
   useEffect(() => {
+    if (isMobile) return;
     if (deployDir === "") {
       let warning = addToast.error(
         "[OxConfig] Deploy directory is unset. Changes will be overwritten on code rebuild."
@@ -188,7 +208,21 @@ const OxConfigEditor: React.FC<IDockviewPanelProps> = () => {
   }, [deployDir]);
 
   useEffect(() => {
-    if (raw === "" || !connected || deployDir == "") return;
+    if (raw === "" || !connected || (!isMobile && deployDir == "")) return;
+    if (isMobile) {
+      if (
+        !connectedClients.some((client: any) => {
+          if (client === undefined || client === null) return false;
+          if (client.id === undefined || client.id === null) return false;
+          return client.id.includes("ShrinkWrapDesktop");
+        })
+      ) {
+        addToast.warning(
+          "[OxConfig] Shrinkwrap mobile is unable to save changes to the config file unless a desktop client is connected."
+        );
+      }
+      return;
+    }
     (async () => {
       let split = raw.split(",");
       let timestamp = parseInt(split.shift() ?? "0");
@@ -199,16 +233,17 @@ const OxConfigEditor: React.FC<IDockviewPanelProps> = () => {
         data: split.join(","),
         timestamp,
       });
-      if (result === "success")
+      if (result === "success") {
         addToast.success("[OxConfig] Wrote config to deploy folder");
-      else if (result === "no-exist")
+      } else if (result === "no-exist") {
         addToast.error(
           "[OxConfig] Deploy directory missing or doesn't contain config.json"
         );
-      else if (result !== "time")
+      } else if (result !== "time") {
         addToast.error("[OxConfig] Failed to save config, check permissions");
+      }
     })();
-  }, [raw, connected, deployDir]);
+  }, [raw, connected, deployDir, connectedClients]);
 
   return (
     <div className="pageContainer config-editor">
@@ -219,10 +254,20 @@ const OxConfigEditor: React.FC<IDockviewPanelProps> = () => {
             style={{ padding: "20px", paddingBottom: "10px" }}
           >
             <h2>Config Editor</h2>
-            {(screenSize === "large" ||
-              (deployDir === "" &&
-                platform() !== "ios" &&
-                platform() !== "android")) && (
+
+            {isMobile && (
+              <p style={{ margin: "0px" }}>
+                {!connectedClients.some((client: any) => {
+                  if (client === undefined || client === null) return false;
+                  if (client.id === undefined || client.id === null)
+                    return false;
+                  return client.id.includes("ShrinkWrapDesktop");
+                })
+                  ? "Desktop Connected"
+                  : "No Connected Desktop"}
+              </p>
+            )}
+            {(screenSize === "large" || (deployDir === "" && !isMobile)) && (
               <p className="deploy-dir deploy-path-cfg">
                 Deploy Directory
                 <span className="question-icon">?</span>

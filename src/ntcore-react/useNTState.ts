@@ -5,16 +5,12 @@ import NTTopicTypes from "./NTTopicType";
 const useNTState = <T extends NTTopicTypes>(
   key: string,
   type: string,
-  defaultValue: T
+  defaultValue: T,
+  unretained = false
 ): [
   T,
   (
-    value: T,
-    publishProperties?: {
-      persistent?: boolean;
-      retained?: boolean;
-      id?: number;
-    }
+    value: T
   ) => void
 ] => {
   const client = useContext(NTContext);
@@ -27,6 +23,7 @@ const useNTState = <T extends NTTopicTypes>(
       };
       const subscription = client.subscribe(key, listener);
       client.publish(key, type);
+      if(unretained) client.getClient().setRetained(key, false);
 
       return () => {
         subscription.unsubscribe();
@@ -48,6 +45,7 @@ const useNTState = <T extends NTTopicTypes>(
   const setNTValue = (value: T) => {
     if (!client) return;
     client.publish(key, type);
+    if(unretained) client.getClient().setRetained(key, false);
     client.setValue(key, value);
     setValue(value);
   };

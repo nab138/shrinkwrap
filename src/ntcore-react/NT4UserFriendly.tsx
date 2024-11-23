@@ -1,5 +1,7 @@
+import { platform } from "@tauri-apps/plugin-os";
 import { NT4_Client, NT4_Subscription, NT4_Topic } from "./NT4";
 
+let isMobile = platform() === "ios" || platform() === "android";
 export class SubscriptionData<T> {
   private listener: (value: T) => void;
   private subscription: NT4_Subscription;
@@ -36,7 +38,7 @@ export class NTClient {
   constructor(server_base_address: string) {
     this.client = new NT4_Client(
       server_base_address,
-      "ShrinkWrap",
+      "ShrinkWrap" + (isMobile ? "Mobile" : "Desktop"),
       (topic) => {
         this.topics.set(topic.name, topic);
       },
@@ -118,6 +120,10 @@ export class NTClient {
 
   public disconnect() {
     this.client.disconnect();
+  }
+
+  public getClient() {
+    return this.client;
   }
 
   public static getInstanceByURI(uri: string) {
