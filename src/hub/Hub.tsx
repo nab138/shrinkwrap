@@ -19,7 +19,7 @@ export interface HubProps {
 const Hub: React.FC<HubProps> = ({ setIp, ip }) => {
   const [connectionIP] = useStore<string>("connectionIP", "127.0.0.1");
   const [theme] = useStore<string>("theme", "light");
-  const [save, load] = useSaveLoad("layout.json");
+  const [save, load] = useSaveLoad("app-layout.json");
   const connected = useNTConnected();
   const hasConnected = useRef<string | null>();
   const { addToast } = useToast();
@@ -68,14 +68,14 @@ const Hub: React.FC<HubProps> = ({ setIp, ip }) => {
 
   const onReady = useCallback(
     async (event: DockviewReadyEvent) => {
-      let openWelcomeTab = () => {
-        let tab = tabsConfig.find((tab) => tab.id === "welcome");
+      let openSettingsTab = () => {
+        let tab = tabsConfig.find((tab) => tab.id === "settings");
         if (tab == null) return;
-        let newId = "welcome" + event.api.panels.length;
+        let newId = "settings" + event.api.panels.length;
         event.api
           ?.addPanel({
             id: newId,
-            component: "welcome",
+            component: "settings",
             params: { id: newId },
           })
           .setTitle(tab.title);
@@ -86,19 +86,19 @@ const Hub: React.FC<HubProps> = ({ setIp, ip }) => {
         layout = await load();
       } catch (e) {
         console.warn("Failed to load saved layout", e);
-        openWelcomeTab();
+        openSettingsTab();
         failed = true;
       }
       if (layout != null && !failed) {
         event.api.fromJSON(JSON.parse(layout));
       }
       if (event.api.panels.length === 0) {
-        openWelcomeTab();
+        openSettingsTab();
       }
 
       let unlisten = event.api.onDidLayoutChange(async () => {
         if (event.api.panels.length === 0) {
-          openWelcomeTab();
+          openSettingsTab();
           return;
         }
         let json = event.api.toJSON();
