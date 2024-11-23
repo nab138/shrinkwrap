@@ -210,6 +210,7 @@ const OxConfigEditor: React.FC<IDockviewPanelProps> = () => {
   useEffect(() => {
     if (raw === "" || !connected || (!isMobile && deployDir == "")) return;
     if (isMobile) {
+      if (connectedClients.length === 0) return;
       if (
         !connectedClients.some((client: any) => {
           if (client === undefined || client === null) return false;
@@ -257,14 +258,14 @@ const OxConfigEditor: React.FC<IDockviewPanelProps> = () => {
 
             {isMobile && (
               <p style={{ margin: "0px" }}>
-                {!connectedClients.some((client: any) => {
+                {connectedClients.some((client: any) => {
                   if (client === undefined || client === null) return false;
                   if (client.id === undefined || client.id === null)
                     return false;
                   return client.id.includes("ShrinkWrapDesktop");
                 })
-                  ? "Desktop Connected"
-                  : "No Connected Desktop"}
+                  ? "Desktop ✔️"
+                  : "Desktop ❌"}
               </p>
             )}
             {(screenSize === "large" || (deployDir === "" && !isMobile)) && (
