@@ -370,7 +370,9 @@ const OxConfigEditor: React.FC<IDockviewPanelProps> = () => {
                       onClose={() => setOpenKey(null)}
                       key={param.key}
                     >
-                      <h2 style={{ marginTop: 0 }}>{param.key}</h2>
+                      <h2 style={{ marginTop: 0, marginBottom: "15px" }}>
+                        {param.key}
+                      </h2>
                       <table className="data-table param-table">
                         <thead>
                           <tr>
@@ -378,27 +380,61 @@ const OxConfigEditor: React.FC<IDockviewPanelProps> = () => {
                             <th>Value</th>
                           </tr>
                         </thead>
-                        {param.values.map((value, i) => {
-                          let inputElem = getInputElem(
-                            param,
-                            value,
-                            i,
-                            connected,
-                            setKey
-                          );
-                          return (
-                            <tr>
-                              <td>
-                                {modes[i].charAt(0).toUpperCase() +
-                                  modes[i].slice(1)}
-                              </td>
-                              <td>
-                                <div>{inputElem}</div>
-                              </td>
-                            </tr>
-                          );
-                        })}
+                        <tbody>
+                          <tr>
+                            <td>Comment</td>
+                            <td>
+                              <div>
+                                <input
+                                  style={
+                                    connected ? undefined : { color: "gray" }
+                                  }
+                                  disabled={!connected}
+                                  defaultValue={param.comment}
+                                  onBlur={(e) => {
+                                    if (param.comment === e.currentTarget.value)
+                                      return;
+                                    setKey(
+                                      [
+                                        param.key,
+                                        e.currentTarget.value,
+                                        ...param.values,
+                                      ].join(",")
+                                    );
+                                  }}
+                                />
+                              </div>
+                            </td>
+                          </tr>
+
+                          {param.values.map((value, i) => {
+                            let inputElem = getInputElem(
+                              param,
+                              value,
+                              i,
+                              connected,
+                              setKey
+                            );
+                            return (
+                              <tr>
+                                <td>
+                                  {modes[i].charAt(0).toUpperCase() +
+                                    modes[i].slice(1)}
+                                </td>
+                                <td>
+                                  <div>{inputElem}</div>
+                                </td>
+                              </tr>
+                            );
+                          })}
+                        </tbody>
                       </table>
+                      <button
+                        style={{ width: "100%", marginTop: "15px" }}
+                        onClick={() => setOpenKey(null)}
+                      >
+                        Close
+                      </button>
                     </Modal>
                   )}
 
