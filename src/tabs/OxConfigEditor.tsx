@@ -363,38 +363,7 @@ const OxConfigEditor: React.FC<IDockviewPanelProps> = () => {
             </thead>
             <tbody className="parameter-table" ref={table}>
               {displayParameters.map((param) => (
-                <tr key={param.key}>
-                  <td
-                    dangerouslySetInnerHTML={{
-                      __html: param.displayKey ?? param.key,
-                    }}
-                    onClick={() => {
-                      if (screenSize !== "small") return;
-                      setOpenKey(param.key);
-                    }}
-                  ></td>
-                  {screenSize !== "small" && (
-                    <td>
-                      <div>
-                        <input
-                          style={connected ? undefined : { color: "gray" }}
-                          disabled={!connected}
-                          defaultValue={param.comment}
-                          onBlur={(e) => {
-                            if (param.comment === e.currentTarget.value) return;
-                            setKey(
-                              [
-                                param.key,
-                                e.currentTarget.value,
-                                ...param.values,
-                              ].join(",")
-                            );
-                          }}
-                        ></input>
-                      </div>
-                    </td>
-                  )}
-
+                <>
                   {screenSize === "small" && (
                     <Modal
                       isOpen={openKey === param.key}
@@ -433,22 +402,61 @@ const OxConfigEditor: React.FC<IDockviewPanelProps> = () => {
                     </Modal>
                   )}
 
-                  {screenSize !== "small" &&
-                    param.values.map((value, i) => {
-                      let inputElem = getInputElem(
-                        param,
-                        value,
-                        i,
-                        connected,
-                        setKey
-                      );
-                      return (
-                        <td key={i}>
-                          <div>{inputElem}</div>
-                        </td>
-                      );
-                    })}
-                </tr>
+                  <tr key={param.key}>
+                    <td
+                      dangerouslySetInnerHTML={{
+                        __html: param.displayKey ?? param.key,
+                      }}
+                      style={
+                        screenSize === "small"
+                          ? { padding: "5px", width: "100%" }
+                          : undefined
+                      }
+                      onClick={() => {
+                        if (screenSize !== "small") return;
+                        setOpenKey(param.key);
+                      }}
+                    ></td>
+                    {screenSize !== "small" && (
+                      <td>
+                        <div>
+                          <input
+                            style={connected ? undefined : { color: "gray" }}
+                            disabled={!connected}
+                            defaultValue={param.comment}
+                            onBlur={(e) => {
+                              if (param.comment === e.currentTarget.value)
+                                return;
+                              setKey(
+                                [
+                                  param.key,
+                                  e.currentTarget.value,
+                                  ...param.values,
+                                ].join(",")
+                              );
+                            }}
+                          ></input>
+                        </div>
+                      </td>
+                    )}
+
+                    {screenSize !== "small" &&
+                      param.values.map((value, i) => {
+                        let inputElem = getInputElem(
+                          param,
+                          value,
+                          i,
+                          connected,
+                          setKey
+                        );
+                        return (
+                          <td key={i}>
+                            <div>{inputElem}</div>
+                          </td>
+                        );
+                      })}
+                  </tr>
+                </>
               ))}
             </tbody>
           </table>
