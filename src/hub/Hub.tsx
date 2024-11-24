@@ -21,6 +21,7 @@ export interface HubProps {
 const Hub: React.FC<HubProps> = ({ setIp, ip }) => {
   const [connectionIP] = useStore<string>("connectionIP", "127.0.0.1");
   const [theme] = useStore<string>("theme", "light");
+  const [autoUpdate] = useStore<boolean>("autoUpdate", false);
   const [save, load] = useSaveLoad("app-layout.json");
   const connected = useNTConnected();
   const hasConnected = useRef<string | null>();
@@ -28,10 +29,10 @@ const Hub: React.FC<HubProps> = ({ setIp, ip }) => {
   const { addToast } = useToast();
 
   useEffect(() => {
-    if (import.meta.env.DEV || platform() === "ios" || platform() === "android")
-      return;
-    checkForUpdates();
-  }, []);
+    if (!autoUpdate) return;
+    if (platform() === "ios" || platform() === "android") return;
+    checkForUpdates(true);
+  }, [autoUpdate]);
 
   useEffect(() => {
     const setupListener = async () => {

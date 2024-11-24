@@ -14,6 +14,7 @@ const isMobile = platform() === "ios" || platform() === "android";
 
 const Settings: React.FC<IDockviewPanelProps<{ id: string }>> = () => {
   const [theme, setTheme] = useStore<Theme>("theme", "light");
+  const [autoUpdate, setAutoUpdate] = useStore<boolean>("autoUpdate", true);
   const [connectionIP, setConnectionIP] = useStore<string>(
     "connectionIP",
     "127.0.0.1"
@@ -63,12 +64,11 @@ const Settings: React.FC<IDockviewPanelProps<{ id: string }>> = () => {
             <div style={{ width: "fit-content" }}>
               <label>Check for updates </label>
               <select
-                value={theme}
-                onChange={(e) => setTheme(e.target.value as Theme)}
+                value={autoUpdate ? "auto" : "never"}
+                onChange={(e) => setAutoUpdate(e.target.value === "auto")}
               >
-                <option value="light">Light</option>
-                <option value="dark">Dark</option>
-                <option value="abyss">Abyss</option>
+                <option value="auto">At Startup</option>
+                <option value="never">Manually</option>
               </select>
             </div>
           )}

@@ -18,12 +18,12 @@ export const UpdateProvider: React.FC<{ children: React.ReactNode }> = ({
 
   const checkForUpdates = useCallback(
     async (alertIfNone?: boolean) => {
-      if (
-        import.meta.env.DEV ||
-        platform() === "ios" ||
-        platform() === "android"
-      )
+      if (platform() === "ios" || platform() === "android") return;
+      if (import.meta.env.DEV) {
+        if (alertIfNone)
+          addToast.info("Auto updates are disabled in development mode.");
         return;
+      }
       const update = await check();
       if (update) {
         if (
