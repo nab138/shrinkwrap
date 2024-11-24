@@ -66,5 +66,6 @@ jobs:
           releaseBody: "ShrinkWrap is currently under development, and builds may not be stable."
           releaseDraft: false
           prerelease: false
+          updaterJsonPreferNsis: true
           includeUpdaterJson: true
           args: ${{ matrix.args }}
