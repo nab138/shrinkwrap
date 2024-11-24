@@ -30,8 +30,9 @@ const Hub: React.FC<HubProps> = ({ setIp, ip }) => {
 
   useEffect(() => {
     if (!autoUpdate) return;
-    if (platform() === "ios" || platform() === "android") return;
-    checkForUpdates(true);
+    if (import.meta.env.DEV || platform() === "ios" || platform() === "android")
+      return;
+    checkForUpdates();
   }, [autoUpdate]);
 
   useEffect(() => {
