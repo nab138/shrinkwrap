@@ -1,4 +1,4 @@
-name: "publish"
+name: "Deploy Desktop App"
 
 on:
   workflow_dispatch:
