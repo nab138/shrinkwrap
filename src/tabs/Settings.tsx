@@ -6,7 +6,10 @@ import "./Settings.css";
 import useNTConnected from "../ntcore-react/useNTConnected";
 import { open } from "@tauri-apps/plugin-dialog";
 import { platform } from "@tauri-apps/plugin-os";
+import { getVersion } from "@tauri-apps/api/app";
+import { useUpdate } from "../utils/UpdateContext";
 
+const appVersion = await getVersion();
 const isMobile = platform() === "ios" || platform() === "android";
 
 const Settings: React.FC<IDockviewPanelProps<{ id: string }>> = () => {
@@ -21,6 +24,7 @@ const Settings: React.FC<IDockviewPanelProps<{ id: string }>> = () => {
   );
   const [deployDir, setDeployDir] = useStore("deployDir", "");
   const connected = useNTConnected();
+  const { checkForUpdates } = useUpdate();
 
   return (
     <div className="pageContainer settingsContainer">
@@ -49,6 +53,12 @@ const Settings: React.FC<IDockviewPanelProps<{ id: string }>> = () => {
               <option value="abyss">Abyss</option>
             </select>
           </div>
+          <p className="settings-text">Version: {appVersion}</p>
+          {!isMobile && (
+            <button onClick={() => checkForUpdates(true)}>
+              Check for Updates
+            </button>
+          )}
         </Card>
         <Card title="OxConfig">
           {!isMobile && (
