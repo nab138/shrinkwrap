@@ -26,3 +26,4 @@ dist-ssr
 shrinkwrap.pkg
 # Million Lint
 .million
+*.key

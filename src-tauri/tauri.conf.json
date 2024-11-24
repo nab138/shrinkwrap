@@ -1,6 +1,6 @@
 {
   "productName": "shrinkwrap",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "identifier": "me.nabdev.shrinkwrap",
   "build": {
     "beforeDevCommand": "bun run dev",
@@ -22,6 +22,7 @@
     }
   },
   "bundle": {
+    "createUpdaterArtifacts": true,
     "active": true,
     "targets": "all",
     "icon": [
@@ -38,6 +39,14 @@
       "files": {
         "embedded.provisionprofile": "/Users/alex/Library/MobileDevice/ProvisioningProfiles/build_pp.provisionprofile"
       }
+    }
+  },
+  "plugins": {
+    "updater": {
+      "pubkey": "dW50cnVzdGVkIGNvbW1lbnQ6IG1pbmlzaWduIHB1YmxpYyBrZXk6IDQ4MDcwNjUzRTVENEE0RjMKUldUenBOVGxVd1lIU0ZSME5ReUF4TEY4VG1aNDJ6MmNYSVhjWWZvNFFxcHhYNVJXSmltYkF5a0gK",
+      "endpoints": [
+        "https://github.com/nab138/repo/shrinkwrap/latest/download/latest.json"
+      ]
     }
   }
 }

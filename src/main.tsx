@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useEffect } from "react";
 import ReactDOM from "react-dom/client";
 import Hub from "./hub/Hub";
 import { LogProvider } from "./utils/LogContext";

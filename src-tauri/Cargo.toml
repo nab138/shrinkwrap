@@ -1,6 +1,6 @@
 [package]
 name = "shrinkwrap"
-version = "0.1.0"
+version = "0.1.1"
 description = "The best FRC App"
 authors = ["nab138", "Alex-idk"]
 edition = "2021"
@@ -22,7 +22,9 @@ tauri-plugin-os = "2"
 tauri-plugin-store = "2"
 tauri-plugin-dialog = "2"
 lazy_static = "1.5.0"
+tauri-plugin-process = "2"
 
 [target.'cfg(not(any(target_os = "android", target_os = "ios")))'.dependencies]
 tauri-plugin-global-shortcut = "2"
+tauri-plugin-updater = "2"
 

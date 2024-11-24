@@ -1,4 +1,4 @@
-name: Build
+name: Deploy to TestFlight
 on: [push, pull_request, workflow_dispatch]
 
 jobs:

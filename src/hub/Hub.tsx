@@ -10,6 +10,10 @@ import LeftControls from "./LeftControls";
 import { useStore } from "../utils/StoreContext";
 import useNTConnected from "../ntcore-react/useNTConnected";
 import { useToast } from "react-toast-plus";
+import { ask } from "@tauri-apps/plugin-dialog";
+import { check } from "@tauri-apps/plugin-updater";
+import { relaunch } from "@tauri-apps/plugin-process";
+import { platform } from "@tauri-apps/plugin-os";
 
 export interface HubProps {
   setIp: (ip: string) => void;
@@ -23,6 +27,49 @@ const Hub: React.FC<HubProps> = ({ setIp, ip }) => {
   const connected = useNTConnected();
   const hasConnected = useRef<string | null>();
   const { addToast } = useToast();
+
+  useEffect(() => {
+    if (platform() === "ios" || platform() === "android") return;
+    const checkForUpdates = async () => {
+      const update = await check();
+      if (update) {
+        if (
+          !(await ask(
+            "A new update is available (v" +
+              update.version +
+              "). Would you like to download & install it?"
+          ))
+        )
+          return;
+
+        let relaunchConfirm = async () => {
+          if (!(await ask("Update installed. Relaunch now?"))) return;
+          await relaunch();
+        };
+
+        let updatePromise = update.downloadAndInstall((event) => {
+          switch (event.event) {
+            case "Started":
+              break;
+            case "Progress":
+              break;
+            case "Finished":
+              relaunchConfirm();
+              break;
+          }
+        });
+
+        addToast.promise(updatePromise, {
+          pending: "Downloading update...",
+          success: () => `App updated to v${update.version}`,
+          error: (error) => `Failed to update: ${error}`,
+        });
+
+        await relaunch();
+      }
+    };
+    checkForUpdates();
+  }, []);
 
   useEffect(() => {
     const setupListener = async () => {
