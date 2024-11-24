@@ -8,8 +8,8 @@ import { open } from "@tauri-apps/plugin-dialog";
 import { platform } from "@tauri-apps/plugin-os";
 import { getVersion } from "@tauri-apps/api/app";
 import { useUpdate } from "../utils/UpdateContext";
+import { useEffect, useState } from "react";
 
-const appVersion = await getVersion();
 const isMobile = platform() === "ios" || platform() === "android";
 
 const Settings: React.FC<IDockviewPanelProps<{ id: string }>> = () => {
@@ -24,7 +24,12 @@ const Settings: React.FC<IDockviewPanelProps<{ id: string }>> = () => {
   );
   const [deployDir, setDeployDir] = useStore("deployDir", "");
   const connected = useNTConnected();
+  const [appVersion, setAppVersion] = useState<string>("");
   const { checkForUpdates } = useUpdate();
+
+  useEffect(() => {
+    getVersion().then((version) => setAppVersion(version));
+  }, []);
 
   return (
     <div className="pageContainer settingsContainer">
@@ -54,6 +59,19 @@ const Settings: React.FC<IDockviewPanelProps<{ id: string }>> = () => {
             </select>
           </div>
           <p className="settings-text">Version: {appVersion}</p>
+          {!isMobile && (
+            <div style={{ width: "fit-content" }}>
+              <label>Check for updates </label>
+              <select
+                value={theme}
+                onChange={(e) => setTheme(e.target.value as Theme)}
+              >
+                <option value="light">Light</option>
+                <option value="dark">Dark</option>
+                <option value="abyss">Abyss</option>
+              </select>
+            </div>
+          )}
           {!isMobile && (
             <button onClick={() => checkForUpdates(true)}>
               Check for Updates
