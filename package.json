@@ -1,7 +1,7 @@
 {
   "name": "shrinkwrap",
   "private": true,
-  "version": "0.1.0",
+  "version": "0.1.2",
   "type": "module",
   "scripts": {
     "dev": "vite",
@@ -10,7 +10,10 @@
     "tauri": "tauri",
     "ios-sim": "tauri ios dev 'my ipad pro'",
     "ios": "tauri ios dev 'TimCook'",
-    "ios-build": "tauri ios build -o"
+    "ios-build": "tauri ios build -o",
+    "patch": "bunx tauri-version --no-git --no-lock patch",
+    "minor": "bunx tauri-version --no-git --no-lock minor",
+    "major": "bunx tauri-version --no-git --no-lock major"
   },
   "dependencies": {
     "@msgpack/msgpack": "^3.0.0-beta2",

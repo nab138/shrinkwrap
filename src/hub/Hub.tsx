@@ -29,7 +29,8 @@ const Hub: React.FC<HubProps> = ({ setIp, ip }) => {
   const { addToast } = useToast();
 
   useEffect(() => {
-    if (platform() === "ios" || platform() === "android") return;
+    if (import.meta.env.DEV || platform() === "ios" || platform() === "android")
+      return;
     const checkForUpdates = async () => {
       const update = await check();
       if (update) {
@@ -64,8 +65,6 @@ const Hub: React.FC<HubProps> = ({ setIp, ip }) => {
           success: () => `App updated to v${update.version}`,
           error: (error) => `Failed to update: ${error}`,
         });
-
-        await relaunch();
       }
     };
     checkForUpdates();
