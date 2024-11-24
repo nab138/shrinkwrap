@@ -79,8 +79,16 @@ pub fn run() {
                         .build(),
                 )?;
 
-                app.global_shortcut().register(connect_shortcut)?;
-                app.global_shortcut().register(connect_sim_shortcut)?;
+                if !app.global_shortcut().is_registered(connect_shortcut.clone()) {
+                    if let Err(e) = app.global_shortcut().register(connect_shortcut.clone()) {
+                        eprintln!("Failed to register connect shortcut: {:?}", e);
+                    }
+                }
+                if !app.global_shortcut().is_registered(connect_sim_shortcut.clone()) {
+                    if let Err(e) = app.global_shortcut().register(connect_sim_shortcut.clone()) {
+                        eprintln!("Failed to register connect_sim shortcut: {:?}", e);
+                    }
+                }
             }
             Ok(())
         })
