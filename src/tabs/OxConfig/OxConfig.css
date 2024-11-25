@@ -258,7 +258,7 @@ td input::-webkit-inner-spin-button {
   cursor: col-resize;
   z-index: 999;
 }
-.config-editor table {
+.config-editor table:not(.tuner-table) {
   border: 1px solid var(--border-color);
   table-layout: fixed;
   width: 100%;
@@ -361,4 +361,15 @@ td input::-webkit-inner-spin-button {
   align-items: center;
   gap: 5px;
   margin: 0;
+}
+
+.tuner-container {
+  display: flex;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+
+.tuner-container > * {
+  flex: 1 1 calc(50% - 5px);
+  min-width: 300px;
 }
