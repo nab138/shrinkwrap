@@ -269,7 +269,7 @@ function getInputElem(
   return inputElem;
 }
 
-function paramToInputType(typeRaw: string) {
+export function paramToInputType(typeRaw: string) {
   let type = typeRaw.toLowerCase();
   if (type == "boolean") return "checkbox";
   if (["integer", "short", "long", "double", "float"].includes(type))

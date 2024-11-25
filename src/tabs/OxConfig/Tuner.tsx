@@ -1,13 +1,23 @@
 import { useState } from "react";
-import { Class } from "./OxConfig";
+import { Class, ClassParam } from "./OxConfig";
+import { paramToInputType } from "./Editor";
+import { useToast } from "react-toast-plus";
 
 export interface OxConfigTunerProps {
   classes: Class[];
   modes: string[];
+  setClass: (data: string) => void;
+  connected: boolean;
 }
 
-const OxConfigTuner: React.FC<OxConfigTunerProps> = ({ classes, modes }) => {
+const OxConfigTuner: React.FC<OxConfigTunerProps> = ({
+  classes,
+  modes,
+  setClass,
+  connected,
+}) => {
   const [selectedClass, setSelectedClass] = useState<Class | null>(null);
+  const { addToast } = useToast();
   return (
     <div
       className="param-table-container tuner-container"
@@ -27,11 +37,12 @@ const OxConfigTuner: React.FC<OxConfigTunerProps> = ({ classes, modes }) => {
             borderCollapse: "collapse",
             padding: 0,
             height: "min-content",
+            tableLayout: "fixed",
           }}
         >
           <thead>
             <tr className="parameter-table-headers">
-              <th colSpan={1 + modes.length} className="param-table-header">
+              <th colSpan={1 + modes.length}>
                 <div style={{ width: "100%", textAlign: "center" }}>
                   <h2
                     style={{
@@ -46,12 +57,12 @@ const OxConfigTuner: React.FC<OxConfigTunerProps> = ({ classes, modes }) => {
               </th>
             </tr>
             <tr className="parameter-table-headers">
-              <th className="param-table-header">
+              <th>
                 <div>Parameter</div>
               </th>
               {modes.map((mode) => (
-                <th className="param-table-header">
-                  <div>{mode}</div>
+                <th key={mode}>
+                  <div>{mode.charAt(0).toUpperCase() + mode.slice(1)}</div>
                 </th>
               ))}
             </tr>
@@ -69,9 +80,21 @@ const OxConfigTuner: React.FC<OxConfigTunerProps> = ({ classes, modes }) => {
                 <td style={{ padding: 0, paddingLeft: "10px" }}>
                   <div>{param.prettyName}</div>
                 </td>
-                {param.values.map((value) => (
-                  <td style={{ padding: 0, paddingLeft: "10px" }}>
-                    <div>{value}</div>
+                {param.values.map((value, i) => (
+                  <td
+                    key={param.key + i}
+                    style={{ padding: 0, paddingLeft: "10px" }}
+                  >
+                    <div>
+                      {getInputElem(
+                        param,
+                        value,
+                        connected,
+                        modes[i],
+                        setClass,
+                        addToast.warning
+                      )}
+                    </div>
                   </td>
                 ))}
               </tr>
@@ -126,3 +149,38 @@ const OxConfigTuner: React.FC<OxConfigTunerProps> = ({ classes, modes }) => {
 };
 
 export default OxConfigTuner;
+
+function getInputElem(
+  param: ClassParam,
+  value: any,
+  connected: boolean,
+  mode: string,
+  setClass: (key: string) => void,
+  warning: (msg: string) => void
+) {
+  let type = paramToInputType(param.type);
+  let update = (e: any) => {
+    let val;
+    if (type === "checkbox") val = e.currentTarget.checked ? "true" : "false";
+    else val = e.currentTarget.value;
+    if (val === value) return;
+    if (val === null || val === undefined || val === "") {
+      warning("Invalid Value");
+      return;
+    }
+    setClass(["single", param.key, mode, val ?? "0"].join(","));
+  };
+  let inputElem = (
+    <input
+      style={connected ? undefined : { color: "gray" }}
+      disabled={!connected}
+      key={value}
+      type={type}
+      onBlur={type === "checkbox" ? undefined : update}
+      onChange={type === "checkbox" ? update : undefined}
+      defaultValue={type === "checkbox" ? undefined : value}
+      checked={type === "checkbox" ? value === "true" : undefined}
+    />
+  );
+  return inputElem;
+}

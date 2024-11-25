@@ -165,6 +165,11 @@ const OxConfig: React.FC<IDockviewPanelProps> = () => {
   }, [parameters]);
 
   const [_, setKey] = useNTState<string>("/OxConfig/KeySetter", "string", "");
+  const [_____, setClass] = useNTState<string>(
+    "/OxConfig/ClassSetter",
+    "string",
+    ""
+  );
 
   const connectedClients = useComputedNTValue<Uint8Array, any>(
     "$clients",
@@ -337,7 +342,12 @@ const OxConfig: React.FC<IDockviewPanelProps> = () => {
           </div>
         </div>
         {isTuner ? (
-          <OxConfigTuner classes={classes} modes={modes} />
+          <OxConfigTuner
+            classes={classes}
+            modes={modes}
+            setClass={setClass}
+            connected={connected}
+          />
         ) : (
           <OxConfigEditor
             displayParameters={displayParameters}

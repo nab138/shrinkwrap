@@ -258,7 +258,7 @@ td input::-webkit-inner-spin-button {
   cursor: col-resize;
   z-index: 999;
 }
-.config-editor table:not(.tuner-table) {
+.config-editor table {
   border: 1px solid var(--border-color);
   table-layout: fixed;
   width: 100%;
