@@ -3,6 +3,7 @@ import { Class, ClassParam, ScreenSize } from "./OxConfig";
 import { paramToInputType } from "./Editor";
 import { useToast } from "react-toast-plus";
 import Modal from "../../hub/Modal";
+import { ask } from "@tauri-apps/plugin-dialog";
 
 export interface OxConfigTunerProps {
   classes: Class[];
@@ -134,14 +135,28 @@ const OxConfigTuner: React.FC<OxConfigTunerProps> = ({
                 </td>
               ))}
             </tr>
-            {/* <tr style={{ padding: 0 }}>
+            <tr style={{ padding: 0 }}>
               <td></td>
               {modes.map((mode, index) => (
                 <td key={index}>
-                  <button className="copy-btn danger">Copy To All</button>
+                  <button
+                    className="copy-btn danger"
+                    onClick={async () => {
+                      let confirm = await ask(
+                        "This is a destructive action. Are you sure you want to overwrite the controller data for all other modes?",
+                        {
+                          kind: "warning",
+                        }
+                      );
+                      if (!confirm) return;
+                      setClass(["copyAll", selectedClass.key, mode].join(","));
+                    }}
+                  >
+                    Copy To All
+                  </button>
                 </td>
               ))}
-            </tr> */}
+            </tr>
           </tbody>
         </table>
       )}
@@ -181,7 +196,12 @@ const OxConfigTuner: React.FC<OxConfigTunerProps> = ({
               }}
             >
               <td style={{ padding: 0, paddingLeft: "10px" }}>
-                <div style={{ fontSize: "1.15em" }}>{cls.prettyName}</div>
+                <div
+                  style={{ fontSize: "1.15em" }}
+                  dangerouslySetInnerHTML={{
+                    __html: cls.displayKey ?? cls.key,
+                  }}
+                ></div>
               </td>
             </tr>
           ))}

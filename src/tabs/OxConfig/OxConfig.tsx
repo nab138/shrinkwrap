@@ -35,6 +35,7 @@ export type Class = {
   prettyName: string;
   key: string;
   parameters: ClassParam[];
+  displayKey?: string;
 };
 
 const OxConfig: React.FC<IDockviewPanelProps> = () => {
@@ -99,6 +100,7 @@ const OxConfig: React.FC<IDockviewPanelProps> = () => {
   );
 
   const [displayParameters, setDisplayParameters] = useState<Parameter[]>([]);
+  const [displayClasses, setDisplayClasses] = useState<Class[]>([]);
 
   const classes = useComputedNTValue<string, Class[]>(
     "/OxConfig/Classes",
@@ -163,6 +165,35 @@ const OxConfig: React.FC<IDockviewPanelProps> = () => {
       search.removeEventListener("input", searchHandler);
     };
   }, [parameters]);
+
+  useEffect(() => {
+    if (classes.length === 0) return;
+    let search = document.querySelector(".config-search") as HTMLInputElement;
+    if (search == null) return;
+    if (search.value === "") setDisplayClasses(classes);
+    let searchHandler = () => {
+      let searchValue = search.value;
+      if (searchValue === "") return setDisplayClasses(classes);
+      let filteredClasses: Class[] = [];
+      classes.forEach((cls) => {
+        let result = fuzzysort.single(searchValue, cls.key);
+        if (result) {
+          filteredClasses.push({
+            ...cls,
+            displayKey: result.highlight(
+              '<span style="color: red">',
+              "</span>"
+            ),
+          });
+        }
+      });
+      setDisplayClasses(filteredClasses);
+    };
+    search.addEventListener("input", searchHandler);
+    return () => {
+      search.removeEventListener("input", searchHandler);
+    };
+  }, [classes]);
 
   const [_, setKey] = useNTState<string>("/OxConfig/KeySetter", "string", "");
   const [_____, setClass] = useNTState<string>(
@@ -343,7 +374,7 @@ const OxConfig: React.FC<IDockviewPanelProps> = () => {
         </div>
         {isTuner ? (
           <OxConfigTuner
-            classes={classes}
+            classes={displayClasses}
             modes={modes}
             setClass={setClass}
             connected={connected}
