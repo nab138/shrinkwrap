@@ -13,7 +13,7 @@ const MemoizedNTProvider = React.memo(NTProvider);
 const MemoizedLogProvider = React.memo(LogProvider);
 
 const AppComponent = () => {
-  const [ip, setIp] = React.useState("127.0.0.1");
+  const [ip, setIp] = React.useState("invalid");
 
   const stableSetIp = React.useCallback((newIp: string) => {
     setIp(newIp);

@@ -126,7 +126,7 @@
 
 @media screen and (max-width: 575px) {
   .param-table-container {
-    top: 150px;
+    top: 158px;
   }
 }
 
@@ -258,11 +258,6 @@ td input::-webkit-inner-spin-button {
   cursor: col-resize;
   z-index: 999;
 }
-
-.deploy-path-cfg {
-  width: calc(100% - 170px);
-}
-
 .config-editor table {
   border: 1px solid var(--border-color);
   table-layout: fixed;
@@ -293,6 +288,13 @@ td input::-webkit-inner-spin-button {
 
 .mode-dropdown-container {
   flex-grow: 0.05;
+  display: flex;
+  align-items: center;
+  gap: 15px;
+}
+
+.mode-dropdown-container h3 {
+  margin: 0;
 }
 
 .parameter-table-headers > th {
@@ -348,4 +350,15 @@ td input::-webkit-inner-spin-button {
 .param-table {
   border-collapse: collapse;
   border-spacing: 0;
+}
+
+.pc-indicator svg {
+  width: 1em;
+}
+
+.pc-indicator {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  margin: 0;
 }

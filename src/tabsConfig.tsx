@@ -1,10 +1,16 @@
+import { IDockviewPanelProps } from "dockview";
 import LogViewer from "./tabs/Log";
-import OxConfigEditor from "./tabs/OxConfigEditor";
+import OxConfig from "./tabs/OxConfig/OxConfig";
 import Settings from "./tabs/Settings";
 import ThreeDimensionField from "./tabs/ThreeDimensionField/ThreeDimensionField";
-import OxConfigTuner from "./tabs/OxConfigTuner";
 
-export const tabsConfig = [
+export type TabInfo = {
+  id: string;
+  component: React.FC<IDockviewPanelProps<{ id: string }>>;
+  title: string;
+};
+
+export const tabsConfig: TabInfo[] = [
   {
     id: "settings",
     component: Settings,
@@ -22,13 +28,8 @@ export const tabsConfig = [
   },
   {
     id: "oxconfigeditor",
-    component: OxConfigEditor,
-    title: "🛠️ OxConfig (Editor)",
-  },
-  {
-    id: "oxconfigtuner",
-    component: OxConfigTuner,
-    title: "🎛️ OxConfig (Tuner)",
+    component: OxConfig,
+    title: "🛠️ OxConfig",
   },
 ];
 

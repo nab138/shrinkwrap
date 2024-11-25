@@ -19,7 +19,7 @@ export interface HubProps {
 }
 
 const Hub: React.FC<HubProps> = ({ setIp, ip }) => {
-  const [connectionIP] = useStore<string>("connectionIP", "127.0.0.1");
+  const [connectionIP] = useStore<string>("connectionIP", "invalid");
   const [theme] = useStore<string>("theme", "light");
   const [autoUpdate] = useStore<boolean>("autoUpdate", false);
   const [save, load] = useSaveLoad("app-layout.json");
