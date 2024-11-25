@@ -31,7 +31,11 @@ export type ClassParam = {
   type: string;
   values: string[];
 };
-export type Class = ClassParam[];
+export type Class = {
+  prettyName: string;
+  key: string;
+  parameters: ClassParam[];
+};
 
 const OxConfig: React.FC<IDockviewPanelProps> = () => {
   const [screenSize, setMobileScreen] = useState<ScreenSize>(
@@ -100,17 +104,33 @@ const OxConfig: React.FC<IDockviewPanelProps> = () => {
     "/OxConfig/Classes",
     (classesRaw) => {
       if (classesRaw == "") return [];
-      let parsed: string[][] = JSON.parse(classesRaw);
+      let parsed: [string, string, ...string[][]][] = JSON.parse(classesRaw);
       let classes: Class[] = [];
       for (let cls of parsed) {
-        let prettyName = cls[0];
-        let key = cls[1];
-        let type = cls[2];
-        let values = cls.slice(3);
-        //classes.push({ prettyName, key, type, values });
+        let prettyName = cls.shift() as string;
+        let key = cls.shift() as string;
+        let parameters: ClassParam[] = [];
+        for (let param of cls) {
+          if (typeof param === "string") {
+            console.error("Invalid class parameter (not string[])", param);
+            continue;
+          }
+          let prettyName = param.shift();
+          let key = param.shift();
+          let type = param.shift();
+          if (
+            prettyName === undefined ||
+            key === undefined ||
+            type === undefined
+          ) {
+            console.error("Invalid class parameter", param);
+            continue;
+          }
+          parameters.push({ prettyName, key, type, values: param });
+        }
+        classes.push({ prettyName, key, parameters });
       }
-      //return parametersMap;
-      return [];
+      return classes;
     },
     ""
   );
@@ -317,7 +337,7 @@ const OxConfig: React.FC<IDockviewPanelProps> = () => {
           </div>
         </div>
         {isTuner ? (
-          <OxConfigTuner />
+          <OxConfigTuner classes={classes} />
         ) : (
           <OxConfigEditor
             displayParameters={displayParameters}

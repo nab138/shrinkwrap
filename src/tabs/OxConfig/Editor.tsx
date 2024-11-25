@@ -1,6 +1,7 @@
 import { useEffect, useRef, useState } from "react";
 import { Parameter, ScreenSize } from "./OxConfig";
 import Modal from "../../hub/Modal";
+import React from "react";
 
 export interface OxConfigEditorProps {
   screenSize: ScreenSize;
@@ -101,7 +102,7 @@ const OxConfigEditor: React.FC<OxConfigEditorProps> = ({
         </thead>
         <tbody className="parameter-table" ref={table}>
           {displayParameters.map((param) => (
-            <>
+            <React.Fragment key={param.key}>
               {screenSize === "small" && (
                 <Modal
                   isOpen={openKey === param.key}
@@ -152,7 +153,7 @@ const OxConfigEditor: React.FC<OxConfigEditorProps> = ({
                           setKey
                         );
                         return (
-                          <tr>
+                          <tr key={i}>
                             <td>
                               {modes[i].charAt(0).toUpperCase() +
                                 modes[i].slice(1)}
@@ -227,7 +228,7 @@ const OxConfigEditor: React.FC<OxConfigEditorProps> = ({
                     );
                   })}
               </tr>
-            </>
+            </React.Fragment>
           ))}
         </tbody>
       </table>

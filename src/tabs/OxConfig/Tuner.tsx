@@ -1,7 +1,17 @@
-const OxConfigTuner: React.FC = () => {
+import { Class } from "./OxConfig";
+
+export interface OxConfigTunerProps {
+  classes: Class[];
+}
+
+const OxConfigTuner: React.FC<OxConfigTunerProps> = ({ classes }) => {
   return (
     <div>
-      <h1>Under construction</h1>
+      <ul>
+        {classes.map((c) => (
+          <li>{c.prettyName}</li>
+        ))}
+      </ul>
     </div>
   );
 };
