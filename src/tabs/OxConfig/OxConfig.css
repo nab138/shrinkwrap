@@ -379,14 +379,19 @@ td input::-webkit-inner-spin-button {
   flex: 1 1 calc(60% - 5px);
 }
 
+.copy-btn {
+  width: 100%;
+}
+
 @media screen and (max-width: 650px) {
   .tuner-header {
     font-size: smaller;
   }
-}
 
-.copy-btn {
-  width: 100%;
+  .copy-btn {
+    padding: 10px 5px;
+    font-size: smaller;
+  }
 }
 
 .danger {
