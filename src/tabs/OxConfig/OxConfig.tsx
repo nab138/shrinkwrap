@@ -24,6 +24,15 @@ export type Parameter = {
   displayKey?: string;
 };
 
+// name, key, type, values
+export type ClassParam = {
+  prettyName: string;
+  key: string;
+  type: string;
+  values: string[];
+};
+export type Class = ClassParam[];
+
 const OxConfig: React.FC<IDockviewPanelProps> = () => {
   const [screenSize, setMobileScreen] = useState<ScreenSize>(
     isMobile ? "small" : "large"
@@ -86,6 +95,25 @@ const OxConfig: React.FC<IDockviewPanelProps> = () => {
   );
 
   const [displayParameters, setDisplayParameters] = useState<Parameter[]>([]);
+
+  const classes = useComputedNTValue<string, Class[]>(
+    "/OxConfig/Classes",
+    (classesRaw) => {
+      if (classesRaw == "") return [];
+      let parsed: string[][] = JSON.parse(classesRaw);
+      let classes: Class[] = [];
+      for (let cls of parsed) {
+        let prettyName = cls[0];
+        let key = cls[1];
+        let type = cls[2];
+        let values = cls.slice(3);
+        //classes.push({ prettyName, key, type, values });
+      }
+      //return parametersMap;
+      return [];
+    },
+    ""
+  );
 
   useEffect(() => {
     if (parameters.length === 0) return;
