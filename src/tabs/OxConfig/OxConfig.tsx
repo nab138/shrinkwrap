@@ -337,7 +337,7 @@ const OxConfig: React.FC<IDockviewPanelProps> = () => {
           </div>
         </div>
         {isTuner ? (
-          <OxConfigTuner classes={classes} />
+          <OxConfigTuner classes={classes} modes={modes} />
         ) : (
           <OxConfigEditor
             displayParameters={displayParameters}

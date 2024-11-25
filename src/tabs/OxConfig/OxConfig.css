@@ -17,7 +17,7 @@
 }
 
 .param-table th {
-  min-width: 50px;
+  min-width: 40px;
   max-width: 400px;
 }
 
@@ -367,9 +367,15 @@ td input::-webkit-inner-spin-button {
   display: flex;
   gap: 10px;
   flex-wrap: wrap;
+  overflow-x: hidden;
 }
 
 .tuner-container > * {
-  flex: 1 1 calc(50% - 5px);
   min-width: 300px;
+  flex: 1 1 calc(40% - 5px);
+}
+
+/* first element child of tuner container */
+.tuner-container .tuner-data-table {
+  flex: 1 1 calc(60% - 5px);
 }
