@@ -12,9 +12,9 @@ export type TabInfo = {
 
 export const tabsConfig: TabInfo[] = [
   {
-    id: "settings",
-    component: Settings,
-    title: "⚙️ Settings",
+    id: "oxconfigeditor",
+    component: OxConfig,
+    title: "🛠️ OxConfig",
   },
   {
     id: "3dfield",
@@ -22,14 +22,14 @@ export const tabsConfig: TabInfo[] = [
     title: "🏟️ 3D Field",
   },
   {
+    id: "settings",
+    component: Settings,
+    title: "⚙️ Settings",
+  },
+  {
     id: "log",
     component: LogViewer,
     title: "📜 Log",
-  },
-  {
-    id: "oxconfigeditor",
-    component: OxConfig,
-    title: "🛠️ OxConfig",
   },
 ];
 
