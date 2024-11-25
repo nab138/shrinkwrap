@@ -27,6 +27,7 @@
 
   --border-color: #3a3a3a;
   --tab-bg: #1e1e1e;
+  --danger: rgb(175, 10, 10);
 }
 
 .light {
@@ -37,6 +38,7 @@
 
   --border-color: #ccc;
   --tab-bg: #fff;
+  --danger: #ff5a5a;
 }
 
 .abyss {
@@ -47,6 +49,7 @@
 
   --border-color: #3a3a3a;
   --tab-bg: rgb(0, 12, 24);
+  --danger: rgb(150, 2, 2);
 }
 
 html,

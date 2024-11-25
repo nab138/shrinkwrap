@@ -347,6 +347,7 @@ const OxConfig: React.FC<IDockviewPanelProps> = () => {
             modes={modes}
             setClass={setClass}
             connected={connected}
+            screenSize={screenSize}
           />
         ) : (
           <OxConfigEditor

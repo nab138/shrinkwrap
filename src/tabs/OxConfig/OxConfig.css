@@ -323,7 +323,6 @@ td input::-webkit-inner-spin-button {
   overflow: hidden;
   scrollbar-width: thin;
   margin-left: 0;
-  padding-left: 5px;
 }
 
 .param-table div {
@@ -378,4 +377,18 @@ td input::-webkit-inner-spin-button {
 /* first element child of tuner container */
 .tuner-container .tuner-data-table {
   flex: 1 1 calc(60% - 5px);
+}
+
+@media screen and (max-width: 650px) {
+  .tuner-header {
+    font-size: smaller;
+  }
+}
+
+.copy-btn {
+  width: 100%;
+}
+
+.danger {
+  background-color: var(--danger);
 }

@@ -1,13 +1,15 @@
-import { useState } from "react";
-import { Class, ClassParam } from "./OxConfig";
+import React, { useEffect, useState } from "react";
+import { Class, ClassParam, ScreenSize } from "./OxConfig";
 import { paramToInputType } from "./Editor";
 import { useToast } from "react-toast-plus";
+import Modal from "../../hub/Modal";
 
 export interface OxConfigTunerProps {
   classes: Class[];
   modes: string[];
   setClass: (data: string) => void;
   connected: boolean;
+  screenSize: ScreenSize;
 }
 
 const OxConfigTuner: React.FC<OxConfigTunerProps> = ({
@@ -15,9 +17,25 @@ const OxConfigTuner: React.FC<OxConfigTunerProps> = ({
   modes,
   setClass,
   connected,
+  screenSize,
 }) => {
   const [selectedClass, setSelectedClass] = useState<Class | null>(null);
   const { addToast } = useToast();
+  const [copyFromOpen, setCopyFromOpen] = useState<string | null>(null);
+
+  useEffect(() => {
+    if (selectedClass !== null) {
+      const updatedClass =
+        classes.find((cls) => cls.key === selectedClass.key) ?? null;
+      if (
+        updatedClass &&
+        JSON.stringify(updatedClass) !== JSON.stringify(selectedClass)
+      ) {
+        setSelectedClass(updatedClass);
+      }
+    }
+  }, [classes, selectedClass]);
+
   return (
     <div
       className="param-table-container tuner-container"
@@ -58,11 +76,15 @@ const OxConfigTuner: React.FC<OxConfigTunerProps> = ({
             </tr>
             <tr className="parameter-table-headers">
               <th>
-                <div>Parameter</div>
+                <div className="tuner-header">
+                  {screenSize === "small" ? "Param" : "Parameter"}
+                </div>
               </th>
               {modes.map((mode) => (
                 <th key={mode}>
-                  <div>{mode.charAt(0).toUpperCase() + mode.slice(1)}</div>
+                  <div className="tuner-header">
+                    {shortenKnownModes(mode, screenSize)}
+                  </div>
                 </th>
               ))}
             </tr>
@@ -99,6 +121,27 @@ const OxConfigTuner: React.FC<OxConfigTunerProps> = ({
                 ))}
               </tr>
             ))}
+            <tr style={{ padding: 0 }}>
+              <td></td>
+              {modes.map((mode) => (
+                <td key={mode}>
+                  <button
+                    className="copy-btn"
+                    onClick={() => setCopyFromOpen(mode)}
+                  >
+                    Copy From
+                  </button>
+                </td>
+              ))}
+            </tr>
+            {/* <tr style={{ padding: 0 }}>
+              <td></td>
+              {modes.map((mode, index) => (
+                <td key={index}>
+                  <button className="copy-btn danger">Copy To All</button>
+                </td>
+              ))}
+            </tr> */}
           </tbody>
         </table>
       )}
@@ -144,6 +187,47 @@ const OxConfigTuner: React.FC<OxConfigTunerProps> = ({
           ))}
         </tbody>
       </table>
+
+      {copyFromOpen && (
+        <Modal isOpen={true} onClose={() => setCopyFromOpen(null)}>
+          <div
+            style={{
+              display: "flex",
+              flexDirection: "column",
+              gap: "10px",
+            }}
+          >
+            <h2 style={{ margin: 0, marginBottom: "10px" }}>
+              Copy to{" "}
+              <span style={{ fontSize: "smaller" }}>
+                ({copyFromOpen.charAt(0).toUpperCase() + copyFromOpen.slice(1)}{" "}
+                will be overwritten)
+              </span>
+              :
+            </h2>
+            {modes
+              .filter((m) => m !== copyFromOpen)
+              .map((copyMode) => (
+                <button
+                  key={copyFromOpen + copyMode}
+                  onClick={() => {
+                    setClass(
+                      [
+                        "copyOne",
+                        selectedClass?.key,
+                        copyMode,
+                        copyFromOpen,
+                      ].join(",")
+                    );
+                    setCopyFromOpen(null);
+                  }}
+                >
+                  {copyMode.charAt(0).toUpperCase() + copyMode.slice(1)}
+                </button>
+              ))}
+          </div>
+        </Modal>
+      )}
     </div>
   );
 };
@@ -183,4 +267,15 @@ function getInputElem(
     />
   );
   return inputElem;
+}
+
+function shortenKnownModes(mode: string, screenSize: ScreenSize) {
+  if (screenSize !== "small") {
+    return mode.charAt(0).toUpperCase() + mode.slice(1);
+  }
+  let newMode = mode;
+  if (mode === "simulation") newMode = "sim";
+  if (mode === "competition") newMode = "comp";
+  if (mode === "presentation") newMode = "present";
+  return newMode.charAt(0).toUpperCase() + newMode.slice(1);
 }
