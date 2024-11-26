@@ -394,6 +394,8 @@ td input::-webkit-inner-spin-button {
   }
 }
 
-.danger {
+.danger,
+.danger:hover,
+.danger:active {
   background-color: var(--danger);
 }
