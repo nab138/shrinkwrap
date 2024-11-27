@@ -22,7 +22,7 @@ const Hub: React.FC<HubProps> = ({ setIp, ip }) => {
   const [connectionIP] = useStore<string>("connectionIP", "invalid");
   const [theme] = useStore<string>("theme", "light");
   const [autoUpdate] = useStore<boolean>("autoUpdate", false);
-  const [save, load] = useSaveLoad("app-layout.json");
+  const [save, load] = useSaveLoad("tabs.json");
   const connected = useNTConnected();
   const hasConnected = useRef<string | null>();
   const { checkForUpdates } = useUpdate();
@@ -125,7 +125,7 @@ const Hub: React.FC<HubProps> = ({ setIp, ip }) => {
   );
 
   return (
-    <div className={`container`}>
+    <div className={`container` + (platform() === "linux" ? " linux" : "")}>
       <DockviewReact
         components={components}
         leftHeaderActionsComponent={LeftControls}
