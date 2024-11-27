@@ -34,7 +34,6 @@
     "three": "^0.170.0"
   },
   "devDependencies": {
-    "@million/lint": "^1.0.12",
     "@tauri-apps/cli": "2.1.0",
     "@types/node": "^22.9.1",
     "@types/react": "^18.3.12",

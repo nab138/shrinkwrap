@@ -22,7 +22,7 @@ const Hub: React.FC<HubProps> = ({ setIp, ip }) => {
   const [connectionIP] = useStore<string>("connectionIP", "invalid");
   const [theme] = useStore<string>("theme", "light");
   const [autoUpdate] = useStore<boolean>("autoUpdate", false);
-  const [save, load] = useSaveLoad("tabs.json");
+  const [save, load] = useSaveLoad("tablayout.json");
   const connected = useNTConnected();
   const hasConnected = useRef<string | null>();
   const { checkForUpdates } = useUpdate();
@@ -101,6 +101,7 @@ const Hub: React.FC<HubProps> = ({ setIp, ip }) => {
         failed = true;
       }
       if (layout != null && !failed) {
+        console.log("Loaded layout", layout);
         event.api.fromJSON(JSON.parse(layout));
       }
       if (event.api.panels.length === 0) {
