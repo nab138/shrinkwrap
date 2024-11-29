@@ -5,6 +5,7 @@ import Sidebar, { Setting } from "../../hub/Sidebar";
 import { Item } from "../../hub/NetworkArrayConfig";
 import "./ThreeDimensionField.css";
 import { useStore } from "../../utils/StoreContext";
+import Timeline from "../../hub/Timeline";
 
 const ThreeDimensionField: React.FC<IDockviewPanelProps<{ id: string }>> = ({
   params,
@@ -47,6 +48,14 @@ const ThreeDimensionField: React.FC<IDockviewPanelProps<{ id: string }>> = ({
 
   return (
     <div className="pageContainer">
+      <div
+        style={{
+          width: "calc(100% - 45px)",
+          marginLeft: "45px",
+        }}
+      >
+        <Timeline />
+      </div>
       <div className="fieldContainer">
         <ThreeComponent
           robots={(getSettingValue("elements") as Item[])

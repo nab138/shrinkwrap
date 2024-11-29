@@ -44,7 +44,7 @@ const RobotModel: React.FC<RobotModelProps> = ({
   cinematic,
   ntKey,
 }) => {
-  let position = useNTValue<number[]>(ntKey, [0, 0, 0], 0.001);
+  let position = useNTValue<number[]>(ntKey, [-99, -99, -99], 0.001);
   let MATERIAL_SPECULAR: THREE.Color = new THREE.Color(0x666666);
   let MATERIAL_SHININESS: number = 100;
   const robotInner = useGLTF("Robot_" + robotName + ".glb").scene;
@@ -108,7 +108,15 @@ const RobotModel: React.FC<RobotModelProps> = ({
       robot.rotation.y = (rotation * Math.PI) / 180;
     }
   }, [position, robot]);
-  return <>{robot !== undefined && <primitive object={robot} />}</>;
+  return (
+    <>
+      {robot !== undefined &&
+        position !== undefined &&
+        JSON.stringify(position) !== JSON.stringify([-99, -99, -99]) && (
+          <primitive object={robot} />
+        )}
+    </>
+  );
 };
 
 export default RobotModel;

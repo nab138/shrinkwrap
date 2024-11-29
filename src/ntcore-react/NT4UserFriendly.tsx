@@ -30,10 +30,17 @@ export class SubscriptionData<T> {
 export class NTClient {
   private client: NT4_Client;
   private topics: Map<string, NT4_Topic> = new Map();
-  private subscriptions: Map<string, SubscriptionData<any>> = new Map();
+  private subscriptions: Map<string, SubscriptionData<any>[]> = new Map();
   private robotConnectionListeners: ((connected: boolean) => void)[] = [];
   private topicsListeners: ((topics: Map<string, NT4_Topic>) => void)[] = [];
   private connected: boolean = false;
+
+  private data: Map<string, Map<number, any>> = new Map();
+
+  private liveMode: boolean = true;
+  private selectedTimestamp: number = -1;
+
+  private connectedTimestamp: number = -1;
 
   constructor(server_base_address: string) {
     this.client = new NT4_Client(
@@ -45,14 +52,21 @@ export class NTClient {
       (topic) => {
         this.topics.delete(topic.name);
       },
-      (topic, _, value) => {
+      (topic, timestamp, value) => {
         if (this.subscriptions.has(topic.name)) {
-          this.subscriptions.get(topic.name)?.update(value);
+          if (this.liveMode)
+            this.subscriptions.get(topic.name)?.forEach((s) => s.update(value));
         }
+        if (!this.data.has(topic.name)) {
+          this.data.set(topic.name, new Map());
+        }
+        this.data.get(topic.name)?.set(timestamp, value);
       },
       () => {
         this.connected = true;
         this.robotConnectionListeners.forEach((l) => l(true));
+        if (this.connectedTimestamp === -1)
+          this.connectedTimestamp = this.client.getServerTime_us() ?? -1;
       },
       () => {
         this.connected = false;
@@ -101,7 +115,11 @@ export class NTClient {
   ): SubscriptionData<any> {
     let sub = this.client.subscribe([topic], prefixMode, sendAll, periodic);
     let data = new SubscriptionData(this.client, sub, callback);
-    this.subscriptions.set(topic, data);
+    if (this.subscriptions.has(topic)) {
+      this.subscriptions.get(topic)?.push(data);
+    } else {
+      this.subscriptions.set(topic, [data]);
+    }
     return data;
   }
 
@@ -124,6 +142,59 @@ export class NTClient {
 
   public getClient() {
     return this.client;
+  }
+
+  public setTimestampToView(timestamp: number) {
+    this.liveMode = false;
+    this.selectedTimestamp = timestamp;
+    for (let topic of this.subscriptions.keys()) {
+      let value = this.getValueBefore(topic, timestamp);
+      this.subscriptions.get(topic)?.forEach((s) => s.update(value));
+    }
+  }
+
+  public enableLiveMode() {
+    this.liveMode = true;
+    for (let topic of this.subscriptions.keys()) {
+      let value = this.getValueBefore(topic, this.getCurrentTimestamp());
+      this.subscriptions.get(topic)?.forEach((s) => s.update(value));
+    }
+    this.selectedTimestamp = -1;
+  }
+
+  public isLive() {
+    return this.liveMode;
+  }
+
+  private getValueBefore(topic: string, timestamp: number): any | undefined {
+    const topicData = this.data.get(topic);
+    if (!topicData) {
+      return undefined;
+    }
+
+    let closestTimestamp: number | undefined = undefined;
+    for (let key of Array.from(topicData.keys()).sort((a, b) => b - a)) {
+      if (key <= timestamp) {
+        closestTimestamp = key;
+        break;
+      }
+    }
+
+    return closestTimestamp !== undefined
+      ? topicData.get(closestTimestamp)
+      : undefined;
+  }
+
+  public getConnectedTimestamp() {
+    return this.connectedTimestamp;
+  }
+
+  public getCurrentTimestamp() {
+    return this.client.getServerTime_us() ?? -1;
+  }
+
+  public getSelectedTimestamp() {
+    return this.liveMode ? this.getCurrentTimestamp() : this.selectedTimestamp;
   }
 
   public static getInstanceByURI(uri: string) {

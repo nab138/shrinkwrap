@@ -1,0 +1,7 @@
+.timeline {
+  width: calc(100% - 10px);
+  height: 30px;
+  border-radius: 5px;
+  background-color: var(--background-color-1);
+  margin: 5px;
+}

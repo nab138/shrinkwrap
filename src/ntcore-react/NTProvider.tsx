@@ -52,6 +52,7 @@ export default function NTProvider({
   useEffect(() => {
     if (ntConnection === null) return;
     const allTopics = ntConnection.subscribeRoot();
+
     return () => {
       allTopics.unsubscribe();
     };
