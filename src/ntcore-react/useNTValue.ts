@@ -7,7 +7,7 @@ export const useNTValue = <T extends NTTopicTypes>(
   defaultValue: T,
   period = 1
 ) => {
-  const client = useContext(NTContext);
+  const { client } = useContext(NTContext);
   const [value, setValue] = useState<T>(defaultValue);
 
   useEffect(() => {

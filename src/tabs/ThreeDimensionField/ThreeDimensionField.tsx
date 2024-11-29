@@ -1,4 +1,4 @@
-import React, { useCallback } from "react";
+import React, { useCallback, useState } from "react";
 import { IDockviewPanelProps } from "dockview";
 import ThreeComponent from "./ThreeComponent";
 import Sidebar, { Setting } from "../../hub/Sidebar";
@@ -46,12 +46,15 @@ const ThreeDimensionField: React.FC<IDockviewPanelProps<{ id: string }>> = ({
     [settings]
   );
 
+  const [sidebarOpen, setSidebarOpen] = useState<boolean>(true);
+
   return (
     <div className="pageContainer">
       <div
         style={{
-          width: "calc(100% - 45px)",
-          marginLeft: "45px",
+          width: sidebarOpen ? "calc(100% - 250px)" : "calc(100% - 45px)",
+          marginLeft: sidebarOpen ? "250px" : "45px",
+          position: "relative",
         }}
       >
         <Timeline />
@@ -72,6 +75,7 @@ const ThreeDimensionField: React.FC<IDockviewPanelProps<{ id: string }>> = ({
         settings={settings}
         onSettingChange={handleSettingChange}
         collapsible={true}
+        onOpenDidChange={setSidebarOpen}
       />
     </div>
   );

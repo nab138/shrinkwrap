@@ -3,7 +3,7 @@ import NTContext from "./NTContext";
 import { NT4_Topic } from "./NT4";
 
 const useNTTopics = () => {
-  const client = useContext(NTContext);
+  const { client } = useContext(NTContext);
   const [topics, setTopics] = useState<Map<string, NT4_Topic>>(new Map());
 
   useEffect(() => {

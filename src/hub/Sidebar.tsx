@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import "./Sidebar.css";
 import ItemList, { Item } from "./NetworkArrayConfig";
 
@@ -19,6 +19,7 @@ export interface SidebarProps {
     value: boolean | string | number | Item[]
   ) => void;
   collapsible?: boolean;
+  onOpenDidChange?: (open: boolean) => void;
 }
 
 const Sidebar: React.FC<SidebarProps> = ({
@@ -26,8 +27,13 @@ const Sidebar: React.FC<SidebarProps> = ({
   settings,
   onSettingChange,
   collapsible = true,
+  onOpenDidChange = () => {},
 }) => {
   const [isCollapsed, setIsCollapsed] = useState(false);
+
+  useEffect(() => {
+    onOpenDidChange(!isCollapsed);
+  }, [isCollapsed]);
 
   const handleSettingChange = (
     id: string,

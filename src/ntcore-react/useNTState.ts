@@ -7,13 +7,8 @@ const useNTState = <T extends NTTopicTypes>(
   type: string,
   defaultValue: T,
   unretained = false
-): [
-  T,
-  (
-    value: T
-  ) => void
-] => {
-  const client = useContext(NTContext);
+): [T, (value: T) => void] => {
+  const { client } = useContext(NTContext);
   const [value, setValue] = useState<T>(defaultValue);
 
   useEffect(() => {
@@ -23,7 +18,7 @@ const useNTState = <T extends NTTopicTypes>(
       };
       const subscription = client.subscribe(key, listener);
       client.publish(key, type);
-      if(unretained) client.getClient().setRetained(key, false);
+      if (unretained) client.getClient().setRetained(key, false);
 
       return () => {
         subscription.unsubscribe();
@@ -45,7 +40,7 @@ const useNTState = <T extends NTTopicTypes>(
   const setNTValue = (value: T) => {
     if (!client) return;
     client.publish(key, type);
-    if(unretained) client.getClient().setRetained(key, false);
+    if (unretained) client.getClient().setRetained(key, false);
     client.setValue(key, value);
     setValue(value);
   };

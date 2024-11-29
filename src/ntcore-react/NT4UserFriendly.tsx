@@ -65,12 +65,13 @@ export class NTClient {
       () => {
         this.connected = true;
         this.robotConnectionListeners.forEach((l) => l(true));
-        if (this.connectedTimestamp === -1)
-          this.connectedTimestamp = this.client.getServerTime_us() ?? -1;
       },
       () => {
         this.connected = false;
         this.robotConnectionListeners.forEach((l) => l(false));
+      },
+      (ts) => {
+        if (this.connectedTimestamp === -1) this.connectedTimestamp = ts;
       }
     );
     this.client.connect();
@@ -86,6 +87,10 @@ export class NTClient {
         (l) => l !== listener
       );
     };
+  }
+
+  public isConnected() {
+    return this.connected;
   }
 
   public addTopicsListener(

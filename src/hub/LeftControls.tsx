@@ -37,6 +37,7 @@ const LeftControlsRaw: React.FC<IDockviewHeaderActionsProps> = ({
         padding: "0px 8px",
         height: "100%",
         color: "var(--dv-activegroup-visiblepanel-tab-color)",
+        zIndex: 5000,
       }}
     >
       <Dropdown className="tab-dropdown" options={options} onSelect={openTab} />

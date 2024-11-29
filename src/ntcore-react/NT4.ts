@@ -101,6 +101,7 @@ export class NT4_Client {
   ) => void;
   private onConnect: () => void;
   private onDisconnect: () => void;
+  private onTimestamp: (timestamp_us: number) => void;
 
   private serverBaseAddr;
   private ws: WebSocket | null = null;
@@ -142,7 +143,8 @@ export class NT4_Client {
       value: unknown
     ) => void,
     onConnect: () => void,
-    onDisconnect: () => void
+    onDisconnect: () => void,
+    onTimestamp: (timestamp_us: number) => void
   ) {
     this.serverBaseAddr = serverAddr;
     this.appName = appName;
@@ -151,7 +153,7 @@ export class NT4_Client {
     this.onNewTopicData = onNewTopicData;
     this.onConnect = onConnect;
     this.onDisconnect = onDisconnect;
-
+    this.onTimestamp = onTimestamp;
     this.timestampInterval = setInterval(() => {
       if (this.rttWs === null) {
         // Use v4.0 timeout (RTT ws not created)
@@ -432,6 +434,9 @@ export class NT4_Client {
     this.networkLatency_us = rtt / 2.0;
     let serverTimeAtRx = serverTimestamp + this.networkLatency_us;
     this.serverTimeOffset_us = serverTimeAtRx - rxTime;
+
+    // User callback
+    this.onTimestamp(serverTimestamp);
   }
 
   //////////////////////////////////////////////////////////////
