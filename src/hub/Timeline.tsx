@@ -17,26 +17,33 @@ const Timeline: React.FC = () => {
   const intervalRef = useRef<number | null>(null);
 
   useEffect(() => {
-    let animationFrameId: number;
     let lastRenderTime = 0;
 
     const render = (timestamp: number) => {
       if (timestamp - lastRenderTime < 16) {
-        animationFrameId = requestAnimationFrame(render);
+        intervalRef.current = requestAnimationFrame(render);
         return;
       }
       lastRenderTime = timestamp;
 
       const canvas = canvasRef.current;
-      if (!canvas) return;
+
       if (!contextRef.current) {
-        contextRef.current = canvas.getContext("2d");
+        contextRef.current = canvas?.getContext("2d") ?? null;
       }
       const context = contextRef.current;
-      if (!context) return;
       const container = containerRef.current;
-      if (!container) return;
-      if (!client || !connected) return;
+      if (
+        !canvas ||
+        !context ||
+        !container ||
+        !client ||
+        !connected ||
+        !canvas?.checkVisibility()
+      ) {
+        intervalRef.current = requestAnimationFrame(render);
+        return;
+      }
 
       const devicePixelRatio = window.devicePixelRatio;
       const width = container.clientWidth;
@@ -122,7 +129,7 @@ function calcAxisStepSize(
 /** Cleans up floating point errors. */
 function cleanFloat(float: number) {
   let output = Math.round(float * 1e6) / 1e6;
-  if (output === -0) output = 0;
+  if (Object.is(output, -0)) output = 0;
   return output;
 }
 
