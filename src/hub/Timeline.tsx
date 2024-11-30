@@ -37,7 +37,6 @@ const Timeline: React.FC = () => {
 
       if (!canvas || !context || !container || !client || !connected) return;
 
-      const devicePixelRatio = window.devicePixelRatio;
       const width = container.clientWidth;
       const height = container.clientHeight;
       const light = theme === "light";
@@ -46,7 +45,6 @@ const Timeline: React.FC = () => {
       canvas.width = width;
       canvas.height = height;
       context.setTransform(1, 0, 0, 1, 0, 0); // Reset transformation
-      context.scale(devicePixelRatio, devicePixelRatio);
 
       // Clear the canvas
       context.clearRect(0, 0, width, height);
