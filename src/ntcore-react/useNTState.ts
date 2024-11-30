@@ -8,7 +8,7 @@ const useNTState = <T extends NTTopicTypes>(
   defaultValue: T,
   unretained = false
 ): [T, (value: T) => void] => {
-  const { client } = useContext(NTContext);
+  const client = useContext(NTContext);
   const [value, setValue] = useState<T>(defaultValue);
 
   useEffect(() => {

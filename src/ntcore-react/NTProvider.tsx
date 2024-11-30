@@ -23,7 +23,6 @@ export default function NTProvider({
   teamNumber,
 }: NTProviderProps) {
   const [ntConnection, setNtConnection] = useState<NTClient | null>(null);
-  const [selectedTimestamp, setSelectedTimestamp] = useState(-1);
   const oldTeamNumber = useRef<number | undefined>();
 
   useEffect(() => {
@@ -60,9 +59,7 @@ export default function NTProvider({
   }, [ntConnection]);
 
   return (
-    <NTContext.Provider
-      value={{ client: ntConnection, selectedTimestamp, setSelectedTimestamp }}
-    >
+    <NTContext.Provider value={ntConnection}>
       {ntConnection ? children : null}
     </NTContext.Provider>
   );

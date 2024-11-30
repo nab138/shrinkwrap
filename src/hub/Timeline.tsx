@@ -1,11 +1,11 @@
-import { useContext, useEffect, useRef } from "react";
+import { useCallback, useContext, useEffect, useRef } from "react";
 import "./Timeline.css";
 import { useStore } from "../utils/StoreContext";
 import NTContext from "../ntcore-react/NTContext";
 import useNTConnected from "../ntcore-react/useNTConnected";
 
 const Timeline: React.FC = () => {
-  const { client } = useContext(NTContext);
+  const client = useContext(NTContext);
   const connected = useNTConnected();
 
   const [theme] = useStore<string>("theme", "light");
@@ -15,6 +15,8 @@ const Timeline: React.FC = () => {
   const contextRef = useRef<CanvasRenderingContext2D | null>(null);
 
   const intervalRef = useRef<number | null>(null);
+  const hoverXRef = useRef<number | null>(null);
+  const isDraggingRef = useRef<boolean>(false);
 
   useEffect(() => {
     let lastRenderTime = 0;
@@ -92,6 +94,35 @@ const Timeline: React.FC = () => {
 
         stepPos += stepSize;
       }
+
+      context.globalAlpha = 1;
+
+      if (!client.isLive()) {
+        let selectedX = scaleValue(
+          client.getSelectedTimestamp() / 1000000,
+          timeRange,
+          [0, width]
+        );
+        context.strokeStyle = light ? "#000" : "#fff";
+
+        context.lineWidth = 1;
+        context.beginPath();
+        context.moveTo(selectedX, 0);
+        context.lineTo(selectedX, height);
+        context.stroke();
+      }
+
+      if (hoverXRef.current !== null) {
+        context.strokeStyle = light ? "#00f" : "#88f";
+        context.lineWidth = 0.5;
+        context.globalAlpha = 0.4;
+        context.beginPath();
+        context.moveTo(hoverXRef.current, 0);
+        context.lineTo(hoverXRef.current, height);
+        context.stroke();
+        context.globalAlpha = 1;
+      }
+
       context.globalAlpha = 1;
 
       intervalRef.current = requestAnimationFrame(render);
@@ -104,16 +135,70 @@ const Timeline: React.FC = () => {
     };
   }, [theme, client, connected]);
 
+  const handleMouseMove = (clientX: number) => {
+    const canvas = canvasRef.current;
+    if (!canvas) return;
+
+    const rect = canvas.getBoundingClientRect();
+    const x = clientX - rect.left;
+    hoverXRef.current = x;
+
+    if (isDraggingRef.current) {
+      onMouseUp(clientX);
+    }
+  };
+
+  const handleMouseLeave = () => {
+    hoverXRef.current = null;
+  };
+
+  const onMouseDown = () => {
+    isDraggingRef.current = true;
+  };
+
+  const onMouseUp = useCallback(
+    (clientX: number) => {
+      if (!client) return;
+      const canvas = canvasRef.current;
+      if (!canvas) return;
+
+      const rect = canvas.getBoundingClientRect();
+      const x = clientX - rect.left;
+      const timeRange: [number, number] = [
+        client.getConnectedTimestamp() / 1000000,
+        client.getCurrentTimestamp() / 1000000,
+      ];
+      const selectedTime = scaleValue(x, [0, rect.width], timeRange);
+      client.setSelectedTimestamp(selectedTime * 1000000);
+    },
+    [client]
+  );
+
   return (
     <div ref={containerRef} className="timeline">
-      <canvas ref={canvasRef} className="timeline-canvas"></canvas>
+      <canvas
+        ref={canvasRef}
+        className="timeline-canvas"
+        onTouchMove={(e) => handleMouseMove(e.touches[0].clientX)}
+        onMouseUp={(e) => {
+          isDraggingRef.current = false;
+          onMouseUp(e.clientX);
+        }}
+        onTouchEnd={(e) => {
+          isDraggingRef.current = false;
+          onMouseUp(e.touches[0].clientX);
+        }}
+        onTouchStart={onMouseDown}
+        onMouseDown={onMouseDown}
+        onMouseMove={(e) => handleMouseMove(e.clientX)}
+        onMouseLeave={handleMouseLeave}
+      ></canvas>
     </div>
   );
 };
 
 export default Timeline;
 
-// https://github.com/Mechanical-Advantage/AdvantageScope/blob/26ed5936f6ea875752889e9405886646166ce6b4/src/shared/util.ts
 function calcAxisStepSize(
   dataRange: [number, number],
   pixelRange: number,
@@ -126,14 +211,12 @@ function calcAxisStepSize(
   return roundBase * multiplierLookup[Math.round(stepValueApprox / roundBase)];
 }
 
-/** Cleans up floating point errors. */
 function cleanFloat(float: number) {
   let output = Math.round(float * 1e6) / 1e6;
   if (Object.is(output, -0)) output = 0;
   return output;
 }
 
-/** Converts a value between two ranges. */
 function scaleValue(
   value: number,
   oldRange: [number, number],
@@ -146,7 +229,6 @@ function scaleValue(
   );
 }
 
-/** Clamps a value to a range. */
 function clampValue(value: number, min: number, max: number) {
   return Math.min(Math.max(value, min), max);
 }

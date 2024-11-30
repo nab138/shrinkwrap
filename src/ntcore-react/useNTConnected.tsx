@@ -2,7 +2,7 @@ import { useContext, useEffect, useState } from "react";
 import NTContext from "./NTContext";
 
 const useNTConnected = () => {
-  const { client } = useContext(NTContext);
+  const client = useContext(NTContext);
   const [connected, setConnected] = useState(false);
   useEffect(() => {
     if (client) {

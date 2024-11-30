@@ -149,7 +149,7 @@ export class NTClient {
     return this.client;
   }
 
-  public setTimestampToView(timestamp: number) {
+  public setSelectedTimestamp(timestamp: number) {
     this.liveMode = false;
     this.selectedTimestamp = timestamp;
     for (let topic of this.subscriptions.keys()) {
