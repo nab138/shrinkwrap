@@ -14,53 +14,47 @@ const Timeline: React.FC = () => {
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const contextRef = useRef<CanvasRenderingContext2D | null>(null);
 
-  const intervalRef = useRef<number | null>(null);
+  const animationFrameRef = useRef<number | null>(null);
   const hoverXRef = useRef<number | null>(null);
   const isDraggingRef = useRef<boolean>(false);
 
   useEffect(() => {
-    let lastRenderTime = 0;
+    const canvas = canvasRef.current;
+    const container = containerRef.current;
 
-    const render = (timestamp: number) => {
-      if (timestamp - lastRenderTime < 16) {
-        intervalRef.current = requestAnimationFrame(render);
-        return;
-      }
-      lastRenderTime = timestamp;
+    if (!canvas || !container) return;
 
-      const canvas = canvasRef.current;
+    const context = canvas.getContext("2d");
+    if (!context) return;
+    contextRef.current = context;
 
-      if (!contextRef.current) {
-        contextRef.current = canvas?.getContext("2d") ?? null;
-      }
+    const render = () => {
       const context = contextRef.current;
       const container = containerRef.current;
-      if (
-        !canvas ||
-        !context ||
-        !container ||
-        !client ||
-        !connected ||
-        !canvas?.checkVisibility()
-      ) {
-        intervalRef.current = requestAnimationFrame(render);
-        return;
-      }
+      const canvas = canvasRef.current;
+
+      if (!canvas || !context || !container || !client || !connected) return;
 
       const devicePixelRatio = window.devicePixelRatio;
       const width = container.clientWidth;
       const height = container.clientHeight;
       const light = theme === "light";
+
+      // Set canvas dimensions and reset transform
+      canvas.width = width * devicePixelRatio;
+      canvas.height = height * devicePixelRatio;
+      context.setTransform(1, 0, 0, 1, 0, 0); // Reset transformation
+      context.scale(devicePixelRatio, devicePixelRatio);
+
+      // Clear the canvas
+      context.clearRect(0, 0, width, height);
+
+      // Draw axis
       const timeRange: [number, number] = [
         client.getConnectedTimestamp() / 1000000,
         client.getCurrentTimestamp() / 1000000,
       ];
       const stepSize = calcAxisStepSize(timeRange, width, 100);
-      canvas.width = width * devicePixelRatio;
-      canvas.height = height * devicePixelRatio;
-      context.scale(devicePixelRatio, devicePixelRatio);
-      context.clearRect(0, 0, width, height);
-
       context.lineWidth = 0.5;
       context.strokeStyle = light ? "#222" : "#eee";
       context.fillStyle = light ? "#222" : "#eee";
@@ -68,12 +62,10 @@ const Timeline: React.FC = () => {
       context.textBaseline = "middle";
       context.globalAlpha = 0.5;
       let stepPos = Math.ceil(cleanFloat(timeRange[0] / stepSize)) * stepSize;
-      while (true) {
+      while (stepPos <= timeRange[1]) {
         const x = scaleValue(stepPos, timeRange, [0, width]);
-        if (x > width + 1) {
-          break;
-        }
 
+        // Draw ticks and labels
         const text = cleanFloat(stepPos).toString() + "s";
         const textWidth = context.measureText(text).width;
         const textX = clampValue(
@@ -81,21 +73,14 @@ const Timeline: React.FC = () => {
           textWidth / 2 + 3,
           width - textWidth / 2 - 3
         );
-
         context.fillText(text, textX, height / 2);
-
         context.beginPath();
         context.moveTo(x, 0);
-        context.lineTo(x, 8);
-        context.moveTo(x, height - 8);
         context.lineTo(x, height);
         context.stroke();
-        context.globalAlpha = 0.5;
 
         stepPos += stepSize;
       }
-
-      context.globalAlpha = 1;
 
       if (!client.isLive()) {
         let selectedX = scaleValue(
@@ -104,7 +89,7 @@ const Timeline: React.FC = () => {
           [0, width]
         );
         context.strokeStyle = light ? "#000" : "#fff";
-
+        context.globalAlpha = 1;
         context.lineWidth = 1;
         context.beginPath();
         context.moveTo(selectedX, 0);
@@ -115,23 +100,23 @@ const Timeline: React.FC = () => {
       if (hoverXRef.current !== null) {
         context.strokeStyle = light ? "#00f" : "#88f";
         context.lineWidth = 0.5;
-        context.globalAlpha = 0.4;
         context.beginPath();
         context.moveTo(hoverXRef.current, 0);
         context.lineTo(hoverXRef.current, height);
         context.stroke();
-        context.globalAlpha = 1;
       }
 
-      context.globalAlpha = 1;
-
-      intervalRef.current = requestAnimationFrame(render);
+      animationFrameRef.current = requestAnimationFrame(render);
     };
 
-    intervalRef.current = requestAnimationFrame(render);
+    // Start rendering
+    animationFrameRef.current = requestAnimationFrame(render);
 
     return () => {
-      if (intervalRef.current) cancelAnimationFrame(intervalRef.current);
+      if (animationFrameRef.current) {
+        cancelAnimationFrame(animationFrameRef.current);
+        animationFrameRef.current = null;
+      }
     };
   }, [theme, client, connected]);
 
