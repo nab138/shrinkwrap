@@ -41,8 +41,8 @@ const Timeline: React.FC = () => {
       const light = theme === "light";
 
       // Set canvas dimensions and reset transform
-      canvas.width = width * devicePixelRatio;
-      canvas.height = height * devicePixelRatio;
+      canvas.width = width;
+      canvas.height = height;
       context.setTransform(1, 0, 0, 1, 0, 0); // Reset transformation
       context.scale(devicePixelRatio, devicePixelRatio);
 
@@ -160,24 +160,33 @@ const Timeline: React.FC = () => {
   );
 
   return (
-    <div ref={containerRef} className="timeline">
-      <canvas
-        ref={canvasRef}
-        className="timeline-canvas"
-        onTouchMove={(e) => handleMouseMove(e.touches[0].clientX)}
-        onMouseUp={(e) => {
-          isDraggingRef.current = false;
-          onMouseUp(e.clientX);
+    <div className="timeline-container">
+      <div ref={containerRef} className="timeline">
+        <canvas
+          ref={canvasRef}
+          className="timeline-canvas"
+          onTouchMove={(e) => handleMouseMove(e.touches[0].clientX)}
+          onMouseUp={(e) => {
+            isDraggingRef.current = false;
+            onMouseUp(e.clientX);
+          }}
+          onTouchEnd={(e) => {
+            isDraggingRef.current = false;
+            onMouseUp(e.touches[0].clientX);
+          }}
+          onTouchStart={onMouseDown}
+          onMouseDown={onMouseDown}
+          onMouseMove={(e) => handleMouseMove(e.clientX)}
+          onMouseLeave={handleMouseLeave}
+        />
+      </div>
+      <button
+        onClick={() => {
+          client?.enableLiveMode();
         }}
-        onTouchEnd={(e) => {
-          isDraggingRef.current = false;
-          onMouseUp(e.touches[0].clientX);
-        }}
-        onTouchStart={onMouseDown}
-        onMouseDown={onMouseDown}
-        onMouseMove={(e) => handleMouseMove(e.clientX)}
-        onMouseLeave={handleMouseLeave}
-      ></canvas>
+      >
+        L
+      </button>
     </div>
   );
 };
