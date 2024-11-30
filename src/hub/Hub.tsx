@@ -101,7 +101,6 @@ const Hub: React.FC<HubProps> = ({ setIp, ip }) => {
         failed = true;
       }
       if (layout != null && !failed) {
-        console.log("Loaded layout", layout);
         event.api.fromJSON(JSON.parse(layout));
       }
       if (event.api.panels.length === 0) {

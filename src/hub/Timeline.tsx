@@ -3,6 +3,7 @@ import "./Timeline.css";
 import { useStore } from "../utils/StoreContext";
 import NTContext from "../ntcore-react/NTContext";
 import useNTConnected from "../ntcore-react/useNTConnected";
+import { BiFastForwardCircle } from "react-icons/bi";
 
 const Timeline: React.FC = () => {
   const client = useContext(NTContext);
@@ -13,6 +14,7 @@ const Timeline: React.FC = () => {
   const containerRef = useRef<HTMLDivElement>(null);
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const contextRef = useRef<CanvasRenderingContext2D | null>(null);
+  const liveButtonRef = useRef<HTMLDivElement>(null);
 
   const animationFrameRef = useRef<number | null>(null);
   const hoverXRef = useRef<number | null>(null);
@@ -95,6 +97,10 @@ const Timeline: React.FC = () => {
         context.moveTo(selectedX, 0);
         context.lineTo(selectedX, height);
         context.stroke();
+
+        liveButtonRef.current?.classList.remove("live-button-active");
+      } else {
+        liveButtonRef.current?.classList.add("live-button-active");
       }
 
       if (hoverXRef.current !== null) {
@@ -180,13 +186,15 @@ const Timeline: React.FC = () => {
           onMouseLeave={handleMouseLeave}
         />
       </div>
-      <button
-        onClick={() => {
-          client?.enableLiveMode();
-        }}
-      >
-        L
-      </button>
+      <div className="live-button live-button-container" ref={liveButtonRef}>
+        <BiFastForwardCircle
+          className="live-button"
+          onClick={() => {
+            if (!client || !connected) return;
+            if (!client.isLive()) client.enableLiveMode();
+          }}
+        />
+      </div>
     </div>
   );
 };

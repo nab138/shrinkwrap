@@ -20,6 +20,7 @@
 
 .dark {
   --foreground-color: #f6f6f6;
+  --foreground-color-2: #a8a8a8;
   --background-color-1: #252526;
   --background-color-2: #0e0e0e;
   --background-color-3: #0a0a0a;
@@ -32,6 +33,7 @@
 
 .light {
   --foreground-color: #0f0f0f;
+  --foreground-color-2: #2c2c2c;
   --background-color-1: #f3f3f3;
   --background-color-2: #e8e8e8;
   --background-color-3: #ddd;
@@ -43,6 +45,7 @@
 
 .abyss {
   --foreground-color: #f6f6f6;
+  --foreground-color-2: #a8a8a8;
   --background-color-1: #1c1c2a;
   --background-color-2: #0f0f1a;
   --background-color-3: #0e0e18;
