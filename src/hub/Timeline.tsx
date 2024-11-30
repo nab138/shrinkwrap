@@ -41,15 +41,11 @@ const Timeline: React.FC = () => {
       const height = container.clientHeight;
       const light = theme === "light";
 
-      // Set canvas dimensions and reset transform
       canvas.width = width;
       canvas.height = height;
-      context.setTransform(1, 0, 0, 1, 0, 0); // Reset transformation
-
-      // Clear the canvas
+      context.setTransform(1, 0, 0, 1, 0, 0);
       context.clearRect(0, 0, width, height);
 
-      // Draw axis
       const timeRange: [number, number] = [
         client.getConnectedTimestamp() / 1000000,
         client.getCurrentTimestamp() / 1000000,
@@ -65,7 +61,6 @@ const Timeline: React.FC = () => {
       while (stepPos <= timeRange[1]) {
         const x = scaleValue(stepPos, timeRange, [0, width]);
 
-        // Draw ticks and labels
         const text = cleanFloat(stepPos).toString() + "s";
         const textWidth = context.measureText(text).width;
         const textX = clampValue(
@@ -113,7 +108,6 @@ const Timeline: React.FC = () => {
       animationFrameRef.current = requestAnimationFrame(render);
     };
 
-    // Start rendering
     animationFrameRef.current = requestAnimationFrame(render);
 
     return () => {
