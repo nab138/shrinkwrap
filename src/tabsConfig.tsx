@@ -3,6 +3,7 @@ import LogViewer from "./tabs/Log";
 import OxConfig from "./tabs/OxConfig/OxConfig";
 import Settings from "./tabs/Settings";
 import ThreeDimensionField from "./tabs/ThreeDimensionField/ThreeDimensionField";
+import StateVisualizer from "./tabs/StateVisualizer";
 
 export type TabInfo = {
   id: string;
@@ -20,6 +21,11 @@ export const tabsConfig: TabInfo[] = [
     id: "3dfield",
     component: ThreeDimensionField,
     title: "🏟️ 3D Field",
+  },
+  {
+    id: "statevis",
+    component: StateVisualizer,
+    title: "👀 Statemachine",
   },
   {
     id: "settings",
