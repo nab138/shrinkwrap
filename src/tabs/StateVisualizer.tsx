@@ -41,7 +41,7 @@ const StateVisualizer: React.FC = () => {
     "/SmartDashboard/State Tree",
     JSON.parse,
     JSON.stringify({
-      name: "",
+      name: "Not Connected",
       children: [],
       transitions: [],
     })
@@ -125,6 +125,9 @@ const StateVisualizer: React.FC = () => {
           currentPath === activeState
             ? { border: "2px solid #007BFF", backgroundColor: "#D4F1FF22" }
             : { backgroundColor: "#FFFFFF22" },
+        expandParent: true,
+
+        parentId: parentPath || undefined,
       },
     ];
 
