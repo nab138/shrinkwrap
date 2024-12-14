@@ -4,6 +4,7 @@ import OxConfig from "./tabs/OxConfig/OxConfig";
 import Settings from "./tabs/Settings";
 import ThreeDimensionField from "./tabs/ThreeDimensionField/ThreeDimensionField";
 import StateVisualizer from "./tabs/StateVisualizer";
+import TwoDimensionField from "./tabs/TwoDimensionField";
 
 export type TabInfo = {
   id: string;
@@ -13,19 +14,9 @@ export type TabInfo = {
 
 export const tabsConfig: TabInfo[] = [
   {
-    id: "oxconfigeditor",
-    component: OxConfig,
-    title: "🛠️ OxConfig",
-  },
-  {
-    id: "3dfield",
-    component: ThreeDimensionField,
-    title: "🏟️ 3D Field",
-  },
-  {
-    id: "statevis",
-    component: StateVisualizer,
-    title: "👀 Statemachine",
+    id: "log",
+    component: LogViewer,
+    title: "📜 Log",
   },
   {
     id: "settings",
@@ -33,9 +24,24 @@ export const tabsConfig: TabInfo[] = [
     title: "⚙️ Settings",
   },
   {
-    id: "log",
-    component: LogViewer,
-    title: "📜 Log",
+    id: "statevis",
+    component: StateVisualizer,
+    title: "👀 Statemachine",
+  },
+  {
+    id: "3dfield",
+    component: ThreeDimensionField,
+    title: "🏟️ 3D Field",
+  },
+  {
+    id: "2dfield",
+    component: TwoDimensionField,
+    title: "🗺️ 2D Field",
+  },
+  {
+    id: "oxconfigeditor",
+    component: OxConfig,
+    title: "🛠️ OxConfig",
   },
 ];
 

@@ -22,7 +22,7 @@ const Hub: React.FC<HubProps> = ({ setIp, ip }) => {
   const [connectionIP] = useStore<string>("connectionIP", "invalid");
   const [theme] = useStore<string>("theme", "light");
   const [autoUpdate] = useStore<boolean>("autoUpdate", false);
-  const [save, load] = useSaveLoad("tablayout.json");
+  const [save, load] = useSaveLoad("shrinkwrap-layout.json");
   const connected = useNTConnected();
   const hasConnected = useRef<string | null>();
   const { checkForUpdates } = useUpdate();

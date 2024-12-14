@@ -3,7 +3,7 @@ import { IDockviewHeaderActionsProps } from "dockview";
 import { tabsConfig } from "../tabsConfig";
 import Dropdown from "./Dropdown";
 
-const options = tabsConfig.map((tab) => ({ id: tab.id, title: tab.title }));
+const options = tabsConfig.map((tab) => ({ id: tab.id, title: tab.title })).reverse();
 
 const LeftControlsRaw: React.FC<IDockviewHeaderActionsProps> = ({
   containerApi,
