@@ -106,9 +106,9 @@ export class NT4_Client {
   private serverBaseAddr;
   private ws: WebSocket | null = null;
   private rttWs: WebSocket | null = null;
-  private timestampInterval: NodeJS.Timeout | null = null;
-  private rttWsTimestampInterval: NodeJS.Timeout | null = null;
-  private disconnectTimeout: NodeJS.Timeout | null = null;
+  private timestampInterval: any | null = null;
+  private rttWsTimestampInterval: any | null = null;
+  private disconnectTimeout: any | null = null;
   private serverAddr = "";
   private serverConnectionActive = false;
   private serverConnectionRequested = false;
