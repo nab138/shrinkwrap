@@ -1,4 +1,4 @@
-import React, { useEffect, useMemo } from "react";
+import React, { useEffect, useState } from "react";
 import { useComputedNTValue } from "../ntcore-react/useNTValue";
 import "./StateVisualizer.css";
 import StateDiagram, { StateNode } from "./StateDiagram";
@@ -11,12 +11,42 @@ const StateVisualizer: React.FC = () => {
     "{}"
   );
 
+  const [dimensions, setDimensions] = useState({ width: 0, height: 0 });
+
+  useEffect(() => {
+    const handleResize = () => {
+      if (containerRef.current) {
+        setDimensions({
+          width: containerRef.current.offsetWidth - 17,
+          height: containerRef.current.offsetHeight - 9,
+        });
+      }
+    };
+
+    const resizeObserver = new ResizeObserver(handleResize);
+    if (containerRef.current) {
+      resizeObserver.observe(containerRef.current);
+    }
+
+    handleResize(); // Initial call to set dimensions
+
+    return () => {
+      if (containerRef.current) {
+        resizeObserver.unobserve(containerRef.current);
+      }
+    };
+  }, []);
+
   return (
-    <div className="pageContainer" ref={containerRef}>
+    <div
+      className="pageContainer"
+      ref={containerRef}
+      style={{ padding: 0, margin: 0 }}
+    >
       <StateDiagram
         data={rawData}
-        width={containerRef.current?.clientWidth || 0}
-        height={containerRef.current?.clientHeight || 0}
+        width={dimensions.width}
+        height={dimensions.height}
       />
     </div>
   );
