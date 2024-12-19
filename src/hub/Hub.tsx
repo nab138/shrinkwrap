@@ -24,7 +24,7 @@ const Hub: React.FC<HubProps> = ({ setIp, ip }) => {
   const [autoUpdate] = useStore<boolean>("autoUpdate", false);
   const [save, load] = useSaveLoad("shrinkwrap-layout.json");
   const connected = useNTConnected();
-  const hasConnected = useRef<string | null>();
+  const hasConnected = useRef<string | null>(null);
   const { checkForUpdates } = useUpdate();
   const { addToast } = useToast();
 

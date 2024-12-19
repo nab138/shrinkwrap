@@ -23,7 +23,7 @@ export default function NTProvider({
   teamNumber,
 }: NTProviderProps) {
   const [ntConnection, setNtConnection] = useState<NTClient | null>(null);
-  const oldTeamNumber = useRef<number | undefined>();
+  const oldTeamNumber = useRef<number | undefined>(undefined);
 
   useEffect(() => {
     // Create a network tables connection if one doesn't exist

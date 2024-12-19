@@ -1,4 +1,4 @@
-import React, { useCallback, useState } from "react";
+import React, { useState } from "react";
 import { IDockviewPanelProps } from "dockview";
 import Sidebar, { Setting } from "../hub/Sidebar";
 import { useStore } from "../utils/StoreContext";
@@ -36,13 +36,13 @@ const TwoDimensionField: React.FC<IDockviewPanelProps<{ id: string }>> = ({
     );
   };
 
-  const getSettingValue = useCallback(
-    (id: string) => {
-      const setting = settings.find((setting) => setting.id === id);
-      return setting ? setting.value : undefined;
-    },
-    [settings]
-  );
+  // const getSettingValue = useCallback(
+  //   (id: string) => {
+  //     const setting = settings.find((setting) => setting.id === id);
+  //     return setting ? setting.value : undefined;
+  //   },
+  //   [settings]
+  // );
 
   const [sidebarOpen, setSidebarOpen] = useState<boolean>(true);
 
@@ -57,9 +57,7 @@ const TwoDimensionField: React.FC<IDockviewPanelProps<{ id: string }>> = ({
       >
         <Timeline />
       </div>
-      <div className="fieldContainer">
-        
-      </div>
+      <div className="fieldContainer"></div>
       <Sidebar
         title="Field Settings"
         settings={settings}
