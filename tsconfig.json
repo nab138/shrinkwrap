@@ -1,6 +1,7 @@
 {
   "compilerOptions": {
     "typeRoots": ["src/types.d.ts"],
+    "types": ["node"],
     "target": "ES2020",
     "useDefineForClassFields": true,
     "lib": ["ES2020", "DOM", "DOM.Iterable"],
