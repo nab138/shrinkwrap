@@ -37,15 +37,20 @@ const AppComponent = () => {
   );
 };
 
-export const devStoreInstance = await createStore("devmode.bin");
-if ((await devStoreInstance.get("devmode")) === undefined) {
-  await devStoreInstance.set("devmode", false);
-  await devStoreInstance.save();
+async function initializeDevMode() {
+  const devStoreInstance = await createStore("devmode.bin");
+  if ((await devStoreInstance.get("devmode")) === undefined) {
+    await devStoreInstance.set("devmode", false);
+    await devStoreInstance.save();
+  }
+  const devMode = (await devStoreInstance.get("devmode")) === true;
+  if (devMode) {
+    import("eruda").then((eruda) => eruda.default.init());
+  }
+  return { devStoreInstance, devMode };
 }
-export const devMode = (await devStoreInstance.get("devmode")) === true;
-if (devMode) {
-  import("eruda").then((eruda) => eruda.default.init());
-}
+
+export const devModePromise = initializeDevMode();
 
 ReactDOM.createRoot(document.getElementById("root") as HTMLElement).render(
   <AppComponent />

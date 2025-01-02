@@ -9,7 +9,7 @@ import { platform } from "@tauri-apps/plugin-os";
 import { getVersion } from "@tauri-apps/api/app";
 import { useUpdate } from "../utils/UpdateContext";
 import { useEffect, useState } from "react";
-import { devMode, devStoreInstance } from "../main";
+import { devModePromise } from "../main";
 import { useToast } from "react-toast-plus";
 
 const isMobile = platform() === "ios" || platform() === "android";
@@ -26,9 +26,15 @@ const Settings: React.FC<IDockviewPanelProps<{ id: string }>> = () => {
   const [appVersion, setAppVersion] = useState<string>("");
   const { checkForUpdates } = useUpdate();
   const { addToast } = useToast();
+  const [devMode, setDevMode] = useState(false);
+  const [devStoreInstance, setDevStoreInstance] = useState<any>(null);
 
   useEffect(() => {
     getVersion().then((version) => setAppVersion(version));
+    devModePromise.then(({ devMode, devStoreInstance }) => {
+      setDevMode(devMode);
+      setDevStoreInstance(devStoreInstance);
+    });
   }, []);
 
   return (
