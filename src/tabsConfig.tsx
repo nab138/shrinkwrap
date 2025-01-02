@@ -1,5 +1,4 @@
 import { IDockviewPanelProps } from "dockview";
-import LogViewer from "./tabs/Log";
 import OxConfig from "./tabs/OxConfig/OxConfig";
 import Settings from "./tabs/Settings";
 import ThreeDimensionField from "./tabs/ThreeDimensionField/ThreeDimensionField";
@@ -13,11 +12,6 @@ export type TabInfo = {
 };
 
 export const tabsConfig: TabInfo[] = [
-  {
-    id: "log",
-    component: LogViewer,
-    title: "📜 Log",
-  },
   {
     id: "settings",
     component: Settings,

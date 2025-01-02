@@ -17,8 +17,8 @@ const StateVisualizer: React.FC = () => {
     const handleResize = () => {
       if (containerRef.current) {
         setDimensions({
-          width: containerRef.current.offsetWidth - 17,
-          height: containerRef.current.offsetHeight - 9,
+          width: containerRef.current.clientWidth,
+          height: containerRef.current.clientHeight - 20,
         });
       }
     };

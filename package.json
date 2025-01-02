@@ -28,6 +28,7 @@
     "@tauri-apps/plugin-updater": "~2",
     "d3": "^7.9.0",
     "dockview": "^2.0.0",
+    "eruda": "^3.4.1",
     "fuzzysort": "^3.1.0",
     "konva": "^9.3.16",
     "react": "^18.3.1",

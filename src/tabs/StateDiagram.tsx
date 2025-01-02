@@ -117,7 +117,9 @@ function drawNode(
         .strength(0.02)
     )
     .force("charge", d3.forceManyBody().strength(-10))
-    //.force("collision", () => collide(nodes, 10, parentMap))
+    .force("collision", () =>
+      rectCollide().size((d: StateNode) => [d.width!, d.height!])
+    )
     .force("parent", parentForce(parentMap, x, y, node))
     .on("tick", ticked);
 
@@ -175,12 +177,14 @@ function drawNode(
   }
 
   function dragstarted(event: any, d: StateNode) {
+    if (d.name === "Root") return;
     if (!event.active) simulation.alphaTarget(0.3).restart();
     d.fx = d.x;
     d.fy = d.y;
   }
 
   function dragged(event: any, d: StateNode) {
+    if (d.name === "Root") return;
     let parent = parentMap.get(d);
     if (parent) {
       d.fx = clamp(
@@ -200,6 +204,7 @@ function drawNode(
   }
 
   function dragended(event: any, d: StateNode) {
+    if (d.name === "Root") return;
     if (!event.active) simulation.alphaTarget(0);
     d.fx = null;
     d.fy = null;
@@ -221,60 +226,6 @@ function parentForce(
     if (root.vy == undefined) root.vy = 0;
     root.vx -= (root.x - centerX) * alpha * 0.5;
     root.vy -= (root.y - centerY) * alpha * 0.5;
-
-    let handleChildCollisions = (node: StateNode) => {
-      // Ensure children don't intersect each other
-      for (let iter = 0; iter < 20; iter++) {
-        for (let i = 0; i < (node.children ?? []).length; i++) {
-          let child = node.children![i];
-          if (child.x == undefined) child.x = 0;
-          if (child.y == undefined) child.y = 0;
-          if (child.width == undefined) child.width = 60;
-          if (child.height == undefined) child.height = 60;
-          for (let j = i + 1; j < (node.children ?? []).length; j++) {
-            let otherChild = node.children![j];
-            if (otherChild.x == undefined) otherChild.x = 0;
-            if (otherChild.y == undefined) otherChild.y = 0;
-            if (otherChild.width == undefined) otherChild.width = 60;
-            if (otherChild.height == undefined) otherChild.height = 60;
-
-            // Proper rectangle collision detection and resolution
-            let dx = child.x - otherChild.x;
-            let dy = child.y - otherChild.y;
-            let dw = (child.width + otherChild.width) / 2;
-            let dh = (child.height + otherChild.height) / 2;
-            if (Math.abs(dx) < dw && Math.abs(dy) < dh) {
-              let ox = dw - Math.abs(dx);
-              let oy = dh - Math.abs(dy);
-              if (ox < oy) {
-                if (dx > 0) {
-                  child.x += ox / 2;
-                  otherChild.x -= ox / 2;
-                } else {
-                  child.x -= ox / 2;
-                  otherChild.x += ox / 2;
-                }
-              } else {
-                if (dy > 0) {
-                  child.y += oy / 2;
-                  otherChild.y -= oy / 2;
-                } else {
-                  child.y -= oy / 2;
-                  otherChild.y += oy / 2;
-                }
-              }
-            }
-          }
-        }
-      }
-
-      // Recurse
-      for (const child of node.children ?? []) {
-        handleChildCollisions(child);
-      }
-    };
-
-    handleChildCollisions(root);
 
     parentMap.forEach((parent, node) => {
       if (node.x == undefined) node.x = 0;
@@ -306,7 +257,7 @@ function parentForce(
 }
 
 function calculateNodeSize(node: StateNode, w: number, h: number) {
-  if (node.name === "Root") return { width: w, height: h };
+  if (node.name === "Root") return { width: w - 2, height: h - 2 };
   let size = { width: 50, height: 50 };
   for (const child of node.children ?? []) {
     let childSize = calculateNodeSize(child, w, h);
@@ -350,4 +301,118 @@ function measureText(text: string): number {
   svg.remove();
 
   return width;
+}
+
+function rectCollide() {
+  let nodes: any, sizes: any, masses: any;
+  let size = constant([0, 0]);
+  let strength = 1;
+  let iterations = 1;
+
+  function force() {
+    let node: any, size: any, mass: any, xi: any, yi: any;
+    let i = -1;
+    while (++i < iterations) {
+      iterate();
+    }
+
+    function iterate() {
+      let j = -1;
+      let tree = d3.quadtree(nodes, xCenter, yCenter).visitAfter(prepare);
+
+      while (++j < nodes.length) {
+        node = nodes[j];
+        size = sizes[j];
+        mass = masses[j];
+        xi = xCenter(node);
+        yi = yCenter(node);
+
+        tree.visit(apply);
+      }
+    }
+
+    function apply(quad: any, x0: any, y0: any, x1: any, y1: any) {
+      let data = quad.data;
+      let xSize = (size[0] + quad.size[0]) / 2;
+      let ySize = (size[1] + quad.size[1]) / 2;
+      if (data) {
+        if (data.index <= node.index) {
+          return;
+        }
+
+        let x = xi - xCenter(data);
+        let y = yi - yCenter(data);
+        let xd = Math.abs(x) - xSize;
+        let yd = Math.abs(y) - ySize;
+
+        if (xd < 0 && yd < 0) {
+          let l = Math.sqrt(x * x + y * y);
+          let m = masses[data.index] / (mass + masses[data.index]);
+
+          if (Math.abs(xd) < Math.abs(yd)) {
+            node.vx -= (x *= (xd / l) * strength) * m;
+            data.vx += x * (1 - m);
+          } else {
+            node.vy -= (y *= (yd / l) * strength) * m;
+            data.vy += y * (1 - m);
+          }
+        }
+      }
+
+      return (
+        x0 > xi + xSize || y0 > yi + ySize || x1 < xi - xSize || y1 < yi - ySize
+      );
+    }
+
+    function prepare(quad: any) {
+      if (quad.data) {
+        quad.size = sizes[quad.data.index];
+      } else {
+        quad.size = [0, 0];
+        let i = -1;
+        while (++i < 4) {
+          if (quad[i] && quad[i].size) {
+            quad.size[0] = Math.max(quad.size[0], quad[i].size[0]);
+            quad.size[1] = Math.max(quad.size[1], quad[i].size[1]);
+          }
+        }
+      }
+    }
+  }
+
+  function xCenter(d: any) {
+    return d.x + d.vx + sizes[d.index][0] / 2;
+  }
+  function yCenter(d: any) {
+    return d.y + d.vy + sizes[d.index][1] / 2;
+  }
+
+  force.initialize = function (_: any) {
+    sizes = (nodes = _).map(size);
+    masses = sizes.map(function (d: any) {
+      return d[0] * d[1];
+    });
+  };
+
+  force.size = function (_: any) {
+    return arguments.length
+      ? ((size = typeof _ === "function" ? _ : constant(_)), force)
+      : size;
+  };
+
+  force.strength = function (_: any) {
+    return arguments.length ? ((strength = +_), force) : strength;
+  };
+
+  force.iterations = function (_: any) {
+    return arguments.length ? ((iterations = +_), force) : iterations;
+  };
+
+  return force;
+}
+
+function constant(_: any) {
+  return function () {
+    return _;
+  };
 }

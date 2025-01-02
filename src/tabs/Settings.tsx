@@ -9,6 +9,8 @@ import { platform } from "@tauri-apps/plugin-os";
 import { getVersion } from "@tauri-apps/api/app";
 import { useUpdate } from "../utils/UpdateContext";
 import { useEffect, useState } from "react";
+import { devMode, devStoreInstance } from "../main";
+import { useToast } from "react-toast-plus";
 
 const isMobile = platform() === "ios" || platform() === "android";
 
@@ -19,14 +21,11 @@ const Settings: React.FC<IDockviewPanelProps<{ id: string }>> = () => {
     "connectionIP",
     "127.0.0.1"
   );
-  const [displayConnection, setDisplayConnection] = useStore(
-    "displayConnection",
-    false
-  );
   const [deployDir, setDeployDir] = useStore("deployDir", "");
   const connected = useNTConnected();
   const [appVersion, setAppVersion] = useState<string>("");
   const { checkForUpdates } = useUpdate();
+  const { addToast } = useToast();
 
   useEffect(() => {
     getVersion().then((version) => setAppVersion(version));
@@ -106,14 +105,42 @@ const Settings: React.FC<IDockviewPanelProps<{ id: string }>> = () => {
           )}
         </Card>
         <Card title="Debug">
-          <label style={{ display: "flex", justifyContent: "space-between" }}>
-            Display Connection Errors
-            <input
-              type="checkbox"
-              checked={displayConnection}
-              onChange={(e) => setDisplayConnection(e.target.checked)}
-            />
-          </label>
+          <button
+            onClick={async () => {
+              await devStoreInstance.set("devmode", !devMode);
+              await devStoreInstance.save();
+              addToast(
+                ({ id, onClose }) => (
+                  <span>
+                    <span>
+                      Restart to {devMode ? "disable" : "enable"} developer mode
+                    </span>
+                    <br />
+                    <button
+                      style={{
+                        marginTop: "10px",
+                      }}
+                      onClick={() => {
+                        onClose(id);
+                        window.location.reload();
+                      }}
+                    >
+                      Restart Now
+                    </button>
+                  </span>
+                ),
+                "info",
+                {
+                  lifetime: 5000,
+                  autoClose: true,
+                  closeButton: { visible: false },
+                }
+              );
+            }}
+          >
+            {" "}
+            {devMode ? "Disable" : "Enable"} Developer Mode
+          </button>
         </Card>
       </div>
     </div>
