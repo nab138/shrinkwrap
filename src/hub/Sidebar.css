@@ -17,6 +17,12 @@
 
 .sidebar-setting {
   margin-bottom: 10px;
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  width: 100%;
+  justify-content: center;
+  gap: 5px;
 }
 
 .titleBar {

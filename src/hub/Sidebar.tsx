@@ -5,7 +5,7 @@ import ItemList, { Item } from "./NetworkArrayConfig";
 export interface Setting {
   id: string;
   label: string;
-  type: "boolean" | "string" | "number" | "custom" | "itemList";
+  type: "boolean" | "string" | "number" | "dropdown" | "itemList";
   value: boolean | string | number | Item[];
   options?: string[];
   ntTypes?: string[] | null;
@@ -102,8 +102,22 @@ const Sidebar: React.FC<SidebarProps> = ({
                   }
                 />
               )}
-              {setting.type === "custom" && (
-                <div>Custom input for {setting.label}</div>
+              {setting.type === "dropdown" && (
+                <select
+                  style={{
+                    marginLeft: "5px",
+                  }}
+                  value={setting.value as string}
+                  onChange={(e) =>
+                    handleSettingChange(setting.id, e.target.value)
+                  }
+                >
+                  {setting.options?.map((option) => (
+                    <option key={option} value={option}>
+                      {option}
+                    </option>
+                  ))}
+                </select>
               )}
               {setting.type === "itemList" && (
                 <ItemList
