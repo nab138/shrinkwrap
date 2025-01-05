@@ -6,7 +6,7 @@ import NTProvider from "./ntcore-react/NTProvider";
 import { ToastProvider } from "react-toast-plus";
 import { platform } from "@tauri-apps/plugin-os";
 import { UpdateProvider } from "./utils/UpdateContext";
-import { createStore } from "@tauri-apps/plugin-store";
+import { load } from "@tauri-apps/plugin-store";
 
 const MemoizedHub = React.memo(Hub);
 const MemoizedNTProvider = React.memo(NTProvider);
@@ -38,7 +38,7 @@ const AppComponent = () => {
 };
 
 async function initializeDevMode() {
-  const devStoreInstance = await createStore("devmode.bin");
+  const devStoreInstance = await load("devmode.json");
   if ((await devStoreInstance.get("devmode")) === undefined) {
     await devStoreInstance.set("devmode", false);
     await devStoreInstance.save();

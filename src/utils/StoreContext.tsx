@@ -6,7 +6,7 @@ import React, {
   useCallback,
   useMemo,
 } from "react";
-import { createStore, Store } from "@tauri-apps/plugin-store";
+import { load, Store } from "@tauri-apps/plugin-store";
 
 export const StoreContext = createContext<{
   storeValues: { [key: string]: any };
@@ -21,7 +21,7 @@ export const StoreProvider: React.FC<{ children: React.ReactNode }> = ({
 
   useEffect(() => {
     const initializeStore = async () => {
-      const storeInstance = await createStore("preferences.bin");
+      const storeInstance = await load("preferences.json");
       setStore(storeInstance);
 
       const keys = await storeInstance.keys();
