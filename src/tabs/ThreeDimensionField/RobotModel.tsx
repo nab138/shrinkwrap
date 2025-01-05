@@ -15,11 +15,8 @@ export interface RobotConfigRotation {
 
 export const robotProps = {
   KitBot: {
-    rotations: [
-      { axis: "x", degrees: -90 },
-      { axis: "y", degrees: -90 },
-    ],
-    position: [-0.12, 0, 3.15],
+    rotations: [{ axis: "y", degrees: 90 }],
+    position: [0, 0, -0.005],
   } as RobotConfig,
   "Duck Bot": {
     rotations: [
@@ -127,9 +124,9 @@ export function getQuaternionFromRotSeq(
   let quaternion = new THREE.Quaternion();
   rotations.forEach((rotation) => {
     let axis = new THREE.Vector3(0, 0, 0);
-    if (rotation.axis == "x") axis.setX(1);
-    if (rotation.axis == "y") axis.setY(1);
-    if (rotation.axis == "z") axis.setZ(1);
+    if (rotation.axis === "x") axis.setX(1);
+    if (rotation.axis === "y") axis.setY(1);
+    if (rotation.axis === "z") axis.setZ(1);
     quaternion.premultiply(
       new THREE.Quaternion().setFromAxisAngle(
         axis,
