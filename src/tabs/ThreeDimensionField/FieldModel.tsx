@@ -19,6 +19,11 @@ const WPILIB_ROTATION = getQuaternionFromRotSeq([
   },
 ]);
 
+const FIELD_ROTATIONS: { [key: string]: number } = {
+  "Field3d_2025.glb": 180,
+  "Field3d_2024.glb": 0,
+};
+
 const cinematicLights = [
   [0, 1, 0, -2],
   [6, -3, 6, 2],
@@ -62,6 +67,10 @@ const FieldModel: React.FC<FieldProps> = ({ field, cinematic }) => {
         }
       }
     });
+    scene.rotateOnAxis(
+      new THREE.Vector3(0, 1, 0),
+      (FIELD_ROTATIONS[field] * Math.PI) / 180
+    );
   }, [scene, cinematic]);
 
   return (
