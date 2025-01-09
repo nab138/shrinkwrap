@@ -2,6 +2,7 @@ import { useGLTF } from "@react-three/drei";
 import { useEffect, useState } from "react";
 import * as THREE from "three";
 import { useNTValue } from "../../ntcore-react/useNTValue";
+import { Field } from "./Fields";
 
 export interface RobotConfig {
   position: [number, number, number];
@@ -35,11 +36,13 @@ export interface RobotModelProps {
   robot: string;
   ntKey: string;
   cinematic?: boolean;
+  field: Field;
 }
 const RobotModel: React.FC<RobotModelProps> = ({
   robot: robotName,
   cinematic,
   ntKey,
+  field,
 }) => {
   let position = useNTValue<number[]>(ntKey, [-99, -99, -99], 0.001);
   let MATERIAL_SPECULAR: THREE.Color = new THREE.Color(0x666666);
@@ -97,14 +100,14 @@ const RobotModel: React.FC<RobotModelProps> = ({
         robot.visible = false;
         return;
       }
-      let x = -(position[0] - 8.25);
-      let y = position[1] - 4;
+      let x = -(position[0] - field.fieldX / 2);
+      let y = position[1] - field.fieldY / 2;
       let rotation = position[2];
       robot.visible = true;
       robot.position.set(x, 0, y);
       robot.rotation.y = (rotation * Math.PI) / 180;
     }
-  }, [position, robot]);
+  }, [position, robot, field]);
   return (
     <>
       {robot !== undefined &&

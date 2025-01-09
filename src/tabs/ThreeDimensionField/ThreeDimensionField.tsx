@@ -6,6 +6,7 @@ import { Item } from "../../hub/NetworkArrayConfig";
 import "./ThreeDimensionField.css";
 import { useStore } from "../../utils/StoreContext";
 import Timeline from "../../hub/Timeline";
+import { fields } from "./Fields";
 
 const ThreeDimensionField: React.FC<IDockviewPanelProps<{ id: string }>> = ({
   params,
@@ -16,7 +17,7 @@ const ThreeDimensionField: React.FC<IDockviewPanelProps<{ id: string }>> = ({
       label: "Field",
       type: "dropdown",
       value: "2025",
-      options: ["2024", "2025"],
+      options: fields.map((field) => field.year),
     },
     { id: "cinematic", label: "Cinematic Mode", type: "boolean", value: false },
     {
@@ -73,7 +74,7 @@ const ThreeDimensionField: React.FC<IDockviewPanelProps<{ id: string }>> = ({
             .map((item) => {
               return { key: item.value, robot: "KitBot" };
             })}
-          field={`Field3d_${getSettingValue("field") ?? 2025}.glb`}
+          field={`${getSettingValue("field") ?? 2025}`}
           cinematic={getSettingValue("cinematic") as boolean}
         />
       </div>

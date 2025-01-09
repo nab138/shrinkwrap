@@ -5,6 +5,7 @@ import RobotModel from "./RobotModel";
 import { Canvas } from "@react-three/fiber";
 import NTContext from "../../ntcore-react/NTContext";
 import OrbitControls from "./OrbitControls.tsx";
+import { fields } from "./Fields.tsx";
 
 export interface RobotData {
   key: string;
@@ -30,17 +31,31 @@ const ThreeComponent: React.FC<ThreeComponentProps> = ({
       className="three-canvas"
       camera={{ position: [0, 10, -15] }}
     >
-      {field !== "" && <FieldModel cinematic={cinematic} field={field} />}
+      {fields.find((f) => f.year == field) !== undefined && (
+        <FieldModel
+          cinematic={cinematic}
+          field={fields.find((f) => f.year == field)!}
+        />
+      )}
       <ContextBridge>
         {robots.map((r) => (
-          <RobotModel key={field + r.key} ntKey={r.key} robot={r.robot} />
+          <>
+            {fields.find((f) => f.year == field) !== undefined && (
+              <RobotModel
+                key={field + r.key}
+                ntKey={r.key}
+                robot={r.robot}
+                field={fields.find((f) => f.year == field)!}
+              />
+            )}
+          </>
         ))}
       </ContextBridge>
       <OrbitControls
         maxPolarAngle={Math.PI / 2}
-        maxDistance={30}
         enableDamping={true}
         dampingFactor={0.25}
+        keyEvents={true}
       />
     </Canvas>
   );

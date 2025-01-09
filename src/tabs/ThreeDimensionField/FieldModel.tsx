@@ -1,10 +1,11 @@
-import { useGLTF } from "@react-three/drei";
+import { useGLTF, Text } from "@react-three/drei";
 import { useEffect } from "react";
 import * as THREE from "three";
 import { getQuaternionFromRotSeq } from "./RobotModel";
 import CinematicLight from "./CinematicLight.tsx";
+import { Field } from "./Fields.tsx";
 export interface FieldProps {
-  field: string;
+  field: Field;
   cinematic: boolean;
 }
 
@@ -19,11 +20,6 @@ const WPILIB_ROTATION = getQuaternionFromRotSeq([
   },
 ]);
 
-const FIELD_ROTATIONS: { [key: string]: number } = {
-  "Field3d_2025.glb": 180,
-  "Field3d_2024.glb": 0,
-};
-
 const cinematicLights = [
   [0, 1, 0, -2],
   [6, -3, 6, 2],
@@ -31,7 +27,7 @@ const cinematicLights = [
 ];
 
 const FieldModel: React.FC<FieldProps> = ({ field, cinematic }) => {
-  const { scene } = useGLTF(field);
+  const { scene } = useGLTF("3dfields/Field3d_" + field.year + ".glb");
   let MATERIAL_SPECULAR: THREE.Color = new THREE.Color(0x666666);
   let MATERIAL_SHININESS: number = 100;
 
@@ -67,12 +63,9 @@ const FieldModel: React.FC<FieldProps> = ({ field, cinematic }) => {
         }
       }
     });
-    scene.rotateOnAxis(
-      new THREE.Vector3(0, 1, 0),
-      (FIELD_ROTATIONS[field] * Math.PI) / 180
-    );
   }, [scene, cinematic]);
 
+  if (scene == null) return <Text>Loading...</Text>;
   return (
     <mesh>
       <hemisphereLight
@@ -97,9 +90,17 @@ const FieldModel: React.FC<FieldProps> = ({ field, cinematic }) => {
           <pointLight color={0x0000ff} intensity={60} position={[-4.5, 0, 5]} />
         )}
       </group>
-      {scene != undefined && <primitive object={scene} />}
+      {scene != undefined && (
+        <group rotation={getEulerFromY(field.fieldRot)}>
+          <primitive object={scene} />
+        </group>
+      )}
     </mesh>
   );
 };
+
+function getEulerFromY(y: number): THREE.Euler {
+  return new THREE.Euler(0, (y * Math.PI) / 180, 0);
+}
 
 export default FieldModel;
