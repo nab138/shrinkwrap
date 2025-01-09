@@ -117,9 +117,7 @@ function drawNode(
         .strength(0.02)
     )
     .force("charge", d3.forceManyBody().strength(-10))
-    .force("collision", () =>
-      rectCollide().size((d: StateNode) => [d.width!, d.height!])
-    )
+    //.force("collision", () => collide(nodes, 10, parentMap))
     .force("parent", parentForce(parentMap, x, y, node))
     .on("tick", ticked);
 
@@ -226,6 +224,60 @@ function parentForce(
     if (root.vy == undefined) root.vy = 0;
     root.vx -= (root.x - centerX) * alpha * 0.5;
     root.vy -= (root.y - centerY) * alpha * 0.5;
+
+    let handleChildCollisions = (node: StateNode) => {
+      // Ensure children don't intersect each other
+      for (let iter = 0; iter < 3; iter++) {
+        for (let i = 0; i < (node.children ?? []).length; i++) {
+          let child = node.children![i];
+          if (child.x == undefined) child.x = 0;
+          if (child.y == undefined) child.y = 0;
+          if (child.width == undefined) child.width = 60;
+          if (child.height == undefined) child.height = 60;
+          for (let j = i + 1; j < (node.children ?? []).length; j++) {
+            let otherChild = node.children![j];
+            if (otherChild.x == undefined) otherChild.x = 0;
+            if (otherChild.y == undefined) otherChild.y = 0;
+            if (otherChild.width == undefined) otherChild.width = 60;
+            if (otherChild.height == undefined) otherChild.height = 60;
+
+            // Proper rectangle collision detection and resolution
+            let dx = child.x - otherChild.x;
+            let dy = child.y - otherChild.y;
+            let dw = (child.width + otherChild.width) / 2;
+            let dh = (child.height + otherChild.height) / 2;
+            if (Math.abs(dx) < dw && Math.abs(dy) < dh) {
+              let ox = dw - Math.abs(dx);
+              let oy = dh - Math.abs(dy);
+              if (ox < oy) {
+                if (dx > 0) {
+                  child.x += ox / 2;
+                  otherChild.x -= ox / 2;
+                } else {
+                  child.x -= ox / 2;
+                  otherChild.x += ox / 2;
+                }
+              } else {
+                if (dy > 0) {
+                  child.y += oy / 2;
+                  otherChild.y -= oy / 2;
+                } else {
+                  child.y -= oy / 2;
+                  otherChild.y += oy / 2;
+                }
+              }
+            }
+          }
+        }
+      }
+
+      // Recurse
+      for (const child of node.children ?? []) {
+        handleChildCollisions(child);
+      }
+    };
+
+    handleChildCollisions(root);
 
     parentMap.forEach((parent, node) => {
       if (node.x == undefined) node.x = 0;
