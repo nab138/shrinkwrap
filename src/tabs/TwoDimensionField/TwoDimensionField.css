@@ -3,6 +3,6 @@
 }
 
 .twodfieldContainer {
-  height: 100%;
-  background-color: #403c3c;
+  margin-top: 35px;
+  height: calc(100% - 35px);
 }

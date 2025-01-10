@@ -355,116 +355,116 @@ function measureText(text: string): number {
   return width;
 }
 
-function rectCollide() {
-  let nodes: any, sizes: any, masses: any;
-  let size = constant([0, 0]);
-  let strength = 1;
-  let iterations = 1;
+// function rectCollide() {
+//   let nodes: any, sizes: any, masses: any;
+//   let size = constant([0, 0]);
+//   let strength = 1;
+//   let iterations = 1;
 
-  function force() {
-    let node: any, size: any, mass: any, xi: any, yi: any;
-    let i = -1;
-    while (++i < iterations) {
-      iterate();
-    }
+//   function force() {
+//     let node: any, size: any, mass: any, xi: any, yi: any;
+//     let i = -1;
+//     while (++i < iterations) {
+//       iterate();
+//     }
 
-    function iterate() {
-      let j = -1;
-      let tree = d3.quadtree(nodes, xCenter, yCenter).visitAfter(prepare);
+//     function iterate() {
+//       let j = -1;
+//       let tree = d3.quadtree(nodes, xCenter, yCenter).visitAfter(prepare);
 
-      while (++j < nodes.length) {
-        node = nodes[j];
-        size = sizes[j];
-        mass = masses[j];
-        xi = xCenter(node);
-        yi = yCenter(node);
+//       while (++j < nodes.length) {
+//         node = nodes[j];
+//         size = sizes[j];
+//         mass = masses[j];
+//         xi = xCenter(node);
+//         yi = yCenter(node);
 
-        tree.visit(apply);
-      }
-    }
+//         tree.visit(apply);
+//       }
+//     }
 
-    function apply(quad: any, x0: any, y0: any, x1: any, y1: any) {
-      let data = quad.data;
-      let xSize = (size[0] + quad.size[0]) / 2;
-      let ySize = (size[1] + quad.size[1]) / 2;
-      if (data) {
-        if (data.index <= node.index) {
-          return;
-        }
+//     function apply(quad: any, x0: any, y0: any, x1: any, y1: any) {
+//       let data = quad.data;
+//       let xSize = (size[0] + quad.size[0]) / 2;
+//       let ySize = (size[1] + quad.size[1]) / 2;
+//       if (data) {
+//         if (data.index <= node.index) {
+//           return;
+//         }
 
-        let x = xi - xCenter(data);
-        let y = yi - yCenter(data);
-        let xd = Math.abs(x) - xSize;
-        let yd = Math.abs(y) - ySize;
+//         let x = xi - xCenter(data);
+//         let y = yi - yCenter(data);
+//         let xd = Math.abs(x) - xSize;
+//         let yd = Math.abs(y) - ySize;
 
-        if (xd < 0 && yd < 0) {
-          let l = Math.sqrt(x * x + y * y);
-          let m = masses[data.index] / (mass + masses[data.index]);
+//         if (xd < 0 && yd < 0) {
+//           let l = Math.sqrt(x * x + y * y);
+//           let m = masses[data.index] / (mass + masses[data.index]);
 
-          if (Math.abs(xd) < Math.abs(yd)) {
-            node.vx -= (x *= (xd / l) * strength) * m;
-            data.vx += x * (1 - m);
-          } else {
-            node.vy -= (y *= (yd / l) * strength) * m;
-            data.vy += y * (1 - m);
-          }
-        }
-      }
+//           if (Math.abs(xd) < Math.abs(yd)) {
+//             node.vx -= (x *= (xd / l) * strength) * m;
+//             data.vx += x * (1 - m);
+//           } else {
+//             node.vy -= (y *= (yd / l) * strength) * m;
+//             data.vy += y * (1 - m);
+//           }
+//         }
+//       }
 
-      return (
-        x0 > xi + xSize || y0 > yi + ySize || x1 < xi - xSize || y1 < yi - ySize
-      );
-    }
+//       return (
+//         x0 > xi + xSize || y0 > yi + ySize || x1 < xi - xSize || y1 < yi - ySize
+//       );
+//     }
 
-    function prepare(quad: any) {
-      if (quad.data) {
-        quad.size = sizes[quad.data.index];
-      } else {
-        quad.size = [0, 0];
-        let i = -1;
-        while (++i < 4) {
-          if (quad[i] && quad[i].size) {
-            quad.size[0] = Math.max(quad.size[0], quad[i].size[0]);
-            quad.size[1] = Math.max(quad.size[1], quad[i].size[1]);
-          }
-        }
-      }
-    }
-  }
+//     function prepare(quad: any) {
+//       if (quad.data) {
+//         quad.size = sizes[quad.data.index];
+//       } else {
+//         quad.size = [0, 0];
+//         let i = -1;
+//         while (++i < 4) {
+//           if (quad[i] && quad[i].size) {
+//             quad.size[0] = Math.max(quad.size[0], quad[i].size[0]);
+//             quad.size[1] = Math.max(quad.size[1], quad[i].size[1]);
+//           }
+//         }
+//       }
+//     }
+//   }
 
-  function xCenter(d: any) {
-    return d.x + d.vx + sizes[d.index][0] / 2;
-  }
-  function yCenter(d: any) {
-    return d.y + d.vy + sizes[d.index][1] / 2;
-  }
+//   function xCenter(d: any) {
+//     return d.x + d.vx + sizes[d.index][0] / 2;
+//   }
+//   function yCenter(d: any) {
+//     return d.y + d.vy + sizes[d.index][1] / 2;
+//   }
 
-  force.initialize = function (_: any) {
-    sizes = (nodes = _).map(size);
-    masses = sizes.map(function (d: any) {
-      return d[0] * d[1];
-    });
-  };
+//   force.initialize = function (_: any) {
+//     sizes = (nodes = _).map(size);
+//     masses = sizes.map(function (d: any) {
+//       return d[0] * d[1];
+//     });
+//   };
 
-  force.size = function (_: any) {
-    return arguments.length
-      ? ((size = typeof _ === "function" ? _ : constant(_)), force)
-      : size;
-  };
+//   force.size = function (_: any) {
+//     return arguments.length
+//       ? ((size = typeof _ === "function" ? _ : constant(_)), force)
+//       : size;
+//   };
 
-  force.strength = function (_: any) {
-    return arguments.length ? ((strength = +_), force) : strength;
-  };
+//   force.strength = function (_: any) {
+//     return arguments.length ? ((strength = +_), force) : strength;
+//   };
 
-  force.iterations = function (_: any) {
-    return arguments.length ? ((iterations = +_), force) : iterations;
-  };
+//   force.iterations = function (_: any) {
+//     return arguments.length ? ((iterations = +_), force) : iterations;
+//   };
 
-  return force;
-}
+//   return force;
+// }
 
-function constant(_: any) {
-  return function () {
-    return _;
-  };
-}
+// function constant(_: any) {
+//   return function () {
+//     return _;
+//   };
+// }
