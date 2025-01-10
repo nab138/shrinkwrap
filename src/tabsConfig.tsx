@@ -3,7 +3,7 @@ import OxConfig from "./tabs/OxConfig/OxConfig";
 import Settings from "./tabs/Settings";
 import ThreeDimensionField from "./tabs/ThreeDimensionField/ThreeDimensionField";
 import StateVisualizer from "./tabs/StateVisualizer";
-import TwoDimensionField from "./tabs/TwoDimensionField";
+import TwoDimensionField from "./tabs/TwoDimensionField/TwoDimensionField";
 
 export type TabInfo = {
   id: string;

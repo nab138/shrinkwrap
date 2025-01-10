@@ -1,11 +1,11 @@
 import FieldModel from "./FieldModel";
-import React from "react";
+import React, { useEffect, useState } from "react";
 import { useContextBridge } from "@react-three/drei";
 import RobotModel from "./RobotModel";
 import { Canvas } from "@react-three/fiber";
 import NTContext from "../../ntcore-react/NTContext";
 import OrbitControls from "./OrbitControls.tsx";
-import { fields } from "./Fields.tsx";
+import { Field, fields } from "./Fields.tsx";
 
 export interface RobotData {
   key: string;
@@ -19,10 +19,17 @@ export interface ThreeComponentProps {
 }
 
 const ThreeComponent: React.FC<ThreeComponentProps> = ({
-  field,
+  field: fieldName,
   robots,
   cinematic,
 }) => {
+  const [field, setField] = useState<Field | undefined>(
+    fields.find((f) => f.year == fieldName)
+  );
+  useEffect(() => {
+    setField(fields.find((f) => f.year == fieldName));
+  }, [fieldName]);
+
   const ContextBridge = useContextBridge(NTContext);
   return (
     <Canvas
@@ -31,25 +38,19 @@ const ThreeComponent: React.FC<ThreeComponentProps> = ({
       className="three-canvas"
       camera={{ position: [0, 10, -15] }}
     >
-      {fields.find((f) => f.year == field) !== undefined && (
-        <FieldModel
-          cinematic={cinematic}
-          field={fields.find((f) => f.year == field)!}
-        />
+      {field !== undefined && (
+        <FieldModel cinematic={cinematic} field={field} />
       )}
       <ContextBridge>
-        {robots.map((r) => (
-          <>
-            {fields.find((f) => f.year == field) !== undefined && (
-              <RobotModel
-                key={field + r.key}
-                ntKey={r.key}
-                robot={r.robot}
-                field={fields.find((f) => f.year == field)!}
-              />
-            )}
-          </>
-        ))}
+        {field != undefined &&
+          robots.map((r) => (
+            <RobotModel
+              key={fieldName + r.key}
+              ntKey={r.key}
+              robot={r.robot}
+              field={field}
+            />
+          ))}
       </ContextBridge>
       <OrbitControls
         maxPolarAngle={Math.PI / 2}
