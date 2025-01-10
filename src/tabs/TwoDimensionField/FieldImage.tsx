@@ -2,17 +2,30 @@ import React, { useEffect, useState } from "react";
 import { Image as KonvaImage } from "react-konva";
 import useImage from "use-image";
 import { Field, fields } from "../ThreeDimensionField/Fields";
+import { convert } from "../../utils/units";
 
 export interface FieldImageProps {
   field: string;
   width: number;
   height: number;
+  setCalcCoordinates: React.Dispatch<
+    React.SetStateAction<
+      | ((
+          translation: [number, number],
+          alwaysFlipped: boolean
+        ) => [number, number])
+      | undefined
+    >
+  >;
+  setFieldScale: React.Dispatch<React.SetStateAction<number>>;
 }
 
 const FieldImage: React.FC<FieldImageProps> = ({
   field: fieldName,
   width,
   height,
+  setCalcCoordinates,
+  setFieldScale,
 }) => {
   const [image] = useImage("/2dfields/Field2d_" + fieldName + ".png");
   const [renderValues, setRenderValues] = useState<number[]>([]);
@@ -47,6 +60,9 @@ const FieldImage: React.FC<FieldImageProps> = ({
       } else {
         imageScalar = width / extendedFieldWidth;
       }
+
+      console.log(imageScalar);
+      setFieldScale(imageScalar);
       let fieldCenterX = fieldWidth * 0.5 + field.imageData.topLeft[0];
       let fieldCenterY = fieldHeight * 0.5 + field.imageData.topLeft[1];
       let renderValues = [
@@ -58,6 +74,46 @@ const FieldImage: React.FC<FieldImageProps> = ({
         image.height * imageScalar, // Height
       ];
       setRenderValues(renderValues);
+
+      let canvasFieldLeft =
+        renderValues[0] + field.imageData.topLeft[0] * imageScalar;
+      let canvasFieldTop =
+        renderValues[1] + field.imageData.topLeft[1] * imageScalar;
+      let canvasFieldWidth = fieldWidth * imageScalar;
+      let canvasFieldHeight = fieldHeight * imageScalar;
+
+      setCalcCoordinates(
+        () =>
+          (
+            translation: [number, number],
+            alwaysFlipped = false
+          ): [number, number] => {
+            if (translation === undefined) return [0, 0];
+            let positionInches = [
+              convert(translation[0], "meters", "inches"),
+              convert(translation[1], "meters", "inches"),
+            ];
+
+            positionInches[1] *= -1; // Positive y is flipped on the canvas
+            positionInches[1] += field.imageData.heightInches;
+            let positionPixels: [number, number] = [
+              positionInches[0] *
+                (canvasFieldWidth / field.imageData.widthInches),
+              positionInches[1] *
+                (canvasFieldHeight / field.imageData.heightInches),
+            ];
+            if (alwaysFlipped) {
+              positionPixels[0] =
+                canvasFieldLeft + canvasFieldWidth - positionPixels[0];
+              positionPixels[1] =
+                canvasFieldTop + canvasFieldHeight - positionPixels[1];
+            } else {
+              positionPixels[0] += canvasFieldLeft;
+              positionPixels[1] += canvasFieldTop;
+            }
+            return positionPixels;
+          }
+      );
     }
   }, [image, field, width, height]);
 

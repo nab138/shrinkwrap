@@ -8,6 +8,7 @@ import "./TwoDimensionField.css";
 import { fields } from "../ThreeDimensionField/Fields";
 import { Layer, Stage } from "react-konva";
 import FieldImage from "./FieldImage";
+import Robot from "./Robot";
 
 const TwoDimensionField: React.FC<IDockviewPanelProps<{ id: string }>> = ({
   params,
@@ -85,6 +86,16 @@ const TwoDimensionField: React.FC<IDockviewPanelProps<{ id: string }>> = ({
     };
   }, [sidebarOpen]);
 
+  const [calcCoordinates, setCalcCoordinates] = useState<
+    | ((
+        translation: [number, number],
+        alwaysFlipped: boolean
+      ) => [number, number])
+    | undefined
+  >();
+
+  const [fieldScale, setFieldScale] = useState<number>(1);
+
   return (
     <div className="pageContainer">
       <div
@@ -103,9 +114,21 @@ const TwoDimensionField: React.FC<IDockviewPanelProps<{ id: string }>> = ({
         <Stage width={dimensions.width} height={dimensions.height}>
           <Layer>
             <FieldImage
+              setFieldScale={setFieldScale}
               width={dimensions.width}
               height={dimensions.height}
               field={`${getSettingValue("field") ?? 2025}`}
+              setCalcCoordinates={setCalcCoordinates}
+            />
+          </Layer>
+          <Layer>
+            <Robot
+              position={
+                calcCoordinates !== undefined
+                  ? calcCoordinates([1, 2], false)
+                  : [-100, -100]
+              }
+              scale={fieldScale}
             />
           </Layer>
         </Stage>
