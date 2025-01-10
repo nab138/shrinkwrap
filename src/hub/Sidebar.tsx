@@ -1,6 +1,9 @@
-import React, { useEffect, useState } from "react";
+import React, { useContext, useEffect, useState } from "react";
 import "./Sidebar.css";
 import ItemList, { Item } from "./NetworkArrayConfig";
+import { fields } from "../tabs/ThreeDimensionField/Fields";
+import { StoreContext } from "../utils/StoreContext";
+import { open } from "@tauri-apps/plugin-shell";
 
 export interface Setting {
   id: string;
@@ -9,6 +12,7 @@ export interface Setting {
   value: boolean | string | number | Item[];
   options?: string[];
   ntTypes?: string[] | null;
+  displaySource?: boolean;
 }
 
 export interface SidebarProps {
@@ -20,6 +24,7 @@ export interface SidebarProps {
   ) => void;
   collapsible?: boolean;
   onOpenDidChange?: (open: boolean) => void;
+  tabId?: string;
 }
 
 const Sidebar: React.FC<SidebarProps> = ({
@@ -28,7 +33,9 @@ const Sidebar: React.FC<SidebarProps> = ({
   onSettingChange,
   collapsible = true,
   onOpenDidChange = () => {},
+  tabId,
 }) => {
+  const { store } = useContext(StoreContext);
   const [isCollapsed, setIsCollapsed] = useState(false);
 
   useEffect(() => {
@@ -119,6 +126,32 @@ const Sidebar: React.FC<SidebarProps> = ({
                   ))}
                 </select>
               )}
+              {setting.type === "dropdown" &&
+                setting.displaySource &&
+                tabId && (
+                  <button
+                    style={{
+                      backgroundColor: "#0000",
+                      padding: 0,
+                      border: "none",
+                      color: "#0000EE",
+                      textDecoration: "underline",
+                    }}
+                    onClick={async () => {
+                      let settings = await store?.get<Setting[]>(tabId!);
+                      let field: string;
+                      if (settings == undefined) field = fields[0].year;
+                      else
+                        field = settings?.find(
+                          (setting) => setting.id === "field"
+                        )?.value as string;
+                      if (field == undefined) field = fields[0].year;
+                      open(fields.find((f) => f.year === field)!.source);
+                    }}
+                  >
+                    Source
+                  </button>
+                )}
               {setting.type === "itemList" && (
                 <ItemList
                   label={setting.label}

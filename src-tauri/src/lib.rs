@@ -21,6 +21,7 @@ lazy_static::lazy_static! {
 #[cfg_attr(mobile, tauri::mobile_entry_point)]
 pub fn run() {
     let mut builder = tauri::Builder::default()
+        .plugin(tauri_plugin_shell::init())
         .plugin(tauri_plugin_dialog::init())
         .plugin(tauri_plugin_store::Builder::new().build());
 
@@ -79,12 +80,18 @@ pub fn run() {
                         .build(),
                 )?;
 
-                if !app.global_shortcut().is_registered(connect_shortcut.clone()) {
+                if !app
+                    .global_shortcut()
+                    .is_registered(connect_shortcut.clone())
+                {
                     if let Err(e) = app.global_shortcut().register(connect_shortcut.clone()) {
                         eprintln!("Failed to register connect shortcut: {:?}", e);
                     }
                 }
-                if !app.global_shortcut().is_registered(connect_sim_shortcut.clone()) {
+                if !app
+                    .global_shortcut()
+                    .is_registered(connect_sim_shortcut.clone())
+                {
                     if let Err(e) = app.global_shortcut().register(connect_sim_shortcut.clone()) {
                         eprintln!("Failed to register connect_sim shortcut: {:?}", e);
                     }

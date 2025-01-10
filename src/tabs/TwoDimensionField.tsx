@@ -5,11 +5,21 @@ import { useStore } from "../utils/StoreContext";
 import { Item } from "../hub/NetworkArrayConfig";
 import Timeline from "../hub/Timeline";
 import "./TwoDimensionField.css";
+import { fields } from "./ThreeDimensionField/Fields";
+import { Stage } from "react-konva";
 
 const TwoDimensionField: React.FC<IDockviewPanelProps<{ id: string }>> = ({
   params,
 }) => {
   const initialSettings: Setting[] = [
+    {
+      id: "field",
+      label: "Field",
+      type: "dropdown",
+      value: "2025",
+      options: fields.map((field) => field.year),
+      displaySource: true,
+    },
     {
       id: "elements",
       label: "Elements",
@@ -57,8 +67,11 @@ const TwoDimensionField: React.FC<IDockviewPanelProps<{ id: string }>> = ({
       >
         <Timeline />
       </div>
-      <div className="fieldContainer"></div>
+      <div className="fieldContainer">
+        <Stage></Stage>
+      </div>
       <Sidebar
+        tabId={params.id}
         title="Field Settings"
         settings={settings}
         onSettingChange={handleSettingChange}

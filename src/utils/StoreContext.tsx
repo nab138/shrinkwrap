@@ -11,7 +11,8 @@ import { load, Store } from "@tauri-apps/plugin-store";
 export const StoreContext = createContext<{
   storeValues: { [key: string]: any };
   setStoreValue: (key: string, value: any) => void;
-}>({ storeValues: {}, setStoreValue: () => {} });
+  store: Store | null;
+}>({ storeValues: {}, setStoreValue: () => {}, store: null });
 
 export const StoreProvider: React.FC<{ children: React.ReactNode }> = ({
   children,
@@ -50,8 +51,8 @@ export const StoreProvider: React.FC<{ children: React.ReactNode }> = ({
   );
 
   const contextValue = useMemo(
-    () => ({ storeValues, setStoreValue }),
-    [storeValues, setStoreValue]
+    () => ({ storeValues, setStoreValue, store }),
+    [storeValues, setStoreValue, store]
   );
 
   if (!store) {
