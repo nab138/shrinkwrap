@@ -99,15 +99,6 @@ const TwoDimensionField: React.FC<IDockviewPanelProps<{ id: string }>> = ({
       <div
         className={"twodfieldContainer" + (sidebarOpen ? " sidebar-open" : "")}
         ref={containerRef}
-        style={{
-          backgroundColor: fields.some(
-            (f) => f.year === `${getSettingValue("field") ?? 2025}`
-          )
-            ? fields.find(
-                (f) => f.year === `${getSettingValue("field") ?? 2025}`
-              )?.color
-            : "#FFFFF",
-        }}
       >
         <Stage width={dimensions.width} height={dimensions.height}>
           <Layer>
