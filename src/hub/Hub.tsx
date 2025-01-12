@@ -1,4 +1,4 @@
-import React, { useCallback, useEffect, useRef } from "react";
+import React, { useCallback, useContext, useEffect, useRef } from "react";
 import { DockviewReact, DockviewReadyEvent } from "dockview";
 import "./Hub.css";
 import "dockview/dist/styles/dockview.css";
@@ -7,7 +7,7 @@ import { window as tauriWindow } from "@tauri-apps/api";
 import useSaveLoad from "../utils/saveload";
 import { listen } from "@tauri-apps/api/event";
 import LeftControls from "./LeftControls";
-import { useStore } from "../utils/StoreContext";
+import { StoreContext, useStore } from "../utils/StoreContext";
 import useNTConnected from "../ntcore-react/useNTConnected";
 import { useToast } from "react-toast-plus";
 import { platform } from "@tauri-apps/plugin-os";
@@ -19,7 +19,7 @@ export interface HubProps {
 }
 
 const Hub: React.FC<HubProps> = ({ setIp, ip }) => {
-  const [connectionIP] = useStore<string>("connectionIP", "invalid");
+  const [connectionIP] = useStore<string>("connectionIP", "10.30.44.2");
   const [theme] = useStore<string>("theme", "light");
   const [autoUpdate] = useStore<boolean>("autoUpdate", false);
   const [save, load] = useSaveLoad("shrinkwrap-layout.json");
@@ -27,6 +27,7 @@ const Hub: React.FC<HubProps> = ({ setIp, ip }) => {
   const hasConnected = useRef<string | null>(null);
   const { checkForUpdates } = useUpdate();
   const { addToast } = useToast();
+  const { store } = useContext(StoreContext);
 
   useEffect(() => {
     if (!autoUpdate) return;
@@ -116,12 +117,18 @@ const Hub: React.FC<HubProps> = ({ setIp, ip }) => {
         if (json == null) return;
         await save(JSON.stringify(json));
       });
-
+      let unlisten2 = event.api.onDidRemovePanel(async (e) => {
+        if (store?.has(e.id)) {
+          await store.delete(e.id);
+          await store.save();
+        }
+      });
       return () => {
         unlisten.dispose();
+        unlisten2.dispose();
       };
     },
-    [load, save]
+    [load, save, store]
   );
 
   return (

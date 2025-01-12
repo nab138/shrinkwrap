@@ -41,7 +41,7 @@ const ThreeDimensionField: React.FC<IDockviewPanelProps<{ id: string }>> = ({
   ) => {
     setSettings((prevSettings) =>
       prevSettings.map((setting) =>
-        setting.id === id ? { ...setting, value } : setting
+        setting.id === id ? { ...setting, value: value as any } : setting
       )
     );
   };

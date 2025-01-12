@@ -5,14 +5,46 @@ import { fields } from "../tabs/ThreeDimensionField/Fields";
 import { StoreContext } from "../utils/StoreContext";
 import { open } from "@tauri-apps/plugin-shell";
 
-export interface Setting {
+export type Setting =
+  | BooleanSetting
+  | StringSetting
+  | NumberSetting
+  | DropdownSetting
+  | ItemListSetting;
+
+interface SettingBase {
   id: string;
   label: string;
-  type: "boolean" | "string" | "number" | "dropdown" | "itemList";
-  value: boolean | string | number | Item[];
-  options?: string[];
-  ntTypes?: string[] | null;
+}
+
+interface BooleanSetting extends SettingBase {
+  type: "boolean";
+  value: boolean;
+}
+
+interface StringSetting extends SettingBase {
+  type: "string";
+  value: string;
+}
+
+interface NumberSetting extends SettingBase {
+  type: "number";
+  value: number;
+  stepSize?: number;
+}
+
+interface DropdownSetting extends SettingBase {
+  type: "dropdown";
+  value: string;
+  options: string[];
   displaySource?: boolean;
+}
+
+interface ItemListSetting extends SettingBase {
+  type: "itemList";
+  value: Item[];
+  options?: string[];
+  ntTypes?: string[];
 }
 
 export interface SidebarProps {
@@ -76,37 +108,24 @@ const Sidebar: React.FC<SidebarProps> = ({
                   }
                 />
               )}
-              {setting.type === "string" && setting.options ? (
-                <select
+              {setting.type === "string" && (
+                <input
+                  type="text"
                   value={setting.value as string}
                   onChange={(e) =>
                     handleSettingChange(setting.id, e.target.value)
                   }
-                >
-                  {setting.options.map((option) => (
-                    <option key={option} value={option}>
-                      {option}
-                    </option>
-                  ))}
-                </select>
-              ) : (
-                setting.type === "string" && (
-                  <input
-                    type="text"
-                    value={setting.value as string}
-                    onChange={(e) =>
-                      handleSettingChange(setting.id, e.target.value)
-                    }
-                  />
-                )
+                />
               )}
               {setting.type === "number" && (
                 <input
                   type="number"
+                  className="smallInput"
                   value={setting.value as number}
                   onChange={(e) =>
                     handleSettingChange(setting.id, parseFloat(e.target.value))
                   }
+                  step={setting.stepSize || 1}
                 />
               )}
               {setting.type === "dropdown" && (

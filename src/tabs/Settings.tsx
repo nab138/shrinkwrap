@@ -19,7 +19,7 @@ const Settings: React.FC<IDockviewPanelProps<{ id: string }>> = () => {
   const [autoUpdate, setAutoUpdate] = useStore<boolean>("autoUpdate", true);
   const [connectionIP, setConnectionIP] = useStore<string>(
     "connectionIP",
-    "127.0.0.1"
+    "10.30.44.2"
   );
   const [deployDir, setDeployDir] = useStore("deployDir", "");
   const connected = useNTConnected();

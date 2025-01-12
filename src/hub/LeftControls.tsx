@@ -3,7 +3,9 @@ import { IDockviewHeaderActionsProps } from "dockview";
 import { tabsConfig } from "../tabsConfig";
 import Dropdown from "./Dropdown";
 
-const options = tabsConfig.map((tab) => ({ id: tab.id, title: tab.title })).reverse();
+const options = tabsConfig
+  .map((tab) => ({ id: tab.id, title: tab.title }))
+  .reverse();
 
 const LeftControlsRaw: React.FC<IDockviewHeaderActionsProps> = ({
   containerApi,
@@ -13,7 +15,7 @@ const LeftControlsRaw: React.FC<IDockviewHeaderActionsProps> = ({
     (tabId: string) => {
       let tab = tabsConfig.find((tab) => tab.id === tabId);
       if (tab == null) return;
-      let newId = tabId + containerApi.panels.length;
+      let newId = tabId + Date.now();
       containerApi
         ?.addPanel({
           id: newId,

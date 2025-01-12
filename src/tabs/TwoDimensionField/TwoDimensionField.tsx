@@ -30,6 +30,13 @@ const TwoDimensionField: React.FC<IDockviewPanelProps<{ id: string }>> = ({
       options: ["Robot"],
       ntTypes: ["double[]"],
     },
+    {
+      id: "bumperSize",
+      label: "Bot Size (m)",
+      type: "number",
+      value: 0.92,
+      stepSize: 0.01,
+    },
   ];
 
   const [settings, setSettings] = useStore<Setting[]>(
@@ -43,7 +50,7 @@ const TwoDimensionField: React.FC<IDockviewPanelProps<{ id: string }>> = ({
   ) => {
     setSettings((prevSettings) =>
       prevSettings.map((setting) =>
-        setting.id === id ? { ...setting, value } : setting
+        setting.id === id ? { ...setting, value: value as any } : setting
       )
     );
   };
@@ -122,14 +129,20 @@ const TwoDimensionField: React.FC<IDockviewPanelProps<{ id: string }>> = ({
             />
           </Layer>
           <Layer>
-            <Robot
-              position={
-                calcCoordinates !== undefined
-                  ? calcCoordinates([1, 2], false)
-                  : [-100, -100]
-              }
-              scale={fieldScale}
-            />
+            {calcCoordinates &&
+              (getSettingValue("elements") as Item[])
+                .filter((item) => item.type === "Robot" && item.value != "")
+                .map((item) => {
+                  return (
+                    <Robot
+                      key={item.value}
+                      ntKey={item.value}
+                      calcCoordinates={calcCoordinates}
+                      scale={fieldScale}
+                      bumperSize={getSettingValue("bumperSize") as number}
+                    />
+                  );
+                })}
           </Layer>
         </Stage>
       </div>

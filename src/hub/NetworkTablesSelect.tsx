@@ -41,7 +41,7 @@ const NetworkTablesSelect: React.FC<NetworkTablesSelectProps> = ({
       });
       setValidTopics(valid);
     }
-  }, [topics, types]);
+  }, [topics, types, isOpen]);
 
   return (
     <div className="networkTablesSelect">

@@ -93,7 +93,6 @@ function drawNode(
   }
 
   traverse(node);
-  console.log(deepest);
 
   const simulation = d3
     .forceSimulation(nodes)

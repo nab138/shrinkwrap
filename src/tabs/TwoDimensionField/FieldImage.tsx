@@ -61,8 +61,11 @@ const FieldImage: React.FC<FieldImageProps> = ({
         imageScalar = width / extendedFieldWidth;
       }
 
-      console.log(imageScalar);
-      setFieldScale(imageScalar);
+      setFieldScale(
+        imageScalar *
+          (field.imageData.widthInches / convert(1, "meters", "inches")) *
+          10
+      );
       let fieldCenterX = fieldWidth * 0.5 + field.imageData.topLeft[0];
       let fieldCenterY = fieldHeight * 0.5 + field.imageData.topLeft[1];
       let renderValues = [
@@ -119,7 +122,7 @@ const FieldImage: React.FC<FieldImageProps> = ({
 
   return (
     <>
-      {image && renderValues.length > 0 && (
+      {image && renderValues.length > 0 && width > 0 && height > 0 && (
         <KonvaImage
           image={image}
           x={renderValues[0]}

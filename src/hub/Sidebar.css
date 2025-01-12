@@ -25,6 +25,10 @@
   gap: 5px;
 }
 
+.sidebar-setting .smallInput {
+  width: 40%;
+}
+
 .titleBar {
   width: 100%;
   display: flex;
