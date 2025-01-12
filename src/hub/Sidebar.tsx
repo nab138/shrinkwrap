@@ -155,6 +155,7 @@ const Sidebar: React.FC<SidebarProps> = ({
                       border: "none",
                       color: "#0000EE",
                       textDecoration: "underline",
+                      boxShadow: "none",
                     }}
                     onClick={async () => {
                       let settings = await store?.get<Setting[]>(tabId!);

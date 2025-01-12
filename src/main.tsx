@@ -1,7 +1,7 @@
 import React from "react";
 import ReactDOM from "react-dom/client";
 import Hub from "./hub/Hub";
-import { StoreProvider } from "./utils/StoreContext";
+import { StoreProvider, useStore } from "./utils/StoreContext";
 import NTProvider from "./ntcore-react/NTProvider";
 import { ToastProvider } from "react-toast-plus";
 import { platform } from "@tauri-apps/plugin-os";
@@ -14,26 +14,36 @@ const MemoizedNTProvider = React.memo(NTProvider);
 const AppComponent = () => {
   const [ip, setIp] = React.useState("invalid");
 
-  const stableSetIp = React.useCallback((newIp: string) => {
-    setIp(newIp);
-  }, []);
-
   return (
     <MemoizedNTProvider uri={ip === "" ? "0" : ip}>
       <StoreProvider>
-        <ToastProvider
-          toastOptions={{
-            closeOnClick: true,
-            placement: "bottom-right",
-            pauseOnFocusLoss: platform() !== "ios" && platform() !== "android",
-          }}
-        >
-          <UpdateProvider>
-            <MemoizedHub setIp={stableSetIp} ip={ip === "" ? "0" : ip} />
-          </UpdateProvider>
-        </ToastProvider>
+        <InnerAppComponent ip={ip} setIp={setIp} />
       </StoreProvider>
     </MemoizedNTProvider>
+  );
+};
+
+const InnerAppComponent: React.FC<{
+  ip: string;
+  setIp: (ip: string) => void;
+}> = ({ ip, setIp }) => {
+  const [theme] = useStore<string>("theme", "light");
+  return (
+    <ToastProvider
+      toastOptions={{
+        closeOnClick: true,
+        placement: "bottom-right",
+        pauseOnFocusLoss: platform() !== "ios" && platform() !== "android",
+      }}
+      toastStyles={{
+        toastBgColor: theme === "dark" ? "#050505" : "#fff",
+        toastTextColor: theme === "dark" ? "#fff" : "#111",
+      }}
+    >
+      <UpdateProvider>
+        <MemoizedHub setIp={setIp} ip={ip === "" ? "0" : ip} />
+      </UpdateProvider>
+    </ToastProvider>
   );
 };
 
