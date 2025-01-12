@@ -9,6 +9,7 @@ import { fields } from "../ThreeDimensionField/Fields";
 import { Layer, Stage } from "react-konva";
 import FieldImage from "./FieldImage";
 import Robot from "./Robot";
+import Lines from "./Lines";
 
 const TwoDimensionField: React.FC<IDockviewPanelProps<{ id: string }>> = ({
   params,
@@ -27,7 +28,7 @@ const TwoDimensionField: React.FC<IDockviewPanelProps<{ id: string }>> = ({
       label: "Elements",
       type: "itemList",
       value: [],
-      options: ["Robot"],
+      options: ["Robot", "Lines"],
       ntTypes: ["double[]"],
     },
     {
@@ -127,6 +128,21 @@ const TwoDimensionField: React.FC<IDockviewPanelProps<{ id: string }>> = ({
               field={`${getSettingValue("field") ?? 2025}`}
               setCalcCoordinates={setCalcCoordinates}
             />
+          </Layer>
+          <Layer>
+            {calcCoordinates &&
+              (getSettingValue("elements") as Item[])
+                .filter((item) => item.type === "Lines" && item.value != "")
+                .map((item) => {
+                  return (
+                    <Lines
+                      key={item.value}
+                      ntKey={item.value}
+                      calcCoordinates={calcCoordinates}
+                      scale={fieldScale}
+                    />
+                  );
+                })}
           </Layer>
           <Layer>
             {calcCoordinates &&
