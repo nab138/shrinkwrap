@@ -113,9 +113,9 @@ function drawNode(
               l.target.width!) /
             4
         )
-        .strength(0.02)
+      //.strength(0.02)
     )
-    .force("charge", d3.forceManyBody().strength(-10))
+    .force("charge", d3.forceManyBody().strength(-100))
     //.force("collision", () => collide(nodes, 10, parentMap))
     .force("parent", parentForce(parentMap, x, y, node))
     .on("tick", ticked);

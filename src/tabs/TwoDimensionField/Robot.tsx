@@ -71,14 +71,14 @@ const Robot: React.FC<RobotProps> = ({
         points={[
           scale * bumperSize * 0.2,
           scale * bumperSize * 0.5,
-          scale * bumperSize * 0.8 - 8,
+          scale * bumperSize * 0.8 - 0.1 * scale * bumperSize,
           scale * bumperSize * 0.5,
         ]}
         fill={bumperColor}
         stroke={bumperColor}
-        strokeWidth={8}
-        pointerWidth={20}
-        pointerLength={15}
+        strokeWidth={0.1 * scale * bumperSize}
+        pointerWidth={0.15 * scale * bumperSize}
+        pointerLength={0.1 * scale * bumperSize}
         closed
       />
     </Group>
