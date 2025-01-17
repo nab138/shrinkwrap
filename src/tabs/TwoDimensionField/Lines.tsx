@@ -8,11 +8,17 @@ export interface LinesProps {
     translation: [number, number],
     alwaysFlipped: boolean
   ) => [number, number];
-  scale: number;
+  size: number;
+  color: string;
 }
 
-const Lines: React.FC<LinesProps> = ({ ntKey, calcCoordinates, scale }) => {
-  const rawCoordinates = useNTValue<number[]>(ntKey, [-99, -99, -99], 0.001);
+const Lines: React.FC<LinesProps> = ({
+  ntKey,
+  calcCoordinates,
+  size,
+  color,
+}) => {
+  const rawCoordinates = useNTValue<number[]>(ntKey, [-99, -99, -99], 0.01);
   const [lines, setLines] = useState<[[number, number], [number, number]][]>(
     []
   );
@@ -38,8 +44,8 @@ const Lines: React.FC<LinesProps> = ({ ntKey, calcCoordinates, scale }) => {
       {lines.map((line) => (
         <Line
           points={[line[0][0], line[0][1], line[1][0], line[1][1]]}
-          stroke="black"
-          strokeWidth={scale * 0.035}
+          stroke={color}
+          strokeWidth={size}
           lineCap="round"
         />
       ))}

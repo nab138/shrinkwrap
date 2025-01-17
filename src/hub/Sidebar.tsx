@@ -4,6 +4,7 @@ import ItemList, { Item } from "./NetworkArrayConfig";
 import { fields } from "../tabs/ThreeDimensionField/Fields";
 import { StoreContext } from "../utils/StoreContext";
 import { open } from "@tauri-apps/plugin-shell";
+import { Option } from "./NetworkArrayConfig";
 
 export type Setting =
   | BooleanSetting
@@ -57,6 +58,7 @@ export interface SidebarProps {
   collapsible?: boolean;
   onOpenDidChange?: (open: boolean) => void;
   tabId?: string;
+  defaultArrayOptions?: { [key: string]: Option[] };
 }
 
 const Sidebar: React.FC<SidebarProps> = ({
@@ -66,6 +68,7 @@ const Sidebar: React.FC<SidebarProps> = ({
   collapsible = true,
   onOpenDidChange = () => {},
   tabId,
+  defaultArrayOptions = {},
 }) => {
   const { store } = useContext(StoreContext);
   const [isCollapsed, setIsCollapsed] = useState(false);
@@ -181,6 +184,7 @@ const Sidebar: React.FC<SidebarProps> = ({
                   onItemsChange={(items) =>
                     handleSettingChange(setting.id, items)
                   }
+                  defaultOptions={defaultArrayOptions}
                 />
               )}
             </div>

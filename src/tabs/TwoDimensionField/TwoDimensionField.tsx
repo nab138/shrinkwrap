@@ -10,6 +10,7 @@ import { Layer, Stage } from "react-konva";
 import FieldImage from "./FieldImage";
 import Robot from "./Robot";
 import Lines from "./Lines";
+import Trajectory from "./Trajectory";
 
 const TwoDimensionField: React.FC<IDockviewPanelProps<{ id: string }>> = ({
   params,
@@ -28,15 +29,8 @@ const TwoDimensionField: React.FC<IDockviewPanelProps<{ id: string }>> = ({
       label: "Elements",
       type: "itemList",
       value: [],
-      options: ["Robot", "Lines"],
+      options: ["Robot", "Lines", "Trajectory"],
       ntTypes: ["double[]"],
-    },
-    {
-      id: "bumperSize",
-      label: "Bot Size (m)",
-      type: "number",
-      value: 0.92,
-      stepSize: 0.01,
     },
   ];
 
@@ -139,7 +133,17 @@ const TwoDimensionField: React.FC<IDockviewPanelProps<{ id: string }>> = ({
                       key={item.value}
                       ntKey={item.value}
                       calcCoordinates={calcCoordinates}
-                      scale={fieldScale}
+                      size={
+                        fieldScale *
+                        parseFloat(
+                          item.options?.find((o) => o.label === "Thickness")
+                            ?.value ?? "0.035"
+                        )
+                      }
+                      color={
+                        item.options?.find((o) => o.label === "Color")?.value ??
+                        "black"
+                      }
                     />
                   );
                 })}
@@ -155,7 +159,43 @@ const TwoDimensionField: React.FC<IDockviewPanelProps<{ id: string }>> = ({
                       ntKey={item.value}
                       calcCoordinates={calcCoordinates}
                       scale={fieldScale}
-                      bumperSize={getSettingValue("bumperSize") as number}
+                      bumperLength={parseFloat(
+                        item.options?.find(
+                          (o) => o.label === "Bumper Length (m)"
+                        )?.value ?? "0.92"
+                      )}
+                      bumperWidth={parseFloat(
+                        item.options?.find(
+                          (o) => o.label === "Bumper Width (m)"
+                        )?.value ?? "0.92"
+                      )}
+                    />
+                  );
+                })}
+          </Layer>
+          <Layer>
+            {calcCoordinates &&
+              (getSettingValue("elements") as Item[])
+                .filter(
+                  (item) => item.type === "Trajectory" && item.value != ""
+                )
+                .map((item) => {
+                  return (
+                    <Trajectory
+                      key={item.value}
+                      ntKey={item.value}
+                      calcCoordinates={calcCoordinates}
+                      size={
+                        fieldScale *
+                        parseFloat(
+                          item.options?.find((o) => o.label === "Thickness")
+                            ?.value ?? "0.035"
+                        )
+                      }
+                      color={
+                        item.options?.find((o) => o.label === "Color")?.value ??
+                        "black"
+                      }
                     />
                   );
                 })}
@@ -169,6 +209,44 @@ const TwoDimensionField: React.FC<IDockviewPanelProps<{ id: string }>> = ({
         onSettingChange={handleSettingChange}
         collapsible={true}
         onOpenDidChange={setSidebarOpen}
+        defaultArrayOptions={{
+          Lines: [
+            {
+              type: "color",
+              value: "#000000",
+              label: "Color",
+            },
+            {
+              type: "number",
+              value: "0.035",
+              label: "Thickness",
+            },
+          ],
+          Trajectory: [
+            {
+              type: "color",
+              value: "#ff9100",
+              label: "Color",
+            },
+            {
+              type: "number",
+              value: "0.05",
+              label: "Thickness",
+            },
+          ],
+          Robot: [
+            {
+              type: "number",
+              value: "0.92",
+              label: "Bumper Width (m)",
+            },
+            {
+              type: "number",
+              value: "0.92",
+              label: "Bumper Length (m)",
+            },
+          ],
+        }}
       />
     </div>
   );

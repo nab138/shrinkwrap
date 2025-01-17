@@ -9,7 +9,8 @@ export interface RobotProps {
     alwaysFlipped: boolean
   ) => [number, number];
   scale: number;
-  bumperSize: number;
+  bumperWidth: number;
+  bumperLength: number;
 }
 
 const bumperThicknessMult = 0.175;
@@ -18,7 +19,8 @@ const Robot: React.FC<RobotProps> = ({
   ntKey,
   calcCoordinates,
   scale,
-  bumperSize,
+  bumperWidth,
+  bumperLength,
 }) => {
   const rawPosition = useNTValue<[number, number, number]>(
     ntKey,
@@ -38,47 +40,48 @@ const Robot: React.FC<RobotProps> = ({
     true,
     0.1
   );
-  if (scale <= 0 || bumperSize <= 0) {
+  if (scale <= 0 || bumperWidth <= 0 || bumperLength <= 0) {
     return <Text text="Invalid scale or bumper size" />;
   }
 
-  const bumperThickness = bumperSize * bumperThicknessMult;
+  const bumperThickness =
+    Math.min(bumperWidth, bumperLength) * bumperThicknessMult;
 
   return (
     <Group
       x={position[0]}
       y={position[1]}
-      offsetX={(scale * bumperSize) / 2}
-      offsetY={(scale * bumperSize) / 2}
+      offsetX={(scale * bumperWidth) / 2}
+      offsetY={(scale * bumperLength) / 2}
       rotation={-rawPosition[2]}
     >
       <Rect
-        width={scale * bumperSize}
-        height={scale * bumperSize}
+        width={scale * bumperWidth}
+        height={scale * bumperLength}
         cornerRadius={scale * 0.05}
         fill={bumperColor}
       />
       <Rect
         offsetX={-(scale * bumperThickness) / 2}
         offsetY={-(scale * bumperThickness) / 2}
-        width={scale * bumperSize - scale * bumperThickness}
-        height={scale * bumperSize - scale * bumperThickness}
+        width={scale * bumperWidth - scale * bumperThickness}
+        height={scale * bumperLength - scale * bumperThickness}
         cornerRadius={scale * 0.01}
         fill={"#303030"}
       />
       {/* Draw an arrow */}
       <Arrow
         points={[
-          scale * bumperSize * 0.2,
-          scale * bumperSize * 0.5,
-          scale * bumperSize * 0.8 - 0.1 * scale * bumperSize,
-          scale * bumperSize * 0.5,
+          scale * bumperWidth * 0.2,
+          scale * bumperLength * 0.5,
+          scale * bumperWidth * 0.8 - 0.1 * scale * bumperWidth,
+          scale * bumperLength * 0.5,
         ]}
         fill={bumperColor}
         stroke={bumperColor}
-        strokeWidth={0.1 * scale * bumperSize}
-        pointerWidth={0.15 * scale * bumperSize}
-        pointerLength={0.1 * scale * bumperSize}
+        strokeWidth={0.1 * scale * Math.min(bumperWidth, bumperLength)}
+        pointerWidth={0.15 * scale * Math.min(bumperLength, bumperWidth)}
+        pointerLength={0.1 * scale * Math.min(bumperWidth, bumperLength)}
         closed
       />
     </Group>

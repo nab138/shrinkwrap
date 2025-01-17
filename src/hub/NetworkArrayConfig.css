@@ -46,3 +46,19 @@
   margin-top: 1px;
   padding-top: 2px;
 }
+
+.itemOption {
+  display: flex;
+  width: 100%;
+  justify-content: space-between;
+}
+
+.itemOption input[type="number"] {
+  max-width: 60px;
+}
+
+.itemOption input {
+  padding: 2px;
+  box-shadow: none;
+  border-radius: 0;
+}
