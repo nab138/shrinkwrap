@@ -24,6 +24,7 @@ const StateMachineGraph: React.FC<StateMachineGraphProps> = ({
   const simulationRef = useRef<d3.Simulation<StateNode, undefined> | null>(
     null
   );
+  const scale = Math.min(width / 800, height / 600); // Adjust the divisor as needed for scaling
 
   useEffect(() => {
     if (!svgRef.current) return;
@@ -34,7 +35,7 @@ const StateMachineGraph: React.FC<StateMachineGraphProps> = ({
       simulationRef.current.stop();
     }
 
-    const { simulation } = drawNode(data, width / 2, height / 2, svg);
+    const { simulation } = drawNode(data, width / 2, height / 2, svg, scale);
     simulationRef.current = simulation;
 
     return () => {
@@ -63,7 +64,8 @@ function drawNode(
   node: StateNode,
   x: number,
   y: number,
-  svg: d3.Selection<SVGSVGElement, unknown, null, undefined>
+  svg: d3.Selection<SVGSVGElement, unknown, null, undefined>,
+  scale: number
 ) {
   let deepest = 0;
   const nodes: StateNode[] = [];
@@ -88,8 +90,8 @@ function drawNode(
       node.children.forEach((child) => traverse(child, node, depth + 1));
     }
     let size = calculateNodeSize(node, x * 2, y * 2);
-    node.width = size.width;
-    node.height = size.height;
+    node.width = size.width * scale;
+    node.height = size.height * scale;
   }
 
   traverse(node);
@@ -108,10 +110,11 @@ function drawNode(
         )
         .distance(
           (l) =>
-            ((deepest - l.source.name.split("/").length + 1) * 500 +
+            (((deepest - l.source.name.split("/").length + 1) * 500 +
               l.source.width! +
               l.target.width!) /
-            4
+              4) *
+            scale
         )
       //.strength(0.02)
     )
@@ -135,11 +138,15 @@ function drawNode(
     .append("rect")
     .attr("width", (d) => d.width ?? 60)
     .attr("height", (d) => d.height ?? 60)
-    .attr("fill", (d) =>
-      (d.children ?? []).length > 0 ? "#69b3a230" : "#69b3a2"
-    )
+    .attr("fill", (d) => {
+      if (d.name === "Root") return "#00000000";
+      return (d.children ?? []).length > 0 ? "#69b3a230" : "#69b3a2";
+    })
 
-    .attr("stroke", "#3c665c")
+    .attr("stroke", (d) => {
+      if (d.name === "Root") return "#00000000";
+      return "#3c665c";
+    })
     .call(
       d3
         .drag<SVGRectElement, StateNode>()
@@ -153,6 +160,8 @@ function drawNode(
     .data(nodes)
     .enter()
     .append("text")
+    // Set font size
+    .attr("font-size", `${14 * scale}px`)
     .attr("dy", "-0.5em") // Adjust this value to position the text above the rectangle
     .attr("text-anchor", "middle")
     .text((d) => (d.name || "").split("/").pop() ?? d.name);

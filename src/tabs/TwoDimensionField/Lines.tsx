@@ -41,8 +41,9 @@ const Lines: React.FC<LinesProps> = ({
 
   return (
     <Group>
-      {lines.map((line) => (
+      {lines.map((line, i) => (
         <Line
+          key={i}
           points={[line[0][0], line[0][1], line[1][0], line[1][1]]}
           stroke={color}
           strokeWidth={size}

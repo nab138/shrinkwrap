@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import { useComputedNTValue } from "../ntcore-react/useNTValue";
+import { useComputedNTValue } from "../../ntcore-react/useNTValue";
 import "./StateVisualizer.css";
 import StateDiagram, { StateNode } from "./StateDiagram";
 

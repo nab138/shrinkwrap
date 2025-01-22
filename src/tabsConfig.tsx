@@ -2,7 +2,7 @@ import { IDockviewPanelProps } from "dockview";
 import OxConfig from "./tabs/OxConfig/OxConfig";
 import Settings from "./tabs/Settings";
 import ThreeDimensionField from "./tabs/ThreeDimensionField/ThreeDimensionField";
-import StateVisualizer from "./tabs/StateVisualizer";
+import StateVisualizer from "./tabs/StateMachine/StateVisualizer";
 import TwoDimensionField from "./tabs/TwoDimensionField/TwoDimensionField";
 
 export type TabInfo = {
