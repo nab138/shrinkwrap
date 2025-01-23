@@ -57,11 +57,11 @@ const StateMachineGraph: React.FC<StateMachineGraphProps> = ({ data }) => {
   );
 
   useEffect(() => {
-    if (!data) return; // Do nothing if data is still null or empty
+    if (!data) return; // Do nothing if no data is provided
 
     const parseData = () => {
-      let newNodes: Node[] = [];
-      let newEdges: Edge[] = [];
+      const newNodes: Node[] = [];
+      const newEdges: Edge[] = [];
       const levelHeight = 100;
       const siblingSpacing = 150;
 
@@ -74,7 +74,6 @@ const StateMachineGraph: React.FC<StateMachineGraphProps> = ({ data }) => {
       ) => {
         if (!node || !node.name) return;
 
-        // Check for saved node positions
         const savedNode = savedNodes.find((n) => n.id === node.name);
         newNodes.push(
           savedNode || {
@@ -87,11 +86,16 @@ const StateMachineGraph: React.FC<StateMachineGraphProps> = ({ data }) => {
           }
         );
 
-        // Add edges
         (node.transitions ?? []).forEach((transition) => {
+          if (!transition.target || !transition.name) {
+            console.warn("Invalid transition:", transition);
+            return;
+          }
+
           const savedEdge = savedEdges.find(
             (e) => e.id === `${transition.name}${transition.target}${node.name}`
           );
+
           newEdges.push(
             savedEdge || {
               id: transition.name + transition.target + node.name,
@@ -108,7 +112,6 @@ const StateMachineGraph: React.FC<StateMachineGraphProps> = ({ data }) => {
           );
         });
 
-        // Add child nodes
         if (node.children) {
           let childXOffset = xOffset;
           let childYOffset = yOffset + levelHeight;
@@ -119,15 +122,21 @@ const StateMachineGraph: React.FC<StateMachineGraphProps> = ({ data }) => {
         }
       };
 
-      // Build nodes and edges
       addNodes(data);
 
+      // Set local states
       setNodes(newNodes);
       setEdges(newEdges);
+
+      // Defer updates to the store after rendering
+      setTimeout(() => {
+        setSavedNodes(newNodes);
+        setSavedEdges(newEdges);
+      }, 0);
     };
 
     parseData();
-  }, [data, savedNodes, savedEdges]);
+  }, [data, savedNodes, savedEdges, setSavedNodes, setSavedEdges]);
 
   return (
     <div style={{ height: "100%", width: "100%", margin: 0, padding: 0 }}>

@@ -40,10 +40,11 @@ export const StoreProvider: React.FC<{ children: React.ReactNode }> = ({
     async (key: string, value: any) => {
       if (!store) return;
 
-      setStoreValues((prevValues) => ({
-        ...prevValues,
-        [key]: value,
-      }));
+      setStoreValues((prevValues) => {
+        const newValues = { ...prevValues, [key]: value };
+        return newValues;
+      });
+
       await store.set(key, value);
       await store.save();
     },
@@ -73,11 +74,12 @@ export const useStore = <T,>(
   const { storeValues, setStoreValue } = useContext(StoreContext);
   const [value, setValue] = useState<T>(storeValues[key] ?? initialValue);
 
+  // Prevent infinite update loops
   useEffect(() => {
     if (storeValues[key] !== undefined && storeValues[key] !== value) {
-      setValue(storeValues[key] ?? initialValue);
+      setValue(storeValues[key]);
     }
-  }, [storeValues, key, initialValue, value]);
+  }, [storeValues, key]);
 
   const setStoredValue = useCallback(
     (newValue: T | ((oldValue: T) => T)) => {
