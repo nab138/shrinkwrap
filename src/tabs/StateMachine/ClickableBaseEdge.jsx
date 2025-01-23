@@ -1,15 +1,6 @@
 import React from "react";
 
-export interface ClickableBaseEdgeProps {
-  id?: string;
-  path: string;
-  style?: React.CSSProperties;
-  markerEnd?: string;
-  markerStart?: string;
-  interactionWidth?: number;
-  onClick?: (event: React.MouseEvent) => void;
-}
-const ClickableBaseEdge: React.FC<ClickableBaseEdgeProps> = ({
+const ClickableBaseEdge = ({
   id,
   path,
   style,

@@ -22,59 +22,112 @@ export interface StateNode {
 }
 
 interface StateMachineGraphProps {
-  data: StateNode;
+  data: StateNode | null;
   width: number;
   height: number;
 }
 
 const StateMachineGraph: React.FC<StateMachineGraphProps> = ({ data }) => {
   const [theme] = useStore<"light" | "dark" | "abyss">("theme", "light");
+  const [savedNodes, setSavedNodes] = useStore<Node[]>("savedNodes", []);
+  const [savedEdges, setSavedEdges] = useStore<Edge[]>("savedEdges", []);
   const [nodes, setNodes] = useState<Node[]>([]);
   const [edges, setEdges] = useState<Edge[]>([]);
+
   const onNodesChange = useCallback(
-    (changes: NodeChange<Node>[]) =>
-      setNodes((nds) => applyNodeChanges(changes, nds)),
-    []
+    (changes: NodeChange<Node>[]) => {
+      setNodes((nds) => {
+        const updatedNodes = applyNodeChanges(changes, nds);
+        setSavedNodes(updatedNodes); // Save user-updated nodes
+        return updatedNodes;
+      });
+    },
+    [setSavedNodes]
   );
+
   const onEdgesChange = useCallback(
-    (changes: EdgeChange<Edge>[]) =>
-      setEdges((eds) => applyEdgeChanges(changes, eds)),
-    []
+    (changes: EdgeChange<Edge>[]) => {
+      setEdges((eds) => {
+        const updatedEdges = applyEdgeChanges(changes, eds);
+        setSavedEdges(updatedEdges); // Save user-updated edges
+        return updatedEdges;
+      });
+    },
+    [setSavedEdges]
   );
 
   useEffect(() => {
-    let nodes: Node[] = [];
-    let edges: Edge[] = [];
-    // Recursively add all children of the root and children of each child
-    let addNodes = (node: StateNode, parentId?: string) => {
-      if (!node || !node.name) return;
-      let nodeName: string | string[] = node.name.split("/");
-      nodeName = nodeName[nodeName.length - 1];
-      nodes.push({
-        id: node.name,
-        data: { label: nodeName },
-        position: { x: 0, y: 0 },
-        parentId: parentId || undefined,
-        expandParent: true,
-        type: "ResizableNodeSelected",
-      });
-      (node.transitions ?? []).forEach((transition) =>
-        edges.push({
-          id: transition.name + transition.target + node.name,
-          source: node.name,
-          target: transition.target,
-          label: transition.name,
-          type: "PositionableEdge",
-        })
-      );
-      if (node.children) {
-        node.children.forEach((child) => addNodes(child, node.name));
-      }
+    if (!data) return; // Do nothing if data is still null or empty
+
+    const parseData = () => {
+      let newNodes: Node[] = [];
+      let newEdges: Edge[] = [];
+      const levelHeight = 100;
+      const siblingSpacing = 150;
+
+      const addNodes = (
+        node: StateNode,
+        parentId?: string,
+        depth = 0,
+        xOffset = 0,
+        yOffset = 0
+      ) => {
+        if (!node || !node.name) return;
+
+        // Check for saved node positions
+        const savedNode = savedNodes.find((n) => n.id === node.name);
+        newNodes.push(
+          savedNode || {
+            id: node.name,
+            data: { label: node.name, id: node.name },
+            position: { x: xOffset, y: yOffset },
+            parentId: parentId || undefined,
+            expandParent: true,
+            type: "ResizableNodeSelected",
+          }
+        );
+
+        // Add edges
+        (node.transitions ?? []).forEach((transition) => {
+          const savedEdge = savedEdges.find(
+            (e) => e.id === `${transition.name}${transition.target}${node.name}`
+          );
+          newEdges.push(
+            savedEdge || {
+              id: transition.name + transition.target + node.name,
+              source: node.name,
+              target: transition.target,
+              label: transition.name,
+              type: "PositionableEdge",
+              data: {
+                label: transition.name,
+                type: "straight",
+                positionHandlers: [],
+              },
+            }
+          );
+        });
+
+        // Add child nodes
+        if (node.children) {
+          let childXOffset = xOffset;
+          let childYOffset = yOffset + levelHeight;
+          node.children.forEach((child) => {
+            addNodes(child, node.name, depth + 1, childXOffset, childYOffset);
+            childXOffset += siblingSpacing;
+          });
+        }
+      };
+
+      // Build nodes and edges
+      addNodes(data);
+
+      setNodes(newNodes);
+      setEdges(newEdges);
     };
-    addNodes(data);
-    setNodes(nodes);
-    setEdges(edges);
-  }, [data]);
+
+    parseData();
+  }, [data, savedNodes, savedEdges]);
 
   return (
     <div style={{ height: "100%", width: "100%", margin: 0, padding: 0 }}>
@@ -88,6 +141,7 @@ const StateMachineGraph: React.FC<StateMachineGraphProps> = ({ data }) => {
         nodeTypes={{ ResizableNodeSelected }}
         elementsSelectable={true}
         deleteKeyCode={null}
+        proOptions={{ hideAttribution: true }}
       >
         <Background />
         <Controls />

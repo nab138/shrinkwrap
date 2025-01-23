@@ -5,6 +5,18 @@ export interface ResizableNodeSelectedProps {
   data: any;
   selected: boolean;
 }
+
+const colorsForLayers = [
+  "#ff0071",
+  "#00e3ae",
+  "#00aaff",
+  "#ffcc00",
+  "#ff0071",
+  "#00e3ae",
+  "#00aaff",
+  "#ffcc00",
+];
+
 const ResizableNodeSelected: React.FC<ResizableNodeSelectedProps> = ({
   data,
   selected,
@@ -22,8 +34,9 @@ const ResizableNodeSelected: React.FC<ResizableNodeSelectedProps> = ({
         style={{
           padding: 10,
           backgroundColor:
-            "color-mix(in srgb, var(--background-color-2), transparent 40%)",
+            colorsForLayers[data.id.split("/").length - 1] + "aa",
           height: "100%",
+          boxSizing: "border-box",
         }}
       >
         {data.label}
