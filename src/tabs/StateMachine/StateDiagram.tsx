@@ -27,6 +27,11 @@ interface StateMachineGraphProps {
   height: number;
 }
 
+interface SavedEdgeData {
+  id: string;
+  positionHandlers: { x: number; y: number }[];
+}
+
 interface SavedNodeData {
   position: { x: number; y: number };
   width: number;
@@ -58,9 +63,22 @@ const StateMachineGraph: React.FC<StateMachineGraphProps> = ({ data }) => {
   );
 
   const onEdgesChange = useCallback(
-    (changes: EdgeChange<Edge>[]) =>
-      setEdges((eds) => applyEdgeChanges(changes, eds)),
-    []
+    (changes: EdgeChange<Edge>[]) => {
+      setEdges((eds) => {
+        const newEdges = applyEdgeChanges(changes, eds);
+        if (storeInitialized) {
+          setStoreValue(
+            "stateMachineEdges",
+            newEdges.map((edge) => ({
+              id: edge.id,
+              positionHandlers: edge.data?.positionHandlers || [],
+            }))
+          );
+        }
+        return newEdges;
+      });
+    },
+    [setStoreValue, storeInitialized]
   );
 
   useEffect(() => {
@@ -71,6 +89,7 @@ const StateMachineGraph: React.FC<StateMachineGraphProps> = ({ data }) => {
     const siblingSpacing = 150;
 
     let savedNodes: SavedNodeData[] = storeValues.stateMachineNodes ?? [];
+    let savedEdges: SavedEdgeData[] = storeValues.stateMachineEdges ?? [];
 
     const addNodes = (
       node: StateNode,
@@ -108,7 +127,10 @@ const StateMachineGraph: React.FC<StateMachineGraphProps> = ({ data }) => {
           data: {
             label: transition.name,
             type: "straight",
-            positionHandlers: [],
+            positionHandlers:
+              savedEdges.find(
+                (e) => e.id === transition.name + transition.target + node.name
+              )?.positionHandlers || [],
           },
         })
       );
