@@ -12,13 +12,20 @@ export const StoreContext = createContext<{
   storeValues: { [key: string]: any };
   setStoreValue: (key: string, value: any) => void;
   store: Store | null;
-}>({ storeValues: {}, setStoreValue: () => {}, store: null });
+  storeInitialized: boolean;
+}>({
+  storeValues: {},
+  setStoreValue: () => {},
+  store: null,
+  storeInitialized: false,
+});
 
 export const StoreProvider: React.FC<{ children: React.ReactNode }> = ({
   children,
 }) => {
   const [storeValues, setStoreValues] = useState<{ [key: string]: any }>({});
   const [store, setStore] = useState<Store | null>(null);
+  const [storeInitialized, setStoreInitialized] = useState(false);
 
   useEffect(() => {
     const initializeStore = async () => {
@@ -31,6 +38,7 @@ export const StoreProvider: React.FC<{ children: React.ReactNode }> = ({
         values[key] = await storeInstance.get(key);
       }
       setStoreValues(values);
+      setStoreInitialized(true);
     };
 
     initializeStore();
@@ -52,7 +60,7 @@ export const StoreProvider: React.FC<{ children: React.ReactNode }> = ({
   );
 
   const contextValue = useMemo(
-    () => ({ storeValues, setStoreValue, store }),
+    () => ({ storeValues, setStoreValue, store, storeInitialized }),
     [storeValues, setStoreValue, store]
   );
 
@@ -70,8 +78,9 @@ export const StoreProvider: React.FC<{ children: React.ReactNode }> = ({
 export const useStore = <T,>(
   key: string,
   initialValue: T
-): [T, (value: T | ((oldValue: T) => T)) => void] => {
-  const { storeValues, setStoreValue } = useContext(StoreContext);
+): [T, (value: T | ((oldValue: T) => T)) => void, boolean] => {
+  const { storeValues, setStoreValue, storeInitialized } =
+    useContext(StoreContext);
   const [value, setValue] = useState<T>(storeValues[key] ?? initialValue);
 
   // Prevent infinite update loops
@@ -93,5 +102,5 @@ export const useStore = <T,>(
     [key, setStoreValue, value]
   );
 
-  return [value, setStoredValue];
+  return [value, setStoredValue, storeInitialized];
 };
