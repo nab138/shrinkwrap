@@ -8,6 +8,7 @@ import {
   NodeChange,
   Edge,
   EdgeChange,
+  MarkerType,
 } from "@xyflow/react";
 import "@xyflow/react/dist/style.css";
 import { StoreContext, useStore } from "../../utils/StoreContext";
@@ -124,6 +125,18 @@ const StateMachineGraph: React.FC<StateMachineGraphProps> = ({ data }) => {
           target: transition.target,
           label: transition.name,
           type: "PositionableEdge",
+          markerEnd: {
+            type: MarkerType.ArrowClosed,
+            width: 25,
+            height: 25,
+            color: "#000",
+          },
+          markerStart: {
+            type: MarkerType.Arrow,
+            width: 25,
+            height: 25,
+            color: "#000",
+          },
           data: {
             label: transition.name,
             type: "straight",
@@ -161,7 +174,8 @@ const StateMachineGraph: React.FC<StateMachineGraphProps> = ({ data }) => {
         elementsSelectable={true}
         deleteKeyCode={null}
         proOptions={{ hideAttribution: true }}
-        minZoom={0.2}
+        minZoom={0.3}
+        connectOnClick={false}
       >
         <Background />
         <Controls />

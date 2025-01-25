@@ -98,6 +98,19 @@ export default function PositionableEdge({
 
   return (
     <>
+    <defs>
+        <marker
+          id="arrow"
+          viewBox="0 0 10 10"
+          refX="5"
+          refY="5"
+          markerWidth="5"
+          markerHeight="5"
+          orient="auto-start-reverse"
+        >
+          <path d="M 0 0 L 10 5 L 0 10 z" fill="var(--foreground-color)" />
+        </marker>
+      </defs>
       {edgeSegmentsArray.map(({ edgePath }, index) => (
         <ClickableBaseEdge
           onClick={(event) => {
@@ -115,7 +128,7 @@ export default function PositionableEdge({
               });
               return edges;
             });
-            setForceUpdate((prev) => !prev);
+            requestAnimationFrame(() => setForceUpdate((prev) => !prev));
           }}
           key={`edge${id}_segment${index}`}
           path={edgePath}
@@ -177,7 +190,7 @@ export default function PositionableEdge({
                   };
                   return edges;
                 });
-                setForceUpdate((prev) => !prev);
+                requestAnimationFrame(() => setForceUpdate((prev) => !prev));
               }}
               // mouse up is used to release all the handlers
               onMouseUp={() => {
@@ -192,7 +205,7 @@ export default function PositionableEdge({
 
                   return edges;
                 });
-                setForceUpdate((prev) => !prev);
+                requestAnimationFrame(() => setForceUpdate((prev) => !prev));
               }}
             >
               <button
@@ -207,7 +220,7 @@ export default function PositionableEdge({
                     ].active = edgeIndex;
                     return edges;
                   });
-                  setForceUpdate((prev) => !prev);
+                  requestAnimationFrame(() => setForceUpdate((prev) => !prev));
                 }}
                 // right click is used to delete the handler
                 onContextMenu={(event) => {
@@ -220,7 +233,7 @@ export default function PositionableEdge({
                     );
                     return edges;
                   });
-                  setForceUpdate((prev) => !prev);
+                  requestAnimationFrame(() => setForceUpdate((prev) => !prev));
                 }}
               ></button>
             </div>
