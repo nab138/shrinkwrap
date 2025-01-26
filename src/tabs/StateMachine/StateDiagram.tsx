@@ -15,6 +15,7 @@ import { StoreContext, useStore } from "../../utils/StoreContext";
 import { useCallback, useContext, useEffect, useState } from "react";
 import ResizableNodeSelected from "./ResizableNodeSelected";
 import PositionableEdge from "./PositionableEdge.jsx";
+import { StateMachineProvider } from "./StateMachineContext.js";
 
 export interface StateNode {
   name: string;
@@ -24,8 +25,6 @@ export interface StateNode {
 
 interface StateMachineGraphProps {
   data: StateNode;
-  width: number;
-  height: number;
 }
 
 interface SavedEdgeData {
@@ -110,7 +109,10 @@ const StateMachineGraph: React.FC<StateMachineGraphProps> = ({ data }) => {
       };
       nodes.push({
         id: node.name,
-        data: { label: nodeName, id: node.name },
+        data: {
+          label: nodeName,
+          id: node.name,
+        },
         width: savedNode.width,
         height: savedNode.height,
         position: savedNode.position,
@@ -162,25 +164,27 @@ const StateMachineGraph: React.FC<StateMachineGraphProps> = ({ data }) => {
   }, [data, storeInitialized]);
 
   return (
-    <div style={{ height: "100%", width: "100%", margin: 0, padding: 0 }}>
-      <ReactFlow
-        colorMode={theme === "abyss" ? "dark" : theme}
-        nodes={nodes}
-        edges={edges}
-        onNodesChange={onNodesChange}
-        onEdgesChange={onEdgesChange}
-        edgeTypes={{ PositionableEdge }}
-        nodeTypes={{ ResizableNodeSelected }}
-        elementsSelectable={true}
-        deleteKeyCode={null}
-        proOptions={{ hideAttribution: true }}
-        minZoom={0.3}
-        connectOnClick={false}
-      >
-        <Background />
-        <Controls />
-      </ReactFlow>
-    </div>
+    <StateMachineProvider>
+      <div style={{ height: "100%", width: "100%", margin: 0, padding: 0 }}>
+        <ReactFlow
+          colorMode={theme === "abyss" ? "dark" : theme}
+          nodes={nodes}
+          edges={edges}
+          onNodesChange={onNodesChange}
+          onEdgesChange={onEdgesChange}
+          edgeTypes={{ PositionableEdge }}
+          nodeTypes={{ ResizableNodeSelected }}
+          elementsSelectable={true}
+          deleteKeyCode={null}
+          proOptions={{ hideAttribution: true }}
+          minZoom={0.3}
+          connectOnClick={false}
+        >
+          <Background />
+          <Controls />
+        </ReactFlow>
+      </div>
+    </StateMachineProvider>
   );
 };
 

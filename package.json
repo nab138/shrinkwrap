@@ -29,7 +29,7 @@
     "@tauri-apps/plugin-store": "^2.2.0",
     "@tauri-apps/plugin-updater": "^2.3.0",
     "@xyflow/react": "^12.4.2",
-    "d3": "^7.9.0",
+    "chroma-js": "^3.1.2",
     "dockview": "^2.0.0",
     "eruda": "^3.4.1",
     "fuzzysort": "^3.1.0",
@@ -45,6 +45,7 @@
   },
   "devDependencies": {
     "@tauri-apps/cli": "2.1.0",
+    "@types/chroma-js": "^3.1.0",
     "@types/d3": "^7.4.3",
     "@types/react": "^19.0.1",
     "@types/react-dom": "^19.0.2",
