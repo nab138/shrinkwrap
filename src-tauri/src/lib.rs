@@ -21,6 +21,7 @@ lazy_static::lazy_static! {
 #[cfg_attr(mobile, tauri::mobile_entry_point)]
 pub fn run() {
     let mut builder = tauri::Builder::default()
+        .plugin(tauri_plugin_fs::init())
         .plugin(tauri_plugin_shell::init())
         .plugin(tauri_plugin_dialog::init())
         .plugin(tauri_plugin_store::Builder::new().build());
@@ -39,16 +40,16 @@ pub fn run() {
                 let connect_shortcut = Shortcut::new(Some(Modifiers::CONTROL), Code::KeyK);
                 let connect_sim_shortcut =
                     Shortcut::new(Some(Modifiers::CONTROL | Modifiers::SHIFT), Code::KeyK);
-                let connect = MenuItemBuilder::with_id("connect", "Connect")
-                    .accelerator("CmdOrCtrl+K")
-                    .build(app)?;
-                let connect_sim = MenuItemBuilder::with_id("connect_sim", "Connect (Simulator)")
+                let connect = MenuItemBuilder::with_id("connect_sim", "Connect (Simulator)")
                     .accelerator("CmdOrCtrl+Shift+K")
+                    .build(app)?;
+                let connect_sim = MenuItemBuilder::with_id("connect", "Connect (Saved IP)")
+                    .accelerator("CmdOrCtrl+K")
                     .build(app)?;
 
                 let submenu = SubmenuBuilder::new(app, "File")
-                    .text("open_layout", "Open Layout")
-                    .text("save_layout", "Save Layout")
+                    .text("import_config", "Import Config")
+                    .text("export_config", "Export Config")
                     .separator()
                     .item(&connect)
                     .item(&connect_sim)
@@ -62,6 +63,10 @@ pub fn run() {
                         app_handle.emit("connect", false).unwrap();
                     } else if event.id() == connect_sim.id() {
                         app_handle.emit("connect", true).unwrap();
+                    } else if event.id() == "import_config" {
+                        app_handle.emit("import_config", false).unwrap();
+                    } else if event.id() == "export_config" {
+                        app_handle.emit("export_config", false).unwrap();
                     }
                 });
 

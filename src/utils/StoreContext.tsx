@@ -32,6 +32,8 @@ export const StoreProvider: React.FC<{ children: React.ReactNode }> = ({
       const storeInstance = await load("preferences.json");
       setStore(storeInstance);
 
+      storeInstance.set("isShrinkwrapConfig", true);
+
       const keys = await storeInstance.keys();
       const values: { [key: string]: any } = {};
       for (const key of keys) {

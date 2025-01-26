@@ -4,7 +4,6 @@ import "./Hub.css";
 import "dockview/dist/styles/dockview.css";
 import { tabsConfig, components } from "../tabsConfig";
 import { window as tauriWindow } from "@tauri-apps/api";
-import useSaveLoad from "../utils/saveload";
 import { listen } from "@tauri-apps/api/event";
 import LeftControls from "./LeftControls";
 import { StoreContext, useStore } from "../utils/StoreContext";
@@ -12,6 +11,8 @@ import useNTConnected from "../ntcore-react/useNTConnected";
 import { useToast } from "react-toast-plus";
 import { platform } from "@tauri-apps/plugin-os";
 import { useUpdate } from "../utils/UpdateContext";
+import { open, save } from "@tauri-apps/plugin-dialog";
+import { readTextFile, writeTextFile } from "@tauri-apps/plugin-fs";
 
 export interface HubProps {
   setIp: (ip: string) => void;
@@ -22,7 +23,6 @@ const Hub: React.FC<HubProps> = ({ setIp, ip }) => {
   const [connectionIP] = useStore<string>("connectionIP", "10.30.44.2");
   const [theme] = useStore<string>("theme", "light");
   const [autoUpdate] = useStore<boolean>("autoUpdate", false);
-  const [save, load] = useSaveLoad("shrinkwrap-layout.json");
   const connected = useNTConnected();
   const hasConnected = useRef<string | null>(null);
   const { checkForUpdates } = useUpdate();
@@ -46,7 +46,64 @@ const Hub: React.FC<HubProps> = ({ setIp, ip }) => {
           setIp(connectionIP);
         }
       });
-      return unlisten;
+
+      const unlistenTwo = await listen<boolean>("import_config", async () => {
+        if (store == null || addToast == null) return;
+        const file = await open({
+          multiple: false,
+          directory: false,
+          filters: [{ name: "JSON", extensions: ["json"] }],
+        });
+        if (file == null) return;
+        try {
+          const config = await readTextFile(file);
+          if (config == null) throw new Error("Failed to read file");
+          const json = JSON.parse(config);
+          if (json == null) throw new Error("Failed to parse JSON");
+          if (json["isShrinkwrapConfig"] !== true)
+            throw new Error("Not a valid ShrinkWrap config");
+          await store.clear();
+          for (let key in json) {
+            await store.set(key, json[key]);
+          }
+          await store.save();
+          window.location.reload();
+        } catch (e) {
+          console.error(e);
+          addToast.error("Failed to import config: " + e);
+        }
+      });
+
+      const unlistenThree = await listen<boolean>("export_config", async () => {
+        if (store == null || addToast == null) return;
+        const file = await save({
+          filters: [{ name: "JSON", extensions: ["json"] }],
+        });
+        if (file == null) return;
+        try {
+          let json: { [key: string]: any } = {};
+          const keys = await store.keys();
+          for (let key of keys) {
+            json[key] = await store.get(key);
+          }
+          json["isShrinkwrapConfig"] = true;
+          await store.save();
+          await tauriWindow
+            .getCurrentWindow()
+            .setTitle("ShrinkWrap - Exporting config...");
+          await writeTextFile(file, JSON.stringify(json));
+          addToast.success("Exported config to " + file);
+        } catch (e) {
+          console.error(e);
+          addToast.error("Failed to export config: " + e);
+        }
+      });
+
+      return () => {
+        unlisten();
+        unlistenTwo();
+        unlistenThree();
+      };
     };
 
     const unlistenPromise = setupListener();
@@ -54,7 +111,7 @@ const Hub: React.FC<HubProps> = ({ setIp, ip }) => {
     return () => {
       unlistenPromise.then((unlisten) => unlisten());
     };
-  }, [connectionIP, setIp]);
+  }, [connectionIP, setIp, store]);
 
   useEffect(() => {
     const renameWindow = async () => {
@@ -80,6 +137,7 @@ const Hub: React.FC<HubProps> = ({ setIp, ip }) => {
 
   const onReady = useCallback(
     async (event: DockviewReadyEvent) => {
+      if (store == null) return;
       let openSettingsTab = () => {
         let tab = tabsConfig.find((tab) => tab.id === "settings");
         if (tab == null) return;
@@ -92,16 +150,16 @@ const Hub: React.FC<HubProps> = ({ setIp, ip }) => {
           })
           .setTitle(tab.title);
       };
-      let layout: string | null = null;
+      let layout: string | null | undefined = null;
       let failed: boolean = false;
       try {
-        layout = await load();
+        layout = await store.get("layout");
       } catch (e) {
         console.warn("Failed to load saved layout", e);
         openSettingsTab();
         failed = true;
       }
-      if (layout != null && !failed) {
+      if (layout !== null && layout !== undefined && !failed) {
         event.api.fromJSON(JSON.parse(layout));
       }
       if (event.api.panels.length === 0) {
@@ -115,10 +173,11 @@ const Hub: React.FC<HubProps> = ({ setIp, ip }) => {
         }
         let json = event.api.toJSON();
         if (json == null) return;
-        await save(JSON.stringify(json));
+        await store.set("layout", JSON.stringify(json));
+        await store.save();
       });
       let unlisten2 = event.api.onDidRemovePanel(async (e) => {
-        if (store?.has(e.id)) {
+        if (await store.has(e.id)) {
           await store.delete(e.id);
           await store.save();
         }
@@ -128,7 +187,7 @@ const Hub: React.FC<HubProps> = ({ setIp, ip }) => {
         unlisten2.dispose();
       };
     },
-    [load, save, store]
+    [store]
   );
 
   return (
