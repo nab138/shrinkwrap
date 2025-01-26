@@ -6,8 +6,12 @@ Shrinkwrap is 3044's cross platform (ios, android, windows, linux, macos) diagno
 
 - OxConfig editor/tuner
 - 3d field
-- 2d field (wip)
+- 2d field
 - State machine visualization (wip)
+
+## 3044 Config
+
+Config for viewing the statemachine in the 2025 season: https://gist.github.com/nab138/b52c884330c495ea2d824dec1a327722
 
 ## Recommended IDE Setup
 
