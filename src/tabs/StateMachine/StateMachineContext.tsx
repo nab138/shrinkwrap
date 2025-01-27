@@ -1,15 +1,18 @@
 import React, { createContext, useContext } from "react";
-import { useNTValue } from "../../ntcore-react/useNTValue";
+import { useComputedNTValue, useNTValue } from "../../ntcore-react/useNTValue";
 import { useStore } from "../../utils/StoreContext";
 
 interface StateMachineContextProps {
   activeState: string;
+  lastTransitions: string[];
   lightMode: boolean;
 }
 
-const StateMachineContext = createContext<StateMachineContextProps | undefined>(
-  undefined
-);
+const StateMachineContext = createContext<StateMachineContextProps>({
+  activeState: "",
+  lastTransitions: [],
+  lightMode: true,
+});
 
 export const StateMachineProvider: React.FC<{ children: React.ReactNode }> = ({
   children,
@@ -19,11 +22,17 @@ export const StateMachineProvider: React.FC<{ children: React.ReactNode }> = ({
     "",
     0.01
   );
+  const lastTransitions: string[] = useComputedNTValue(
+    "/SmartDashboard/StateMachine/LastTransitions",
+    JSON.parse,
+    "[]",
+    0.01
+  );
   const [theme] = useStore<"light" | "dark" | "abyss">("theme", "light");
 
   return (
     <StateMachineContext.Provider
-      value={{ activeState, lightMode: theme === "light" }}
+      value={{ activeState, lightMode: theme === "light", lastTransitions }}
     >
       {children}
     </StateMachineContext.Provider>

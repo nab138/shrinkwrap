@@ -6,7 +6,7 @@ import {
   getStraightPath,
   useReactFlow
 } from "@xyflow/react";
-
+import { useStateMachine } from "./StateMachineContext";
 import ClickableBaseEdge from "./ClickableBaseEdge";
 import "./PositionableEdge.css";
 
@@ -22,6 +22,7 @@ export default function PositionableEdge({
   markerEnd,
   data,
 }) {
+  const { lastTransitions } = useStateMachine();
   const reactFlowInstance = useReactFlow();
   const positionHandlers = data?.positionHandlers ?? [];
   const type = data?.type ?? "default";
@@ -108,7 +109,7 @@ export default function PositionableEdge({
           markerHeight="5"
           orient="auto-start-reverse"
         >
-          <path d="M 0 0 L 10 5 L 0 10 z" fill="var(--foreground-color)" />
+          <path d="M 0 0 L 10 5 L 0 10 z" fill={lastTransitions.includes(id) ? "#00FF00" : "var(--foreground-color)"} />
         </marker>
       </defs>
       {edgeSegmentsArray.map(({ edgePath }, index) => (
