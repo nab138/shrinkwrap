@@ -119,6 +119,7 @@ const StateMachineGraph: React.FC<StateMachineGraphProps> = ({ data }) => {
         parentId: parentId || undefined,
         expandParent: true,
         type: "ResizableNodeSelected",
+        draggable: node.name !== "Root",
       });
       (node.transitions ?? []).forEach((transition) =>
         edges.push({

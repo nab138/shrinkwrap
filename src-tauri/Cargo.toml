@@ -1,6 +1,6 @@
 [package]
 name = "shrinkwrap"
-version = "0.1.14"
+version = "0.1.15"
 description = "The best FRC App"
 authors = ["nab138", "Alex-idk"]
 edition = "2021"
