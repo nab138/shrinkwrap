@@ -14,7 +14,11 @@ const StateMachineContext = createContext<StateMachineContextProps | undefined>(
 export const StateMachineProvider: React.FC<{ children: React.ReactNode }> = ({
   children,
 }) => {
-  const activeState: string = useNTValue("/SmartDashboard/State", "", 0.01);
+  const activeState: string = useNTValue(
+    "/SmartDashboard/StateMachine/CurrentState",
+    "",
+    0.01
+  );
   const [theme] = useStore<"light" | "dark" | "abyss">("theme", "light");
 
   return (
