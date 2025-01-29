@@ -11,6 +11,7 @@ import ClickableBaseEdge from "./ClickableBaseEdge";
 import "./PositionableEdge.css";
 
 const activeFillColor = "#cfff04";
+const entranceConditionColor = "#FF0000";
 
 export default function PositionableEdge({
   id,
@@ -26,6 +27,7 @@ export default function PositionableEdge({
 }) {
   const { lastTransitions } = useStateMachine();
   const isActive = lastTransitions.includes(id);
+  const fillColor = isActive ? activeFillColor : (data.entranceCondition ? entranceConditionColor : "var(--foreground-color)");
   const reactFlowInstance = useReactFlow();
   const positionHandlers = data?.positionHandlers ?? [];
   const type = data?.type ?? "default";
@@ -114,7 +116,7 @@ export default function PositionableEdge({
           markerHeight="5"
           orient="auto-start-reverse"
         >
-          <path d="M 0 0 L 10 5 L 0 10 z" fill={isActive ? activeFillColor : "var(--foreground-color)"} />
+          <path d="M 0 0 L 10 5 L 0 10 z" fill={fillColor} />
         </marker>
       </defs>
       {edgeSegmentsArray.map(({ edgePath }, index) => (
@@ -140,7 +142,7 @@ export default function PositionableEdge({
           path={edgePath}
           markerEnd={markerEnd}
           style={{...style,
-            stroke: isActive ? activeFillColor : "var(--background-color-1)",
+            stroke: fillColor
           }}
         />
       ))}
@@ -166,7 +168,7 @@ export default function PositionableEdge({
         ref={pathRef}
         d={edgeSegmentsArray.map(segment => segment.edgePath).join(' ')}
         style={{ display: 'none' }}
-        fill={isActive ? activeFillColor : "var(--foreground-color)"}
+        fill={fillColor}
       />
       {positionHandlers.map(({ x, y, active }, handlerIndex) => (
         <EdgeLabelRenderer key={`edge${id}_handler${handlerIndex}`}>

@@ -21,6 +21,7 @@ export interface StateNode {
   name: string;
   children?: StateNode[];
   transitions?: { target: string; name: string }[];
+  entranceConditions?: { target: string; name: string }[];
 }
 
 interface StateMachineGraphProps {
@@ -150,6 +151,39 @@ const StateMachineGraph: React.FC<StateMachineGraphProps> = ({ data }) => {
           },
         })
       );
+      (node.entranceConditions ?? [])
+        .filter((c) => c.name.toLowerCase() !== "impossible")
+        .forEach((transition) =>
+          edges.push({
+            id: transition.name + transition.target + node.name + "entrance",
+            source: node.name,
+            target: transition.target,
+            label: transition.name,
+            type: "PositionableEdge",
+            markerEnd: {
+              type: MarkerType.ArrowClosed,
+              width: 25,
+              height: 25,
+              color: "#000",
+            },
+            markerStart: {
+              type: MarkerType.Arrow,
+              width: 25,
+              height: 25,
+              color: "#000",
+            },
+            data: {
+              entranceCondition: true,
+              label: transition.name,
+              type: "straight",
+              positionHandlers:
+                savedEdges.find(
+                  (e) =>
+                    e.id === transition.name + transition.target + node.name
+                )?.positionHandlers || [],
+            },
+          })
+        );
       if (node.children) {
         let childXOffset = xOffset;
         let childYOffset = yOffset + levelHeight;
