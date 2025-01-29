@@ -17,6 +17,9 @@
   background-size: 20px 4px, 20px 4px, 4px 20px, 4px 20px;
   background-position: left top, right bottom, left bottom, right top;
   border-radius: 2px;
+}
+
+.resizable-node.animated::before {
   animation: moveDots 0.7s linear infinite;
 }
 
