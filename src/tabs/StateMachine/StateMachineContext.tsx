@@ -18,12 +18,12 @@ export const StateMachineProvider: React.FC<{ children: React.ReactNode }> = ({
   children,
 }) => {
   const activeState: string = useNTValue(
-    "/SmartDashboard/StateMachine/CurrentState",
+    "/AdvantageKit/RealOutputs/StateMachine/CurrentState",
     "",
     0.01
   );
   const lastTransitions: string[] = useComputedNTValue(
-    "/SmartDashboard/StateMachine/LastTransitions",
+    "/AdvantageKit/RealOutputs/StateMachine/LastTransitions",
     JSON.parse,
     "[]",
     0.01
