@@ -3,6 +3,7 @@ import { Handle, Position, NodeResizer } from "@xyflow/react";
 import chroma from "chroma-js";
 import { useStateMachine } from "./StateMachineContext";
 import "./ResizableNodeSelected.css"; // Import the CSS file
+import useNTConnected from "../../ntcore-react/useNTConnected";
 
 export interface ResizableNodeSelectedProps {
   data: any;
@@ -31,6 +32,7 @@ const ResizableNodeSelected: React.FC<ResizableNodeSelectedProps> = ({
   selected,
 }) => {
   const { activeState, lightMode } = useStateMachine();
+  const connected = useNTConnected();
   const isActive = activeState === data.id;
   const colorIndex = data.id.split("/").length - 1;
   return (
@@ -43,7 +45,9 @@ const ResizableNodeSelected: React.FC<ResizableNodeSelectedProps> = ({
       />
       <Handle type="target" position={Position.Left} />
       <div
-        className={`resizable-node ${isActive ? "active" : ""}`}
+        className={`resizable-node${isActive ? " active" : ""}${
+          connected && isActive ? " animated" : ""
+        }`}
         style={{
           padding: 10,
           backgroundColor: isActive

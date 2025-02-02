@@ -6,9 +6,12 @@ import {
   getStraightPath,
   useReactFlow
 } from "@xyflow/react";
-
+import { useStateMachine } from "./StateMachineContext";
 import ClickableBaseEdge from "./ClickableBaseEdge";
 import "./PositionableEdge.css";
+
+const activeFillColor = "#cfff04";
+const entranceConditionColor = "#FF0000";
 
 export default function PositionableEdge({
   id,
@@ -22,6 +25,9 @@ export default function PositionableEdge({
   markerEnd,
   data,
 }) {
+  const { lastTransitions } = useStateMachine();
+  const isActive = lastTransitions.includes(id);
+  const fillColor = isActive ? activeFillColor : (data.entranceCondition ? entranceConditionColor : "var(--foreground-color)");
   const reactFlowInstance = useReactFlow();
   const positionHandlers = data?.positionHandlers ?? [];
   const type = data?.type ?? "default";
@@ -29,6 +35,8 @@ export default function PositionableEdge({
   const pathRef = useRef(null);
   const [labelPos, setLabelPos] = useState({ x: 0, y: 0 });
   const [forceUpdate, setForceUpdate] = useState(false);
+
+  
 
   let pathFunction;
   switch (type) {
@@ -108,7 +116,7 @@ export default function PositionableEdge({
           markerHeight="5"
           orient="auto-start-reverse"
         >
-          <path d="M 0 0 L 10 5 L 0 10 z" fill="var(--foreground-color)" />
+          <path d="M 0 0 L 10 5 L 0 10 z" fill={fillColor} />
         </marker>
       </defs>
       {edgeSegmentsArray.map(({ edgePath }, index) => (
@@ -133,7 +141,9 @@ export default function PositionableEdge({
           key={`edge${id}_segment${index}`}
           path={edgePath}
           markerEnd={markerEnd}
-          style={style}
+          style={{...style,
+            stroke: fillColor
+          }}
         />
       ))}
       {data?.label && (
@@ -143,7 +153,7 @@ export default function PositionableEdge({
               position: 'absolute',
               transform: `translate(-50%, -50%) translate(${labelPos.x}px,${labelPos.y}px)`,
               pointerEvents: 'all',
-              background: "var(--background-color-2)", // Add background color
+              backgroundColor: isActive ? activeFillColor : "var(--background-color-2)",
               padding: '2px 4px', // Add padding
               borderRadius: '4px', // Add border radius
               boxShadow: '0 1px 3px rgba(0, 0, 0, 0.2)', // Add shadow
@@ -158,6 +168,7 @@ export default function PositionableEdge({
         ref={pathRef}
         d={edgeSegmentsArray.map(segment => segment.edgePath).join(' ')}
         style={{ display: 'none' }}
+        fill={fillColor}
       />
       {positionHandlers.map(({ x, y, active }, handlerIndex) => (
         <EdgeLabelRenderer key={`edge${id}_handler${handlerIndex}`}>

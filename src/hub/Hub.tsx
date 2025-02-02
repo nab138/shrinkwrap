@@ -88,9 +88,6 @@ const Hub: React.FC<HubProps> = ({ setIp, ip }) => {
           }
           json["isShrinkwrapConfig"] = true;
           await store.save();
-          await tauriWindow
-            .getCurrentWindow()
-            .setTitle("ShrinkWrap - Exporting config...");
           await writeTextFile(file, JSON.stringify(json));
           addToast.success("Exported config to " + file);
         } catch (e) {

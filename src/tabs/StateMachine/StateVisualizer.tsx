@@ -7,7 +7,7 @@ import Timeline from "../../hub/Timeline";
 const StateVisualizer: React.FC = () => {
   const containerRef = React.useRef<HTMLDivElement>(null);
   const rawData: StateNode = useComputedNTValue(
-    "/SmartDashboard/StateMachine/Tree",
+    "/AdvantageKit/RealOutputs/StateMachine/Tree",
     JSON.parse,
     "{}"
   );
