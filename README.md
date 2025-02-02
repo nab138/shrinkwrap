@@ -1,6 +1,6 @@
-# Shrinkwrap
+# <img align="left" src="/icons/shrinkwrap-icon.png" width="48">Shrinkwrap
 
-Shrinkwrap is 3044's cross platform (ios, android, windows, linux, macos) diagnostic/configuration utility
+Shrinkwrap is 3044's cross platform (ios, android, windows, linux, macos) diagnostic/configuration utility, built using tauri, typescript, and react.
 
 ## Features
 
