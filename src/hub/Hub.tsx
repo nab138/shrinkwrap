@@ -13,6 +13,7 @@ import { platform } from "@tauri-apps/plugin-os";
 import { useUpdate } from "../utils/UpdateContext";
 import { open, save } from "@tauri-apps/plugin-dialog";
 import { readTextFile, writeTextFile } from "@tauri-apps/plugin-fs";
+import { invoke } from "@tauri-apps/api/core";
 
 export interface HubProps {
   setIp: (ip: string) => void;
@@ -96,10 +97,22 @@ const Hub: React.FC<HubProps> = ({ setIp, ip }) => {
         }
       });
 
+      const unlistenFour = await listen<boolean>("open_log", async () => {
+        if (store == null || addToast == null) return;
+        const file = await open({
+          multiple: false,
+          directory: false,
+          filters: [{ name: "WPILib robot log", extensions: ["wpilog"] }],
+        });
+        if (file == null) return;
+        invoke("open_log", { log_file: file });
+      });
+
       return () => {
         unlisten();
         unlistenTwo();
         unlistenThree();
+        unlistenFour();
       };
     };
 

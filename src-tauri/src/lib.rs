@@ -1,7 +1,9 @@
+use frclib_core::value::FrcValue;
+use frclib_datalog::DataLogReader;
 use std::fs::read_to_string;
 use std::fs::{self, write, File};
 use std::io::Write;
-use std::path::Path;
+use std::path::{Path, PathBuf};
 use std::sync::Mutex;
 use tauri::Manager;
 
@@ -48,11 +50,13 @@ pub fn run() {
                     .build(app)?;
 
                 let submenu = SubmenuBuilder::new(app, "File")
-                    .text("import_config", "Import Config")
-                    .text("export_config", "Export Config")
-                    .separator()
                     .item(&connect)
                     .item(&connect_sim)
+                    .separator()
+                    .text("open_log", "Open Log File...")
+                    .separator()
+                    .text("import_config", "Import Config...")
+                    .text("export_config", "Export Config...")
                     .build()?;
                 let menu = MenuBuilder::new(app).item(&submenu).build()?;
 
@@ -67,6 +71,8 @@ pub fn run() {
                         app_handle.emit("import_config", false).unwrap();
                     } else if event.id() == "export_config" {
                         app_handle.emit("export_config", false).unwrap();
+                    } else if event.id() == "open_log" {
+                        app_handle.emit("open_log", false).unwrap();
                     }
                 });
 
@@ -108,7 +114,8 @@ pub fn run() {
         .invoke_handler(tauri::generate_handler![
             save_json,
             load_json,
-            write_oxconfig
+            write_oxconfig,
+            open_log
         ])
         .run(tauri::generate_context!())
         .expect("error while running tauri application");
@@ -155,4 +162,19 @@ fn write_oxconfig(deploy: String, data: String, timestamp: u64) -> String {
         }
         Err(_) => "failed".to_string(),
     }
+}
+
+#[tauri::command]
+fn open_log(log_path: String) {
+    let path = PathBuf::from(&log_path);
+    let reader = DataLogReader::try_new(File::open(path).unwrap(), Default::default())
+        .expect("Failed to create reader");
+
+    reader
+        .read_entry("entry_name")
+        .into_iter()
+        .for_each(|value| match value.value {
+            FrcValue::Int(i) => println!("Int: {}", i),
+            _ => println!("Not an int"),
+        });
 }
