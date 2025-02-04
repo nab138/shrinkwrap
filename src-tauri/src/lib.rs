@@ -1,5 +1,7 @@
 use frclib_core::value::FrcValue;
 use frclib_datalog::DataLogReader;
+use serde_json::Value;
+use std::collections::HashMap;
 use std::fs::read_to_string;
 use std::fs::{self, write, File};
 use std::io::Write;
@@ -165,16 +167,41 @@ fn write_oxconfig(deploy: String, data: String, timestamp: u64) -> String {
 }
 
 #[tauri::command]
-fn open_log(log_path: String) {
+fn open_log(log_path: String) -> HashMap<String, HashMap<u64, Value>> {
+    let mut all_data: HashMap<String, HashMap<u64, Value>> = HashMap::new();
     let path = PathBuf::from(&log_path);
     let reader = DataLogReader::try_new(File::open(path).unwrap(), Default::default())
         .expect("Failed to create reader");
 
-    reader
-        .read_entry("entry_name")
-        .into_iter()
-        .for_each(|value| match value.value {
-            FrcValue::Int(i) => println!("Int: {}", i),
-            _ => println!("Not an int"),
+    reader.get_all_entry_keys().iter().for_each(|key| {
+        let mut entry_data: HashMap<u64, Value> = HashMap::new();
+        reader.read_entry(key).into_iter().for_each(|value| {
+            entry_data.insert(
+                value.timestamp,
+                serde_json::to_value(frc_value_to_json(&value.value)).unwrap(),
+            );
         });
+        all_data.insert(key.to_string(), entry_data);
+    });
+
+    all_data
+}
+
+fn frc_value_to_json(value: &FrcValue) -> Value {
+    match value {
+        FrcValue::Void => Value::Null,
+        FrcValue::Raw(data) => serde_json::json!(data),
+        FrcValue::Boolean(b) => serde_json::json!(b),
+        FrcValue::Int(i) => serde_json::json!(i),
+        FrcValue::Double(d) => serde_json::json!(d),
+        FrcValue::Float(f) => serde_json::json!(f),
+        FrcValue::String(s) => serde_json::json!(s),
+        FrcValue::BooleanArray(arr) => serde_json::json!(arr),
+        FrcValue::IntArray(arr) => serde_json::json!(arr),
+        FrcValue::FloatArray(arr) => serde_json::json!(arr),
+        FrcValue::DoubleArray(arr) => serde_json::json!(arr),
+        FrcValue::StringArray(arr) => serde_json::json!(arr),
+        FrcValue::Struct(..) => Value::Null,
+        FrcValue::StructArray(..) => Value::Null,
+    }
 }

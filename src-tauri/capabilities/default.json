@@ -6,8 +6,8 @@
   "permissions": [
     "core:default",
     "core:window:allow-set-title",
-    "store:default",
     "dialog:default",
+    "store:default",
     "shell:allow-open"
   ]
 }

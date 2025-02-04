@@ -105,7 +105,16 @@ const Hub: React.FC<HubProps> = ({ setIp, ip }) => {
           filters: [{ name: "WPILib robot log", extensions: ["wpilog"] }],
         });
         if (file == null) return;
-        invoke("open_log", { log_file: file });
+        let separator = platform() === "windows" ? "\\" : "/";
+        let parts = file.split(separator);
+        addToast.info("Opening log " + parts[parts.length - 1]);
+        console.log(
+          new Map(
+            Object.entries(
+              (await invoke("open_log", { logPath: file })) as Object
+            )
+          )
+        );
       });
 
       return () => {
@@ -121,7 +130,7 @@ const Hub: React.FC<HubProps> = ({ setIp, ip }) => {
     return () => {
       unlistenPromise.then((unlisten) => unlisten());
     };
-  }, [connectionIP, setIp, store]);
+  }, [connectionIP, setIp, store, addToast]);
 
   useEffect(() => {
     const renameWindow = async () => {
