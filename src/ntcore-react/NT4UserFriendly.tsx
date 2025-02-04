@@ -4,12 +4,12 @@ import { NT4_Client, NT4_Subscription, NT4_Topic } from "./NT4";
 let isMobile = platform() === "ios" || platform() === "android";
 export class SubscriptionData<T> {
   private listener: (value: T) => void;
-  private subscription: NT4_Subscription;
-  private client: NT4_Client;
+  private subscription: NT4_Subscription | undefined;
+  private client: NT4_Client | null;
 
   constructor(
-    client: NT4_Client,
-    sub: NT4_Subscription,
+    client: NT4_Client | null,
+    sub: NT4_Subscription | undefined,
     listener: (value: T) => void
   ) {
     this.subscription = sub;
@@ -18,7 +18,8 @@ export class SubscriptionData<T> {
   }
 
   public unsubscribe() {
-    this.client.unsubscribe(this.subscription.uid);
+    if (this.client && this.subscription)
+      this.client.unsubscribe(this.subscription.uid);
     this.listener = () => {};
   }
 
@@ -28,7 +29,7 @@ export class SubscriptionData<T> {
 }
 
 export class NTClient {
-  private client: NT4_Client;
+  private client: NT4_Client | null;
   private topics: Map<string, NT4_Topic> = new Map();
   private subscriptions: Map<string, SubscriptionData<any>[]> = new Map();
   private robotConnectionListeners: ((connected: boolean) => void)[] = [];
@@ -38,7 +39,10 @@ export class NTClient {
   private data: Map<string, Map<number, any>> = new Map();
 
   private liveMode: boolean = true;
+  private logMode: boolean = false;
   private selectedTimestamp: number = -1;
+
+  private logModeListeners: ((logMode: boolean) => void)[] = [];
 
   private connectedTimestamp: number = -1;
 
@@ -89,6 +93,18 @@ export class NTClient {
     };
   }
 
+  public addLogModeListener(
+    listener: (connected: boolean) => void
+  ): () => void {
+    this.logModeListeners.push(listener);
+    listener(this.logMode);
+    return () => {
+      this.logModeListeners = this.logModeListeners.filter(
+        (l) => l !== listener
+      );
+    };
+  }
+
   public isConnected() {
     return this.connected;
   }
@@ -117,8 +133,11 @@ export class NTClient {
     prefixMode: boolean = false,
     sendAll: boolean = false,
     periodic: number = 0.1
-  ): SubscriptionData<any> {
-    let sub = this.client.subscribe([topic], prefixMode, sendAll, periodic);
+  ): SubscriptionData<any> | null {
+    let sub;
+    if (this.client != null) {
+      sub = this.client.subscribe([topic], prefixMode, sendAll, periodic);
+    }
     let data = new SubscriptionData(this.client, sub, callback);
     if (this.subscriptions.has(topic)) {
       this.subscriptions.get(topic)?.push(data);
@@ -129,19 +148,29 @@ export class NTClient {
   }
 
   public publish(topic: string, type: string) {
+    if (this.client == null || this.logMode) {
+      console.warn("Cannot publish: Client not connected or in log mode");
+      return;
+    }
     this.client.publishTopic(topic, type);
   }
 
   public setValue(topic: string, value: any) {
+    if (this.client == null || this.logMode) {
+      console.warn("Cannot set value: Client not connected or in log mode");
+      return;
+    }
     this.client.addSample(topic, value);
   }
 
-  public subscribeRoot(): SubscriptionData<any> {
+  public subscribeRoot(): SubscriptionData<any> | null {
+    if (this.client == null) return null;
     let sub = this.client.subscribeTopicsOnly(["/"], true);
     return new SubscriptionData(this.client, sub, () => {});
   }
 
   public disconnect() {
+    if (this.client == null) return;
     this.client.disconnect();
   }
 
@@ -159,6 +188,7 @@ export class NTClient {
   }
 
   public enableLiveMode() {
+    if (this.logMode) return;
     this.liveMode = true;
     for (let topic of this.subscriptions.keys()) {
       let value = this.getValueBefore(topic, this.getCurrentTimestamp());
@@ -168,7 +198,7 @@ export class NTClient {
   }
 
   public isLive() {
-    return this.liveMode;
+    return this.liveMode && !this.logMode;
   }
 
   private getValueBefore(topic: string, timestamp: number): any | undefined {
@@ -191,15 +221,51 @@ export class NTClient {
   }
 
   public getConnectedTimestamp() {
+    if (this.logMode || this.client == null) {
+      return 0;
+    }
     return this.connectedTimestamp;
   }
 
   public getCurrentTimestamp() {
+    if (this.logMode || this.client == null) {
+      let timestamp = this.data.get("/AdvantageKit/Timestamp");
+      if (timestamp === undefined) {
+        return this.selectedTimestamp;
+      }
+      // Get the latest timestamp
+      return timestamp.get(
+        Array.from(timestamp.keys()).sort((a, b) => b - a)[0]
+      );
+    }
     return this.client.getServerTime_us() ?? -1;
   }
 
   public getSelectedTimestamp() {
     return this.liveMode ? this.getCurrentTimestamp() : this.selectedTimestamp;
+  }
+
+  public enableLogMode(logData: Map<string, Map<number, any>>) {
+    this.client?.disconnect();
+    this.client = null;
+    this.logMode = true;
+    this.liveMode = false;
+    this.data = logData;
+    this.logModeListeners.forEach((l) => l(true));
+    this.connectedTimestamp = 0;
+    this.topics = new Map();
+    for (let topic of logData.keys()) {
+      let topicObj = new NT4_Topic();
+      topicObj.name = topic;
+      topicObj.uid = -1;
+      // TODO: Set type
+      this.topics.set(topic, topicObj);
+    }
+    this.topicsListeners.forEach((l) => l(this.topics));
+    for (let topic of this.subscriptions.keys()) {
+      let value = this.getValueBefore(topic, this.getCurrentTimestamp());
+      this.subscriptions.get(topic)?.forEach((s) => s.update(value));
+    }
   }
 
   public static getInstanceByURI(uri: string) {

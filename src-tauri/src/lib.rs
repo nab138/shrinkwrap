@@ -181,7 +181,13 @@ fn open_log(log_path: String) -> HashMap<String, HashMap<u64, Value>> {
                 serde_json::to_value(frc_value_to_json(&value.value)).unwrap(),
             );
         });
-        all_data.insert(key.to_string(), entry_data);
+        // If the key starts with NT:, remove it. If not, add /AdvantageKit/ to it.
+        let modified_key = if key.starts_with("NT:") {
+            key[3..].to_string()
+        } else {
+            format!("/AdvantageKit{}", key)
+        };
+        all_data.insert(modified_key, entry_data);
     });
 
     all_data

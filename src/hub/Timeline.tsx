@@ -4,10 +4,12 @@ import { useStore } from "../utils/StoreContext";
 import NTContext from "../ntcore-react/NTContext";
 import useNTConnected from "../ntcore-react/useNTConnected";
 import { BiFastForwardCircle } from "react-icons/bi";
+import useNTWritable from "../ntcore-react/useNTWritable";
 
 const Timeline: React.FC = () => {
   const client = useContext(NTContext);
   const connected = useNTConnected();
+  const log = useNTWritable();
 
   const [theme] = useStore<string>("theme", "light");
 
@@ -35,7 +37,8 @@ const Timeline: React.FC = () => {
       const container = containerRef.current;
       const canvas = canvasRef.current;
 
-      if (!canvas || !context || !container || !client || !connected) return;
+      if (!canvas || !context || !container || !client || !(connected || log))
+        return;
 
       const width = container.clientWidth;
       const height = container.clientHeight;
@@ -116,7 +119,7 @@ const Timeline: React.FC = () => {
         animationFrameRef.current = null;
       }
     };
-  }, [theme, client, connected]);
+  }, [theme, client, connected, log]);
 
   const handleMouseMove = (clientX: number) => {
     const canvas = canvasRef.current;

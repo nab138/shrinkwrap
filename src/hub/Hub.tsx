@@ -14,6 +14,7 @@ import { useUpdate } from "../utils/UpdateContext";
 import { open, save } from "@tauri-apps/plugin-dialog";
 import { readTextFile, writeTextFile } from "@tauri-apps/plugin-fs";
 import { invoke } from "@tauri-apps/api/core";
+import NTContext from "../ntcore-react/NTContext";
 
 export interface HubProps {
   setIp: (ip: string) => void;
@@ -29,6 +30,7 @@ const Hub: React.FC<HubProps> = ({ setIp, ip }) => {
   const { checkForUpdates } = useUpdate();
   const { addToast } = useToast();
   const { store } = useContext(StoreContext);
+  const client = useContext(NTContext);
 
   useEffect(() => {
     if (!autoUpdate) return;
@@ -108,13 +110,25 @@ const Hub: React.FC<HubProps> = ({ setIp, ip }) => {
         let separator = platform() === "windows" ? "\\" : "/";
         let parts = file.split(separator);
         addToast.info("Opening log " + parts[parts.length - 1]);
-        console.log(
-          new Map(
-            Object.entries(
-              (await invoke("open_log", { logPath: file })) as Object
-            )
+        await tauriWindow
+          .getCurrentWindow()
+          .setTitle(`ShrinkWrap - ` + parts[parts.length - 1]);
+        let rawData: Map<string, Object> = new Map(
+          Object.entries(
+            (await invoke("open_log", { logPath: file })) as Object
           )
         );
+        // convert rawData into Map<string, Map<number, any>>
+        let data: Map<string, Map<number, any>> = new Map();
+        for (let [key, value] of rawData) {
+          let map: Map<number, any> = new Map();
+          for (let [timestamp, val] of Object.entries(value)) {
+            map.set(parseInt(timestamp), val);
+          }
+          data.set(key, map);
+        }
+
+        client?.enableLogMode(data);
       });
 
       return () => {
@@ -130,7 +144,7 @@ const Hub: React.FC<HubProps> = ({ setIp, ip }) => {
     return () => {
       unlistenPromise.then((unlisten) => unlisten());
     };
-  }, [connectionIP, setIp, store, addToast]);
+  }, [connectionIP, setIp, store, addToast, client]);
 
   useEffect(() => {
     const renameWindow = async () => {
