@@ -167,15 +167,19 @@ fn write_oxconfig(deploy: String, data: String, timestamp: u64) -> String {
 }
 
 #[tauri::command]
-fn open_log(log_path: String) -> HashMap<String, HashMap<u64, Value>> {
-    let mut all_data: HashMap<String, HashMap<u64, Value>> = HashMap::new();
+fn open_log(log_path: String) -> HashMap<String, (String, HashMap<u64, Value>)> {
+    let mut all_data: HashMap<String, (String, HashMap<u64, Value>)> = HashMap::new();
     let path = PathBuf::from(&log_path);
     let reader = DataLogReader::try_new(File::open(path).unwrap(), Default::default())
         .expect("Failed to create reader");
 
     reader.get_all_entry_keys().iter().for_each(|key| {
         let mut entry_data: HashMap<u64, Value> = HashMap::new();
+        let mut type_id: Option<String> = None;
         reader.read_entry(key).into_iter().for_each(|value| {
+            if type_id.is_none() {
+                type_id = Some(frc_value_to_type_string(&value.value).to_string());
+            }
             entry_data.insert(
                 value.timestamp,
                 serde_json::to_value(frc_value_to_json(&value.value)).unwrap(),
@@ -187,7 +191,8 @@ fn open_log(log_path: String) -> HashMap<String, HashMap<u64, Value>> {
         } else {
             format!("/AdvantageKit{}", key)
         };
-        all_data.insert(modified_key, entry_data);
+
+        all_data.insert(modified_key, (type_id.unwrap_or_default(), entry_data));
     });
 
     all_data
@@ -209,5 +214,24 @@ fn frc_value_to_json(value: &FrcValue) -> Value {
         FrcValue::StringArray(arr) => serde_json::json!(arr),
         FrcValue::Struct(..) => Value::Null,
         FrcValue::StructArray(..) => Value::Null,
+    }
+}
+
+fn frc_value_to_type_string(value: &FrcValue) -> &'static str {
+    match value {
+        FrcValue::Void => "",
+        FrcValue::Raw(_) => "raw",
+        FrcValue::Boolean(_) => "boolean",
+        FrcValue::Int(_) => "int",
+        FrcValue::Double(_) => "double",
+        FrcValue::Float(_) => "float",
+        FrcValue::String(_) => "string",
+        FrcValue::BooleanArray(_) => "boolean[]",
+        FrcValue::IntArray(_) => "int[]",
+        FrcValue::FloatArray(_) => "float[]",
+        FrcValue::DoubleArray(_) => "double[]",
+        FrcValue::StringArray(_) => "string[]",
+        FrcValue::Struct(_) => "",
+        FrcValue::StructArray(_) => "",
     }
 }

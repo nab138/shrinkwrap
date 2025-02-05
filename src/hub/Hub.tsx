@@ -15,6 +15,7 @@ import { open, save } from "@tauri-apps/plugin-dialog";
 import { readTextFile, writeTextFile } from "@tauri-apps/plugin-fs";
 import { invoke } from "@tauri-apps/api/core";
 import NTContext from "../ntcore-react/NTContext";
+import { NT4_Topic } from "../ntcore-react/NT4";
 
 export interface HubProps {
   setIp: (ip: string) => void;
@@ -110,7 +111,7 @@ const Hub: React.FC<HubProps> = ({ setIp, ip }) => {
       });
 
       const unlistenFour = await listen<boolean>("open_log", async () => {
-        if (store == null || addToast == null) return;
+        if (store == null || addToast == null || client == null) return;
         const file = await open({
           multiple: false,
           directory: false,
@@ -123,22 +124,27 @@ const Hub: React.FC<HubProps> = ({ setIp, ip }) => {
         await tauriWindow
           .getCurrentWindow()
           .setTitle(`ShrinkWrap - ` + parts[parts.length - 1]);
-        let rawData: Map<string, Object> = new Map(
+        let rawData: Map<string, [any, Object]> = new Map(
           Object.entries(
             (await invoke("open_log", { logPath: file })) as Object
           )
         );
         // convert rawData into Map<string, Map<number, any>>
         let data: Map<string, Map<number, any>> = new Map();
+        let topics: Map<string, NT4_Topic> = new Map();
         for (let [key, value] of rawData) {
+          let topic = new NT4_Topic();
+          topic.name = key;
+          topic.type = value[0];
+          topics.set(key, topic);
           let map: Map<number, any> = new Map();
-          for (let [timestamp, val] of Object.entries(value)) {
+          for (let [timestamp, val] of Object.entries(value[1])) {
             map.set(parseInt(timestamp), val);
           }
           data.set(key, map);
         }
 
-        client?.enableLogMode(data);
+        client.enableLogMode(data, topics);
       });
 
       return () => {

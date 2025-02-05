@@ -245,7 +245,10 @@ export class NTClient {
     return this.liveMode ? this.getCurrentTimestamp() : this.selectedTimestamp;
   }
 
-  public enableLogMode(logData: Map<string, Map<number, any>>) {
+  public enableLogMode(
+    logData: Map<string, Map<number, any>>,
+    topics: Map<string, NT4_Topic>
+  ) {
     this.client?.disconnect();
     this.client = null;
     this.logMode = true;
@@ -253,14 +256,7 @@ export class NTClient {
     this.data = logData;
     this.logModeListeners.forEach((l) => l(true));
     this.connectedTimestamp = 0;
-    this.topics = new Map();
-    for (let topic of logData.keys()) {
-      let topicObj = new NT4_Topic();
-      topicObj.name = topic;
-      topicObj.uid = -1;
-      // TODO: Set type
-      this.topics.set(topic, topicObj);
-    }
+    this.topics = topics;
     this.topicsListeners.forEach((l) => l(this.topics));
     for (let topic of this.subscriptions.keys()) {
       let value = this.getValueBefore(topic, this.getCurrentTimestamp());
