@@ -42,14 +42,24 @@ const Hub: React.FC<HubProps> = ({ setIp, ip }) => {
   useEffect(() => {
     const setupListener = async () => {
       setIp(connectionIP);
-      const unlisten = await listen<boolean>("connect", (event) => {
+      return await listen<boolean>("connect", (event) => {
         if (event.payload) {
           setIp("127.0.0.1");
         } else {
           setIp(connectionIP);
         }
       });
+    };
 
+    const unlistenPromise = setupListener();
+
+    return () => {
+      unlistenPromise.then((unlisten) => unlisten());
+    };
+  }, [connectionIP, setIp]);
+
+  useEffect(() => {
+    const setupListener = async () => {
       const unlistenTwo = await listen<boolean>("import_config", async () => {
         if (store == null || addToast == null) return;
         const file = await open({
@@ -132,7 +142,6 @@ const Hub: React.FC<HubProps> = ({ setIp, ip }) => {
       });
 
       return () => {
-        unlisten();
         unlistenTwo();
         unlistenThree();
         unlistenFour();
@@ -144,7 +153,7 @@ const Hub: React.FC<HubProps> = ({ setIp, ip }) => {
     return () => {
       unlistenPromise.then((unlisten) => unlisten());
     };
-  }, [connectionIP, setIp, store, addToast, client]);
+  }, [client, store, addToast]);
 
   useEffect(() => {
     const renameWindow = async () => {
