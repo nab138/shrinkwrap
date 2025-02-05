@@ -3,13 +3,19 @@ import "./Timeline.css";
 import { useStore } from "../utils/StoreContext";
 import NTContext from "../ntcore-react/NTContext";
 import useNTConnected from "../ntcore-react/useNTConnected";
-import { BiFastForwardCircle } from "react-icons/bi";
+import {
+  BiFastForwardCircle,
+  BiPlayCircle,
+  BiPauseCircle,
+} from "react-icons/bi";
 import useNTWritable from "../ntcore-react/useNTWritable";
+import useNTPlaybackControls from "../ntcore-react/useNTPlaybackControls";
 
 const Timeline: React.FC = () => {
   const client = useContext(NTContext);
   const connected = useNTConnected();
   const log = useNTWritable();
+  const [playing, setPlaying] = useNTPlaybackControls();
 
   const [theme] = useStore<string>("theme", "light");
 
@@ -182,14 +188,39 @@ const Timeline: React.FC = () => {
         />
       </div>
       <div className="live-button live-button-container" ref={liveButtonRef}>
-        <BiFastForwardCircle
-          className="live-button"
-          onClick={() => {
-            if (!client || !connected) return;
-            if (!client.isLive()) client.enableLiveMode();
-          }}
-        />
+        {!playing && (
+          <BiPlayCircle
+            className="live-button"
+            onClick={() => {
+              if (client && client.isLive()) return;
+              if ((!client || !connected) && !log) return;
+              setPlaying(true);
+            }}
+          />
+        )}
+        {playing && (
+          <BiPauseCircle
+            className="live-button"
+            onClick={() => {
+              setPlaying(false);
+            }}
+          />
+        )}
       </div>
+      {(connected || client?.getClient() != null) && (
+        <div className="live-button live-button-container" ref={liveButtonRef}>
+          <BiFastForwardCircle
+            className="live-button"
+            onClick={() => {
+              if (!client || !connected) return;
+              if (!client.isLive()) {
+                if (playing) setPlaying(false);
+                client.enableLiveMode();
+              }
+            }}
+          />
+        </div>
+      )}
     </div>
   );
 };
