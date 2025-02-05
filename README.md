@@ -4,11 +4,13 @@ Shrinkwrap is 3044's cross platform (ios, android, windows, linux, macos) diagno
 
 ## Features
 
-- Connect to live robot or view log
+- Connect to live robot or view log data
 - OxConfig editor/tuner
 - 3d field
 - 2d field
-- State machine visualization (wip)
+- State machine visualization
+- Dockable/Configurable tabs
+- Export/Import settings, tab layout, and state machine layout
 
 ## 3044 Config
 
