@@ -29,7 +29,7 @@ export class SubscriptionData<T> {
 }
 
 export class NTClient {
-  private client: NT4_Client | null;
+  private client: NT4_Client | null = null;
   private topics: Map<string, NT4_Topic> = new Map();
   private subscriptions: Map<string, SubscriptionData<any>[]> = new Map();
   private robotConnectionListeners: ((connected: boolean) => void)[] = [];
@@ -46,7 +46,15 @@ export class NTClient {
 
   private connectedTimestamp: number = -1;
 
+  private server_base_address: string = "";
+
   constructor(server_base_address: string) {
+    this.server_base_address = server_base_address;
+    this.createClient(server_base_address);
+    this.client?.connect();
+  }
+
+  private createClient(server_base_address: string) {
     this.client = new NT4_Client(
       server_base_address,
       "ShrinkWrap" + (isMobile ? "Mobile" : "Desktop"),
@@ -78,7 +86,6 @@ export class NTClient {
         if (this.connectedTimestamp === -1) this.connectedTimestamp = ts;
       }
     );
-    this.client.connect();
   }
 
   public addRobotConnectionListener(
@@ -262,6 +269,15 @@ export class NTClient {
       let value = this.getValueBefore(topic, this.getCurrentTimestamp());
       this.subscriptions.get(topic)?.forEach((s) => s.update(value));
     }
+  }
+
+  public disableLogMode() {
+    if (!this.logMode) return;
+    this.logMode = false;
+    this.liveMode = true;
+    this.logModeListeners.forEach((l) => l(false));
+    this.createClient(this.server_base_address);
+    this.client?.connect();
   }
 
   public static getInstanceByURI(uri: string) {

@@ -16,6 +16,7 @@ import { readTextFile, writeTextFile } from "@tauri-apps/plugin-fs";
 import { invoke } from "@tauri-apps/api/core";
 import NTContext from "../ntcore-react/NTContext";
 import { NT4_Topic } from "../ntcore-react/NT4";
+import useNTWritable from "../ntcore-react/useNTWritable";
 
 export interface HubProps {
   setIp: (ip: string) => void;
@@ -27,6 +28,7 @@ const Hub: React.FC<HubProps> = ({ setIp, ip }) => {
   const [theme] = useStore<string>("theme", "light");
   const [autoUpdate] = useStore<boolean>("autoUpdate", false);
   const connected = useNTConnected();
+  const logMode = useNTWritable();
   const hasConnected = useRef<string | null>(null);
   const { checkForUpdates } = useUpdate();
   const { addToast } = useToast();
@@ -41,9 +43,13 @@ const Hub: React.FC<HubProps> = ({ setIp, ip }) => {
   }, [autoUpdate]);
 
   useEffect(() => {
+    setIp(connectionIP);
+  }, [connectionIP, setIp]);
+
+  useEffect(() => {
     const setupListener = async () => {
-      setIp(connectionIP);
       return await listen<boolean>("connect", (event) => {
+        client?.disableLogMode();
         if (event.payload) {
           setIp("127.0.0.1");
         } else {
@@ -57,7 +63,7 @@ const Hub: React.FC<HubProps> = ({ setIp, ip }) => {
     return () => {
       unlistenPromise.then((unlisten) => unlisten());
     };
-  }, [connectionIP, setIp]);
+  }, [connectionIP, setIp, client]);
 
   useEffect(() => {
     const setupListener = async () => {
@@ -120,31 +126,40 @@ const Hub: React.FC<HubProps> = ({ setIp, ip }) => {
         if (file == null) return;
         let separator = platform() === "windows" ? "\\" : "/";
         let parts = file.split(separator);
-        addToast.info("Opening log " + parts[parts.length - 1]);
-        await tauriWindow
-          .getCurrentWindow()
-          .setTitle(`ShrinkWrap - ` + parts[parts.length - 1]);
-        let rawData: Map<string, [any, Object]> = new Map(
-          Object.entries(
-            (await invoke("open_log", { logPath: file })) as Object
-          )
-        );
-        // convert rawData into Map<string, Map<number, any>>
-        let data: Map<string, Map<number, any>> = new Map();
-        let topics: Map<string, NT4_Topic> = new Map();
-        for (let [key, value] of rawData) {
-          let topic = new NT4_Topic();
-          topic.name = key;
-          topic.type = value[0];
-          topics.set(key, topic);
-          let map: Map<number, any> = new Map();
-          for (let [timestamp, val] of Object.entries(value[1])) {
-            map.set(parseInt(timestamp), val);
+        let load_log_promise = new Promise<void>(async (resolve) => {
+          let rawData: Map<string, [any, Object]> = new Map(
+            Object.entries(
+              (await invoke("open_log", { logPath: file })) as Object
+            )
+          );
+          // convert rawData into Map<string, Map<number, any>>
+          let data: Map<string, Map<number, any>> = new Map();
+          let topics: Map<string, NT4_Topic> = new Map();
+          for (let [key, value] of rawData) {
+            let topic = new NT4_Topic();
+            topic.name = key;
+            topic.type = value[0];
+            topics.set(key, topic);
+            let map: Map<number, any> = new Map();
+            for (let [timestamp, val] of Object.entries(value[1])) {
+              map.set(parseInt(timestamp), val);
+            }
+            data.set(key, map);
           }
-          data.set(key, map);
-        }
 
-        client.enableLogMode(data, topics);
+          client.enableLogMode(data, topics);
+
+          await tauriWindow
+            .getCurrentWindow()
+            .setTitle(`ShrinkWrap - ` + parts[parts.length - 1]);
+
+          resolve();
+        });
+        addToast.promise(load_log_promise, {
+          pending: "Reading " + parts[parts.length - 1],
+          success: "Logfile loaded!",
+          error: "Failed to load log",
+        });
       });
 
       return () => {
@@ -162,6 +177,7 @@ const Hub: React.FC<HubProps> = ({ setIp, ip }) => {
   }, [client, store, addToast]);
 
   useEffect(() => {
+    if (logMode) return;
     const renameWindow = async () => {
       await tauriWindow
         .getCurrentWindow()
@@ -177,7 +193,7 @@ const Hub: React.FC<HubProps> = ({ setIp, ip }) => {
       }
     };
     renameWindow();
-  }, [connected, ip]);
+  }, [connected, ip, logMode]);
 
   useEffect(() => {
     document.body.className = `${theme}`;
