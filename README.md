@@ -4,6 +4,7 @@ Shrinkwrap is 3044's cross platform (ios, android, windows, linux, macos) diagno
 
 ## Features
 
+- Connect to live robot or view log
 - OxConfig editor/tuner
 - 3d field
 - 2d field
