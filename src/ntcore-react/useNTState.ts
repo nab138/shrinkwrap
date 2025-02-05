@@ -13,15 +13,17 @@ const useNTState = <T extends NTTopicTypes>(
 
   useEffect(() => {
     if (client) {
+      let real_client = client.getClient();
+      if (real_client == null) return;
       const listener = (value: T | null) => {
         setValue(value ?? defaultValue);
       };
       const subscription = client.subscribe(key, listener);
       client.publish(key, type);
-      if (unretained) client.getClient().setRetained(key, false);
+      if (unretained) real_client.setRetained(key, false);
 
       return () => {
-        subscription.unsubscribe();
+        subscription?.unsubscribe();
       };
     } else {
       throw new Error(
@@ -39,8 +41,10 @@ const useNTState = <T extends NTTopicTypes>(
    */
   const setNTValue = (value: T) => {
     if (!client) return;
+    let real_client = client.getClient();
+    if (real_client == null) return;
     client.publish(key, type);
-    if (unretained) client.getClient().setRetained(key, false);
+    if (unretained) real_client.setRetained(key, false);
     client.setValue(key, value);
     setValue(value);
   };

@@ -24,7 +24,7 @@ export const useNTValue = <T extends NTTopicTypes>(
       );
 
       return () => {
-        subscription.unsubscribe();
+        subscription?.unsubscribe();
       };
     } else {
       throw new Error(
