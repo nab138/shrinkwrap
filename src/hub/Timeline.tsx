@@ -86,6 +86,44 @@ const Timeline: React.FC = () => {
         stepPos += stepSize;
       }
 
+      let enabledIntervals: [number, number][] = [];
+      let enabledChanges = client
+        .getRawData()
+        .get("/AdvantageKit/DriverStation/Enabled");
+      if (enabledChanges) {
+        for (let [timestamp, value] of enabledChanges) {
+          if (value) {
+            enabledIntervals.push([timestamp, -1]);
+          } else if (enabledIntervals.length > 0) {
+            enabledIntervals[enabledIntervals.length - 1][1] = timestamp;
+          }
+        }
+      }
+      enabledIntervals = enabledIntervals.filter(
+        (interval, i) =>
+          !(i !== enabledIntervals.length - 1 && interval[1] === -1)
+      );
+
+      if (enabledIntervals.length > 0) {
+        let lastInterval = enabledIntervals[enabledIntervals.length - 1];
+        if (lastInterval[1] === -1)
+          lastInterval[1] = client.getCurrentTimestamp();
+      }
+
+      // Scale the value to pixels and draw the enabled intervals
+      enabledIntervals = enabledIntervals.map((interval) => {
+        return [
+          scaleValue(interval[0] / 1000000, timeRange, [0, width]),
+          scaleValue(interval[1] / 1000000, timeRange, [0, width]),
+        ];
+      });
+
+      context.globalAlpha = 0.2;
+      context.fillStyle = light ? "#0f0" : "#0f0";
+      for (let interval of enabledIntervals) {
+        context.fillRect(interval[0], 0, interval[1] - interval[0], height);
+      }
+
       if (!client.isLive()) {
         let selectedX = scaleValue(
           client.getSelectedTimestamp() / 1000000,

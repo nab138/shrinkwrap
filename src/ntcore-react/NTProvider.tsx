@@ -52,10 +52,17 @@ export default function NTProvider({
   useEffect(() => {
     if (ntConnection === null) return;
     const allTopics = ntConnection.subscribeRoot();
-    if (allTopics === null) return;
+    const isEnabled = ntConnection.subscribe(
+      "/AdvantageKit/DriverStation/Enabled",
+      () => {},
+      false,
+      false,
+      0.1
+    );
 
     return () => {
-      allTopics.unsubscribe();
+      allTopics?.unsubscribe();
+      isEnabled?.unsubscribe();
     };
   }, [ntConnection]);
 

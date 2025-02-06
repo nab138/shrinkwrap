@@ -280,6 +280,10 @@ export class NTClient {
     this.client?.connect();
   }
 
+  public getRawData() {
+    return this.data;
+  }
+
   public static getInstanceByURI(uri: string) {
     return new NTClient(`${uri}`);
   }

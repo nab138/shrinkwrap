@@ -15,6 +15,11 @@ const useNTPlaybackControls: () => [
         let curTime = performance.now();
         let dt = curTime - lastTime;
         lastTime = curTime;
+        if (client.getSelectedTimestamp() >= client.getCurrentTimestamp()) {
+          setIsPlaying(false);
+          clearInterval(interval);
+          return;
+        }
         client.setSelectedTimestamp(client.getSelectedTimestamp() + dt * 1000);
       }, 10);
       return () => {
