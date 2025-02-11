@@ -163,7 +163,7 @@ const TwoDimensionField: React.FC<IDockviewPanelProps<{ id: string }>> = ({
                         fieldScale *
                         parseFloat(
                           item.options?.find((o) => o.label === "Size")
-                            ?.value ?? "0.05"
+                            ?.value ?? "0.1"
                         )
                       }
                       color={
@@ -257,7 +257,7 @@ const TwoDimensionField: React.FC<IDockviewPanelProps<{ id: string }>> = ({
             },
             {
               type: "number",
-              value: "0.05",
+              value: "0.1",
               label: "Size",
             },
           ],
