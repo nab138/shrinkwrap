@@ -399,3 +399,8 @@ td input::-webkit-inner-spin-button {
 .danger:active {
   background-color: var(--danger);
 }
+
+.config-editor input[disabled] {
+  opacity: 0.6;
+  cursor: not-allowed;
+}

@@ -2,6 +2,7 @@ import { useEffect, useRef, useState } from "react";
 import { Parameter, ScreenSize } from "./OxConfig";
 import Modal from "../../hub/Modal";
 import React from "react";
+import useNTLive from "../../ntcore-react/useNTLive";
 
 export interface OxConfigEditorProps {
   screenSize: ScreenSize;
@@ -18,6 +19,7 @@ const OxConfigEditor: React.FC<OxConfigEditorProps> = ({
   displayParameters,
   setKey,
 }) => {
+  const liveMode = useNTLive();
   const table = useRef<HTMLTableSectionElement>(null);
   useEffect(() => {
     if (table.current == null) return;
@@ -126,7 +128,7 @@ const OxConfigEditor: React.FC<OxConfigEditorProps> = ({
                           <div>
                             <input
                               style={connected ? undefined : { color: "gray" }}
-                              disabled={!connected}
+                              disabled={!connected || !liveMode}
                               defaultValue={param.comment}
                               onBlur={(e) => {
                                 if (param.comment === e.currentTarget.value)
@@ -150,6 +152,7 @@ const OxConfigEditor: React.FC<OxConfigEditorProps> = ({
                           value,
                           i,
                           connected,
+                          liveMode,
                           setKey
                         );
                         return (
@@ -195,7 +198,7 @@ const OxConfigEditor: React.FC<OxConfigEditorProps> = ({
                     <div>
                       <input
                         style={connected ? undefined : { color: "gray" }}
-                        disabled={!connected}
+                        disabled={!connected || !liveMode}
                         defaultValue={param.comment}
                         onBlur={(e) => {
                           if (param.comment === e.currentTarget.value) return;
@@ -219,6 +222,7 @@ const OxConfigEditor: React.FC<OxConfigEditorProps> = ({
                       value,
                       i,
                       connected,
+                      liveMode,
                       setKey
                     );
                     return (
@@ -243,6 +247,7 @@ function getInputElem(
   value: any,
   i: number,
   connected: boolean,
+  liveMode: boolean,
   setKey: (key: string) => void
 ) {
   let type = paramToInputType(param.type);
@@ -257,7 +262,7 @@ function getInputElem(
   let inputElem = (
     <input
       style={connected ? undefined : { color: "gray" }}
-      disabled={!connected}
+      disabled={!connected || !liveMode}
       key={value}
       type={type}
       onBlur={type === "checkbox" ? undefined : update}

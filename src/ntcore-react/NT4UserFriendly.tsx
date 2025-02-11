@@ -43,6 +43,7 @@ export class NTClient {
   private selectedTimestamp: number = -1;
 
   private logModeListeners: ((logMode: boolean) => void)[] = [];
+  private liveModeListeners: ((liveMode: boolean) => void)[] = [];
 
   private connectedTimestamp: number = -1;
 
@@ -107,6 +108,18 @@ export class NTClient {
     listener(this.logMode);
     return () => {
       this.logModeListeners = this.logModeListeners.filter(
+        (l) => l !== listener
+      );
+    };
+  }
+
+  public addLiveModeListener(
+    listener: (connected: boolean) => void
+  ): () => void {
+    this.liveModeListeners.push(listener);
+    listener(this.isLive());
+    return () => {
+      this.liveModeListeners = this.liveModeListeners.filter(
         (l) => l !== listener
       );
     };
@@ -187,6 +200,7 @@ export class NTClient {
 
   public setSelectedTimestamp(timestamp: number) {
     this.liveMode = false;
+    this.liveModeListeners.forEach((l) => l(false));
     this.selectedTimestamp = timestamp;
     for (let topic of this.subscriptions.keys()) {
       let value = this.getValueBefore(topic, timestamp);
@@ -197,6 +211,7 @@ export class NTClient {
   public enableLiveMode() {
     if (this.logMode) return;
     this.liveMode = true;
+    this.liveModeListeners.forEach((l) => l(true));
     for (let topic of this.subscriptions.keys()) {
       let value = this.getValueBefore(topic, this.getCurrentTimestamp());
       this.subscriptions.get(topic)?.forEach((s) => s.update(value));
@@ -262,6 +277,7 @@ export class NTClient {
     this.liveMode = false;
     this.data = logData;
     this.logModeListeners.forEach((l) => l(true));
+    this.liveModeListeners.forEach((l) => l(false));
     this.connectedTimestamp = 0;
     this.topics = topics;
     this.topicsListeners.forEach((l) => l(this.topics));
@@ -275,6 +291,7 @@ export class NTClient {
     if (!this.logMode) return;
     this.logMode = false;
     this.liveMode = true;
+    this.liveModeListeners.forEach((l) => l(true));
     this.logModeListeners.forEach((l) => l(false));
     this.createClient(this.server_base_address);
     this.client?.connect();

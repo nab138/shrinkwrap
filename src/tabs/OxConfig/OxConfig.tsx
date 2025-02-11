@@ -12,6 +12,7 @@ import { invoke } from "@tauri-apps/api/core";
 import { decode } from "@msgpack/msgpack";
 import OxConfigEditor from "./Editor";
 import OxConfigTuner from "./Tuner";
+import useNTLive from "../../ntcore-react/useNTLive";
 
 const isMobile = platform() === "ios" || platform() === "android";
 
@@ -46,6 +47,8 @@ const OxConfig: React.FC<IDockviewPanelProps> = () => {
   const { addToast, removeToast } = useToast();
   const [theme] = useStore("theme", "light");
   const lastTimestamp = useRef<number>(0);
+
+  const liveMode = useNTLive();
 
   useEffect(() => {
     const handleResize = () => {
@@ -339,6 +342,7 @@ const OxConfig: React.FC<IDockviewPanelProps> = () => {
                 onChange={(e) => {
                   setMode(e.currentTarget.value);
                 }}
+                disabled={!liveMode}
               >
                 {modes.length === 0 && (
                   <option value="failed">Not connected</option>
