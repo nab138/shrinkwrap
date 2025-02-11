@@ -31,7 +31,7 @@ export const useNTValue = <T extends NTTopicTypes>(
         "No NTProvider found. Please wrap your application in an NTProvider"
       );
     }
-  }, [key, client]);
+  }, [key, client, defaultValue, period]);
 
   return value;
 };
@@ -48,9 +48,10 @@ export const useComputedNTValue = <T extends NTTopicTypes, B>(
 ) => {
   const [computedValue, setComputedValue] = useState<B>(compute(defaultValue));
   const value = useNTValue(key, defaultValue, period);
+
   useEffect(() => {
     setComputedValue(compute(value));
-  }, [value]);
+  }, [value, compute]);
 
   return computedValue;
 };
