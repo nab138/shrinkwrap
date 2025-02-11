@@ -44,7 +44,7 @@ const Points: React.FC<PointsProps> = ({
           x={line[0]}
           y={line[1]}
           fill={color}
-          radius={size / 2}
+          radius={Math.abs(size / 2)}
         />
       ))}
     </Group>
