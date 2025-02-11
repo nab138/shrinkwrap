@@ -11,6 +11,7 @@ import FieldImage from "./FieldImage";
 import Robot from "./Robot";
 import Lines from "./Lines";
 import Trajectory from "./Trajectory";
+import Points from "./Points";
 
 const TwoDimensionField: React.FC<IDockviewPanelProps<{ id: string }>> = ({
   params,
@@ -29,7 +30,7 @@ const TwoDimensionField: React.FC<IDockviewPanelProps<{ id: string }>> = ({
       label: "Elements",
       type: "itemList",
       value: [],
-      options: ["Robot", "Lines", "Trajectory"],
+      options: ["Robot", "Lines", "Points", "Trajectory"],
       ntTypes: ["double[]"],
     },
   ];
@@ -151,6 +152,32 @@ const TwoDimensionField: React.FC<IDockviewPanelProps<{ id: string }>> = ({
           <Layer>
             {calcCoordinates &&
               (getSettingValue("elements") as Item[])
+                .filter((item) => item.type === "Points" && item.value != "")
+                .map((item) => {
+                  return (
+                    <Points
+                      key={item.value}
+                      ntKey={item.value}
+                      calcCoordinates={calcCoordinates}
+                      size={
+                        fieldScale *
+                        parseFloat(
+                          item.options?.find((o) => o.label === "Size")
+                            ?.value ?? "0.05"
+                        )
+                      }
+                      color={
+                        item.options?.find((o) => o.label === "Color")?.value ??
+                        "black"
+                      }
+                    />
+                  );
+                })}
+          </Layer>
+
+          <Layer>
+            {calcCoordinates &&
+              (getSettingValue("elements") as Item[])
                 .filter((item) => item.type === "Robot" && item.value != "")
                 .map((item) => {
                   return (
@@ -220,6 +247,18 @@ const TwoDimensionField: React.FC<IDockviewPanelProps<{ id: string }>> = ({
               type: "number",
               value: "0.035",
               label: "Thickness",
+            },
+          ],
+          Points: [
+            {
+              type: "color",
+              value: "#000000",
+              label: "Color",
+            },
+            {
+              type: "number",
+              value: "0.05",
+              label: "Size",
             },
           ],
           Trajectory: [

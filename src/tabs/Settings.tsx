@@ -83,8 +83,8 @@ const Settings: React.FC<IDockviewPanelProps<{ id: string }>> = () => {
             </button>
           )}
         </Card>
-        <Card title="OxConfig">
-          {!isMobile && (
+        {!isMobile && (
+          <Card title="OxConfig">
             <label
               style={{
                 display: "flex",
@@ -103,13 +103,12 @@ const Settings: React.FC<IDockviewPanelProps<{ id: string }>> = () => {
                 Select
               </button>
             </label>
-          )}
-          {!isMobile && (
+
             <p className="settings-text">
               {deployDir === "" ? "Not Set" : deployDir}
             </p>
-          )}
-        </Card>
+          </Card>
+        )}
         <Card title="Debug">
           <button
             onClick={async () => {
