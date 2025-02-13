@@ -1,6 +1,6 @@
 import { IDockviewPanelProps } from "dockview";
 import { Theme } from "@tauri-apps/api/window";
-import { useStore } from "../utils/StoreContext";
+import { StoreContext, useStore } from "../utils/StoreContext";
 import Card from "../hub/Card";
 import "./Settings.css";
 import useNTConnected from "../ntcore-react/useNTConnected";
@@ -8,9 +8,11 @@ import { open } from "@tauri-apps/plugin-dialog";
 import { platform } from "@tauri-apps/plugin-os";
 import { getVersion } from "@tauri-apps/api/app";
 import { useUpdate } from "../utils/UpdateContext";
-import { useEffect, useState } from "react";
+import { useContext, useEffect, useState } from "react";
 import { devModePromise } from "../main";
 import { useToast } from "react-toast-plus";
+import { exportConfig, importConfig, importLog } from "../utils/MenubarCode";
+import NTContext from "../ntcore-react/NTContext";
 
 const isMobile = platform() === "ios" || platform() === "android";
 
@@ -28,6 +30,8 @@ const Settings: React.FC<IDockviewPanelProps<{ id: string }>> = () => {
   const { addToast } = useToast();
   const [devMode, setDevMode] = useState(false);
   const [devStoreInstance, setDevStoreInstance] = useState<any>(null);
+  const { store } = useContext(StoreContext);
+  const client = useContext(NTContext);
 
   useEffect(() => {
     getVersion().then((version) => setAppVersion(version));
@@ -51,6 +55,17 @@ const Settings: React.FC<IDockviewPanelProps<{ id: string }>> = () => {
             value={connectionIP}
             style={{ paddingLeft: "10px" }}
           />
+          <button onClick={() => importLog(client, addToast)}>
+            Open Log file
+          </button>
+        </Card>
+        <Card title="Config">
+          <button onClick={() => importConfig(store, addToast)}>
+            Import Config
+          </button>
+          <button onClick={() => exportConfig(store, addToast)}>
+            Export Config
+          </button>
         </Card>
         <Card title="Application Settings">
           <div style={{ width: "fit-content" }}>

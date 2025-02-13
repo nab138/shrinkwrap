@@ -11,12 +11,9 @@ import useNTConnected from "../ntcore-react/useNTConnected";
 import { useToast } from "react-toast-plus";
 import { platform } from "@tauri-apps/plugin-os";
 import { useUpdate } from "../utils/UpdateContext";
-import { open, save } from "@tauri-apps/plugin-dialog";
-import { readTextFile, writeTextFile } from "@tauri-apps/plugin-fs";
-import { invoke } from "@tauri-apps/api/core";
 import NTContext from "../ntcore-react/NTContext";
-import { NT4_Topic } from "../ntcore-react/NT4";
 import useNTWritable from "../ntcore-react/useNTWritable";
+import { exportConfig, importConfig, importLog } from "../utils/MenubarCode";
 
 export interface HubProps {
   setIp: (ip: string) => void;
@@ -67,105 +64,28 @@ const Hub: React.FC<HubProps> = ({ setIp, ip }) => {
 
   useEffect(() => {
     const setupListener = async () => {
-      const unlistenTwo = await listen<boolean>("import_config", async () => {
-        if (store == null || addToast == null) return;
-        const file = await open({
-          multiple: false,
-          directory: false,
-          filters: [{ name: "JSON", extensions: ["json"] }],
-        });
-        if (file == null) return;
-        try {
-          const config = await readTextFile(file);
-          if (config == null) throw new Error("Failed to read file");
-          const json = JSON.parse(config);
-          if (json == null) throw new Error("Failed to parse JSON");
-          if (json["isShrinkwrapConfig"] !== true)
-            throw new Error("Not a valid ShrinkWrap config");
-          await store.clear();
-          for (let key in json) {
-            await store.set(key, json[key]);
-          }
-          await store.save();
-          window.location.reload();
-        } catch (e) {
-          console.error(e);
-          addToast.error("Failed to import config: " + e);
+      const unlistenImport = await listen<boolean>(
+        "import_config",
+        async () => {
+          importConfig(store, addToast);
         }
-      });
+      );
 
-      const unlistenThree = await listen<boolean>("export_config", async () => {
-        if (store == null || addToast == null) return;
-        const file = await save({
-          filters: [{ name: "JSON", extensions: ["json"] }],
-        });
-        if (file == null) return;
-        try {
-          let json: { [key: string]: any } = {};
-          const keys = await store.keys();
-          for (let key of keys) {
-            json[key] = await store.get(key);
-          }
-          json["isShrinkwrapConfig"] = true;
-          await store.save();
-          await writeTextFile(file, JSON.stringify(json));
-          addToast.success("Exported config to " + file);
-        } catch (e) {
-          console.error(e);
-          addToast.error("Failed to export config: " + e);
+      const unlistenExport = await listen<boolean>(
+        "export_config",
+        async () => {
+          exportConfig(store, addToast);
         }
-      });
+      );
 
-      const unlistenFour = await listen<boolean>("open_log", async () => {
-        if (store == null || addToast == null || client == null) return;
-        const file = await open({
-          multiple: false,
-          directory: false,
-          filters: [{ name: "WPILib robot log", extensions: ["wpilog"] }],
-        });
-        if (file == null) return;
-        let separator = platform() === "windows" ? "\\" : "/";
-        let parts = file.split(separator);
-        let load_log_promise = new Promise<void>(async (resolve) => {
-          let rawData: Map<string, [any, Object]> = new Map(
-            Object.entries(
-              (await invoke("open_log", { logPath: file })) as Object
-            )
-          );
-          // convert rawData into Map<string, Map<number, any>>
-          let data: Map<string, Map<number, any>> = new Map();
-          let topics: Map<string, NT4_Topic> = new Map();
-          for (let [key, value] of rawData) {
-            let topic = new NT4_Topic();
-            topic.name = key;
-            topic.type = value[0];
-            topics.set(key, topic);
-            let map: Map<number, any> = new Map();
-            for (let [timestamp, val] of Object.entries(value[1])) {
-              map.set(parseInt(timestamp), val);
-            }
-            data.set(key, map);
-          }
-
-          client.enableLogMode(data, topics);
-
-          await tauriWindow
-            .getCurrentWindow()
-            .setTitle(`ShrinkWrap - ` + parts[parts.length - 1]);
-
-          resolve();
-        });
-        addToast.promise(load_log_promise, {
-          pending: "Reading " + parts[parts.length - 1],
-          success: "Logfile loaded!",
-          error: "Failed to load log",
-        });
+      const unlistenLog = await listen<boolean>("open_log", async () => {
+        importLog(client, addToast);
       });
 
       return () => {
-        unlistenTwo();
-        unlistenThree();
-        unlistenFour();
+        unlistenImport();
+        unlistenExport();
+        unlistenLog();
       };
     };
 
