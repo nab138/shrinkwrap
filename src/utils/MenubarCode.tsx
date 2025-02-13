@@ -38,7 +38,7 @@ export async function importConfig(store: Store | null, addToast: AddToast) {
 export async function exportConfig(store: Store | null, addToast: AddToast) {
   if (store == null || addToast == null) return;
   const file = await save({
-    filters: [{ name: "JSON", extensions: ["json"] }],
+    filters: [{ name: "JSON", extensions: ["json", "txt"] }],
   });
   if (file == null) return;
   try {
