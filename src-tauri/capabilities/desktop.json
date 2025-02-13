@@ -2,10 +2,5 @@
   "identifier": "desktop-capability",
   "platforms": ["macOS", "windows", "linux"],
   "windows": ["main"],
-  "permissions": [
-    "updater:default",
-    "process:default",
-    "fs:default",
-    "fs:allow-write-text-file"
-  ]
+  "permissions": ["updater:default", "process:default"]
 }
