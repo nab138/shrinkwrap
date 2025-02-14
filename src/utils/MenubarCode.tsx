@@ -19,6 +19,20 @@ export async function importConfig(store: Store | null, addToast: AddToast) {
   try {
     const config = await readTextFile(file);
     if (config == null) throw new Error("Failed to read file");
+    importConfigFromJson(config, store, addToast);
+  } catch (e) {
+    console.error(e);
+    addToast.error("Failed to import config: " + e);
+  }
+}
+
+export async function importConfigFromJson(
+  config: string,
+  store: Store | null,
+  addToast: AddToast
+) {
+  if (store == null || addToast == null) return;
+  try {
     const json = JSON.parse(config);
     if (json == null) throw new Error("Failed to parse JSON");
     if (json["isShrinkwrapConfig"] !== true)

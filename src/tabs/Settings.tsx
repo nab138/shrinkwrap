@@ -11,7 +11,11 @@ import { useUpdate } from "../utils/UpdateContext";
 import { useContext, useEffect, useState } from "react";
 import { devModePromise } from "../main";
 import { useToast } from "react-toast-plus";
-import { exportConfig, importConfig, importLog } from "../utils/MenubarCode";
+import {
+  exportConfig,
+  importConfigFromJson,
+  importLog,
+} from "../utils/MenubarCode";
 import NTContext from "../ntcore-react/NTContext";
 
 const isMobile = platform() === "ios" || platform() === "android";
@@ -60,7 +64,26 @@ const Settings: React.FC<IDockviewPanelProps<{ id: string }>> = () => {
           </button>
         </Card>
         <Card title="Config">
-          <button onClick={() => importConfig(store, addToast)}>
+          <button
+            onClick={() => {
+              let input = document.createElement("input");
+              input.type = "file";
+              input.onchange = async (_) => {
+                let file = input.files?.item(0);
+                if (!file) {
+                  addToast.error("Failed to read file");
+                  return;
+                }
+                let config = await file?.text();
+                if (!config) {
+                  addToast.error("Failed to read file");
+                  return;
+                }
+                importConfigFromJson(config, store, addToast);
+              };
+              input.click();
+            }}
+          >
             Import Config
           </button>
           <button onClick={() => exportConfig(store, addToast)}>
