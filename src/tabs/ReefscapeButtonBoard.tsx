@@ -28,7 +28,10 @@ const ReefscapeButtonBoard: React.FC<
       <div className="buttonBoard">
         <div className="buttonPanel">
           {reefs.map((reef) => (
-            <button key={reef.num} onClick={() => setPressed([0, reef.num])}>
+            <button
+              key={reef.num}
+              onClick={() => setPressed([0, reef.num + 1])}
+            >
               {reef.name}
             </button>
           ))}
