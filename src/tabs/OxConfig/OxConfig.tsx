@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef } from "react";
+import React, { useState, useEffect, useRef, useCallback } from "react";
 import fuzzysort from "fuzzysort";
 import { useComputedNTValue, useNTValue } from "../../ntcore-react/useNTValue";
 import { useStore } from "../../utils/StoreContext";
@@ -72,9 +72,13 @@ const OxConfig: React.FC<IDockviewPanelProps> = () => {
     }
   }, [connected, hasConnected]);
 
+  const computeModes = useCallback(
+    (val: string) => val.split(",").filter((v) => v !== ""),
+    []
+  );
   const modes = useComputedNTValue<string, string[]>(
     "/OxConfig/Modes",
-    (val) => val.split(",").filter((v) => v !== ""),
+    computeModes,
     ""
   );
   const currentMode = useNTValue<string>("/OxConfig/CurrentMode", "");
@@ -84,59 +88,63 @@ const OxConfig: React.FC<IDockviewPanelProps> = () => {
     ""
   );
 
+  const computeParameters = useCallback((params: string) => {
+    if (params == "") return [];
+    let paramsRaw = JSON.parse(params);
+    let parametersMap: Parameter[] = [];
+    for (let paramRaw of paramsRaw) {
+      if (paramRaw[0] == "root/mode") continue;
+      let key = paramRaw[0];
+      let comment = paramRaw[1];
+      let type = paramRaw[2].toLowerCase();
+      parametersMap.push({ key, values: paramRaw.slice(3), comment, type });
+    }
+    return parametersMap;
+  }, []);
+
   const parameters = useComputedNTValue<string, Parameter[]>(
     "/OxConfig/Params",
-    (params) => {
-      if (params == "") return [];
-      let paramsRaw = JSON.parse(params);
-      let parametersMap: Parameter[] = [];
-      for (let paramRaw of paramsRaw) {
-        if (paramRaw[0] == "root/mode") continue;
-        let key = paramRaw[0];
-        let comment = paramRaw[1];
-        let type = paramRaw[2].toLowerCase();
-        parametersMap.push({ key, values: paramRaw.slice(3), comment, type });
-      }
-      return parametersMap;
-    },
+    computeParameters,
     ""
   );
 
   const [displayParameters, setDisplayParameters] = useState<Parameter[]>([]);
   const [displayClasses, setDisplayClasses] = useState<Class[]>([]);
 
+  const computeClasses = useCallback((classesRaw: string) => {
+    if (classesRaw == "") return [];
+    let parsed: [string, string, ...string[][]][] = JSON.parse(classesRaw);
+    let classes: Class[] = [];
+    for (let cls of parsed) {
+      let prettyName = cls.shift() as string;
+      let key = cls.shift() as string;
+      let parameters: ClassParam[] = [];
+      for (let param of cls) {
+        if (typeof param === "string") {
+          console.error("Invalid class parameter (not string[])", param);
+          continue;
+        }
+        let prettyName = param.shift();
+        let key = param.shift();
+        let type = param.shift();
+        if (
+          prettyName === undefined ||
+          key === undefined ||
+          type === undefined
+        ) {
+          console.error("Invalid class parameter", param);
+          continue;
+        }
+        parameters.push({ prettyName, key, type, values: param });
+      }
+      classes.push({ prettyName, key, parameters });
+    }
+    return classes;
+  }, []);
+
   const classes = useComputedNTValue<string, Class[]>(
     "/OxConfig/Classes",
-    (classesRaw) => {
-      if (classesRaw == "") return [];
-      let parsed: [string, string, ...string[][]][] = JSON.parse(classesRaw);
-      let classes: Class[] = [];
-      for (let cls of parsed) {
-        let prettyName = cls.shift() as string;
-        let key = cls.shift() as string;
-        let parameters: ClassParam[] = [];
-        for (let param of cls) {
-          if (typeof param === "string") {
-            console.error("Invalid class parameter (not string[])", param);
-            continue;
-          }
-          let prettyName = param.shift();
-          let key = param.shift();
-          let type = param.shift();
-          if (
-            prettyName === undefined ||
-            key === undefined ||
-            type === undefined
-          ) {
-            console.error("Invalid class parameter", param);
-            continue;
-          }
-          parameters.push({ prettyName, key, type, values: param });
-        }
-        classes.push({ prettyName, key, parameters });
-      }
-      return classes;
-    },
+    computeClasses,
     ""
   );
 
@@ -205,21 +213,22 @@ const OxConfig: React.FC<IDockviewPanelProps> = () => {
     ""
   );
 
-  const connectedClients = useComputedNTValue<Uint8Array, any>(
-    "$clients",
-    (val) => {
-      try {
-        // Ensure val is a valid Uint8Array before decoding
-        if (val instanceof Uint8Array) {
-          return decode(val);
-        } else {
-          console.error("Expected Uint8Array but received:", val);
-          return [];
-        }
-      } catch (error) {
+  const computeConnectedClients = useCallback((val: Uint8Array) => {
+    try {
+      // Ensure val is a valid Uint8Array before decoding
+      if (val instanceof Uint8Array) {
+        return decode(val);
+      } else {
+        console.error("Expected Uint8Array but received:", val);
         return [];
       }
-    },
+    } catch (error) {
+      return [];
+    }
+  }, []);
+  const connectedClients = useComputedNTValue<Uint8Array, any>(
+    "$clients",
+    computeConnectedClients,
     new Uint8Array()
   );
 
