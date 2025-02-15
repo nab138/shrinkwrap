@@ -4,6 +4,7 @@ import Settings from "./tabs/Settings";
 import ThreeDimensionField from "./tabs/ThreeDimensionField/ThreeDimensionField";
 import StateVisualizer from "./tabs/StateMachine/StateVisualizer";
 import TwoDimensionField from "./tabs/TwoDimensionField/TwoDimensionField";
+import ReefscapeButtonBoard from "./tabs/ReefscapeButtonBoard";
 
 export type TabInfo = {
   id: string;
@@ -36,6 +37,11 @@ export const tabsConfig: TabInfo[] = [
     id: "oxconfigeditor",
     component: OxConfig,
     title: "🛠️ OxConfig",
+  },
+  {
+    id: "reefscapebuttonboard",
+    component: ReefscapeButtonBoard,
+    title: "🎛️ Reefscape Button Board",
   },
 ];
 
