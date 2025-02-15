@@ -1,7 +1,17 @@
 .buttonBoard {
   display: flex;
+  flex-direction: row;
+  flex-wrap: wrap;
+  justify-content: center;
+  align-items: start;
+  margin-top: 20px;
+  gap: 20px;
+}
+
+.buttonPanel {
+  display: flex;
   flex-direction: column;
   justify-content: center;
   align-items: center;
-  margin-top: 20px;
+  gap: 2px;
 }
