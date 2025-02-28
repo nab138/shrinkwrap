@@ -6,7 +6,7 @@ const reefs: {
   num: number;
   name: string;
 }[] = [];
-for (let i = 0; i < 11; i++) {
+for (let i = 0; i < 12; i++) {
   let letter = String.fromCharCode(65 + i).toUpperCase();
   reefs.push({
     num: i,
