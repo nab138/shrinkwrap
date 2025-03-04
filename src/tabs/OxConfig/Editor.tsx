@@ -256,7 +256,6 @@ function getInputElem(
     if (type === "checkbox")
       newValues[i] = e.currentTarget.checked ? "true" : "false";
     else newValues[i] = e.currentTarget.value;
-    if (newValues[i] === param.values[i]) return;
     setKey([param.key, param.comment, ...newValues].join(","));
   };
   let inputElem = (

@@ -267,7 +267,6 @@ function getInputElem(
     let val;
     if (type === "checkbox") val = e.currentTarget.checked ? "true" : "false";
     else val = e.currentTarget.value;
-    if (val === value) return;
     if (val === null || val === undefined || val === "") {
       warning("Invalid Value");
       return;
