@@ -152,13 +152,19 @@ button {
   cursor: pointer;
 }
 
-button:hover {
+/* hover but not disabled */
+button:hover:not(:disabled) {
   border-color: #396cd8;
   background-color: var(--background-color-3);
 }
-button:active {
+button:active:not(:disabled) {
   border-color: #396cd8;
   background-color: var(--background-color-3);
+}
+button:disabled {
+  background-color: var(--background-color-1);
+  color: var(--foreground-color-2);
+  cursor: not-allowed;
 }
 
 input,

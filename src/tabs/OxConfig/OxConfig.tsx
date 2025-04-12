@@ -13,6 +13,7 @@ import { decode } from "@msgpack/msgpack";
 import OxConfigEditor from "./Editor";
 import OxConfigTuner from "./Tuner";
 import useNTLive from "../../ntcore-react/useNTLive";
+import Modal from "../../hub/Modal";
 
 const isMobile = platform() === "ios" || platform() === "android";
 
@@ -207,6 +208,11 @@ const OxConfig: React.FC<IDockviewPanelProps> = () => {
   }, [classes]);
 
   const [_, setKey] = useNTState<string>("/OxConfig/KeySetter", "string", "");
+  const [______, setCopyAll] = useNTState<string>(
+    "/OxConfig/CopyAll",
+    "string",
+    ""
+  );
   const [_____, setClass] = useNTState<string>(
     "/OxConfig/ClassSetter",
     "string",
@@ -233,6 +239,8 @@ const OxConfig: React.FC<IDockviewPanelProps> = () => {
   );
 
   const raw = useNTValue<string>("/OxConfig/Raw", "");
+
+  const [copyOpen, setCopyOpen] = useState<boolean>(false);
 
   useEffect(() => {
     if (isMobile) return;
@@ -286,6 +294,9 @@ const OxConfig: React.FC<IDockviewPanelProps> = () => {
   }, [raw, connected, deployDir, connectedClients]);
 
   const [isTuner, setIsTuner] = useState<boolean>(false);
+
+  const [copyFrom, setCopyFrom] = useState<string | null>(null);
+  const [copyTo, setCopyTo] = useState<string | null>(null);
 
   return (
     <div className="pageContainer config-editor">
@@ -362,6 +373,9 @@ const OxConfig: React.FC<IDockviewPanelProps> = () => {
                   </option>
                 ))}
               </select>
+              {!isMobile && (
+                <button onClick={() => setCopyOpen(true)}>Copy</button>
+              )}
 
               {isMobile && (
                 <>
@@ -403,6 +417,73 @@ const OxConfig: React.FC<IDockviewPanelProps> = () => {
           />
         )}
       </div>
+      {copyOpen && (
+        <Modal isOpen={true} onClose={() => setCopyOpen(false)}>
+          <div
+            style={{
+              display: "flex",
+              flexDirection: "column",
+              gap: "10px",
+            }}
+          >
+            <h2
+              style={{
+                margin: 0,
+                marginBottom: "10px",
+              }}
+            >
+              Copy {copyFrom ?? "N/A"} to {copyTo ?? "N/A"} :
+            </h2>
+
+            <div>
+              <h3 style={{ margin: 0, marginBottom: "5px" }}>From</h3>
+              {modes.map((copyMode) => (
+                <button
+                  key={copyMode}
+                  onClick={() => {
+                    setCopyFrom(copyMode);
+                    setCopyTo((old) => (old === copyMode ? null : old));
+                  }}
+                  style={{
+                    backgroundColor: copyMode === copyFrom ? "#008800" : "",
+                  }}
+                >
+                  {copyMode.charAt(0).toUpperCase() + copyMode.slice(1)}
+                </button>
+              ))}
+            </div>
+            <div>
+              <h3 style={{ margin: 0, marginBottom: "5px" }}>To</h3>
+              {modes
+                .filter((m) => m !== copyFrom)
+                .map((copyMode) => (
+                  <button
+                    key={copyMode}
+                    onClick={() => {
+                      setCopyTo(copyMode);
+                    }}
+                    style={{
+                      backgroundColor: copyMode === copyTo ? "#008800" : "",
+                    }}
+                  >
+                    {copyMode.charAt(0).toUpperCase() + copyMode.slice(1)}
+                  </button>
+                ))}
+            </div>
+            <button
+              disabled={
+                copyTo === null || copyFrom === null || copyTo === copyFrom
+              }
+              onClick={() => {
+                setCopyAll([copyFrom, copyTo].join(","));
+                setCopyOpen(false);
+              }}
+            >
+              Confirm
+            </button>
+          </div>
+        </Modal>
+      )}
     </div>
   );
 };
