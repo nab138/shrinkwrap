@@ -454,21 +454,20 @@ const OxConfig: React.FC<IDockviewPanelProps> = () => {
             </div>
             <div>
               <h3 style={{ margin: 0, marginBottom: "5px" }}>To</h3>
-              {modes
-                .filter((m) => m !== copyFrom)
-                .map((copyMode) => (
-                  <button
-                    key={copyMode}
-                    onClick={() => {
-                      setCopyTo(copyMode);
-                    }}
-                    style={{
-                      backgroundColor: copyMode === copyTo ? "#008800" : "",
-                    }}
-                  >
-                    {copyMode.charAt(0).toUpperCase() + copyMode.slice(1)}
-                  </button>
-                ))}
+              {modes.map((copyMode) => (
+                <button
+                  disabled={copyMode === copyFrom}
+                  key={copyMode}
+                  onClick={() => {
+                    setCopyTo(copyMode);
+                  }}
+                  style={{
+                    backgroundColor: copyMode === copyTo ? "#008800" : "",
+                  }}
+                >
+                  {copyMode.charAt(0).toUpperCase() + copyMode.slice(1)}
+                </button>
+              ))}
             </div>
             <button
               disabled={
