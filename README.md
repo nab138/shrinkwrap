@@ -23,3 +23,5 @@ Config for viewing the statemachine in the 2025 season: https://gist.github.com/
 ## Credit
 
 - [AdvantageScope](https://github.com/Mechanical-Advantage/AdvantageScope) - Adapted/referenced code from ascope for NetworkTables, 3D field, 2d field, units, and timeline rendering (as well as inspiring shrinkwrap)
+- [Dockview](https://dockview.dev) - Used as the primary layout for Shrinkwrap
+- [frclib-datalog](https://github.com/frclib-rs-group/frclib-datalog) - Used to read datalog files
