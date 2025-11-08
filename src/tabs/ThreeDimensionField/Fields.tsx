@@ -41,4 +41,17 @@ export const fields: Field[] = [
       heightInches: 323.25,
     },
   },
+  {
+    year: "2022",
+    fieldX: 16.4592,
+    fieldY: 8.2296,
+    fieldRot: 0,
+    source: "https://www.chiefdelphi.com/t/2022-top-down-field-renders/399031",
+    imageData: {
+      topLeft: [884, 149],
+      bottomRight: [6160, 2786],
+      widthInches: 648,
+      heightInches: 324,
+    },
+  },
 ];
