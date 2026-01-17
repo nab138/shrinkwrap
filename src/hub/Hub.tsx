@@ -1,5 +1,5 @@
 import React, { useCallback, useContext, useEffect, useRef } from "react";
-import { DockviewReact, DockviewReadyEvent, themeDark, themeAbyss, themeLight, themeAbyssSpaced, themeLightSpaced } from "dockview";
+import { DockviewReact, DockviewReadyEvent, themeDark, themeAbyss, themeLight } from "dockview";
 import "./Hub.css";
 import "dockview/dist/styles/dockview.css";
 import { tabsConfig, components } from "../tabsConfig";
