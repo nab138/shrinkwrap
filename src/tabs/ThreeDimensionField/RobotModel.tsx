@@ -15,7 +15,11 @@ export interface RobotConfigRotation {
 }
 
 export const robotProps = {
-  KitBot: {
+  KitBot2026: {
+    rotations: [{ axis: "y", degrees: 90 }],
+    position: [0, 0, -0.005],
+  } as RobotConfig,
+  KitBot2025: {
     rotations: [{ axis: "y", degrees: 90 }],
     position: [0, 0, -0.005],
   } as RobotConfig,

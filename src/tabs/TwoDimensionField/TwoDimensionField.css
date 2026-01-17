@@ -5,4 +5,5 @@
 .twodfieldContainer {
   margin-top: 40px;
   height: calc(100% - 40px);
+  overflow: hidden;
 }

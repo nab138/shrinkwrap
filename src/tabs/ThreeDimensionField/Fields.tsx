@@ -14,6 +14,19 @@ export type Field = {
 
 export const fields: Field[] = [
   {
+    year: "2026",
+    fieldX: 16.540988,
+    fieldY: 8.0689958,
+    fieldRot: 180,
+    source: "https://www.chiefdelphi.com/t/2026-rebuilt-high-resolution-field-image/510611",
+    imageData: {
+      topLeft: [524, 95],
+      bottomRight: [3378, 1489],
+      widthInches: 651.220,
+      heightInches: 317.677
+    }
+  },
+  {
     year: "2025",
     fieldX: 17.548249,
     fieldY: 8.0518,

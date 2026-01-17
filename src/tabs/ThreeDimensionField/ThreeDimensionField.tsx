@@ -16,7 +16,7 @@ const ThreeDimensionField: React.FC<IDockviewPanelProps<{ id: string }>> = ({
       id: "field",
       label: "Field",
       type: "dropdown",
-      value: "2025",
+      value: "2026",
       options: fields.map((field) => field.year),
     },
     { id: "cinematic", label: "Cinematic Mode", type: "boolean", value: false },
@@ -72,9 +72,9 @@ const ThreeDimensionField: React.FC<IDockviewPanelProps<{ id: string }>> = ({
           robots={(getSettingValue("elements") as Item[])
             .filter((item) => item.type === "Robot" && item.value != "")
             .map((item) => {
-              return { key: item.value, robot: "KitBot" };
+              return { key: item.value, robot: "KitBot2026" };
             })}
-          field={`${getSettingValue("field") ?? 2025}`}
+          field={`${getSettingValue("field") ?? 2026}`}
           cinematic={getSettingValue("cinematic") as boolean}
         />
       </div>

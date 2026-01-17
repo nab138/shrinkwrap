@@ -21,7 +21,7 @@ const TwoDimensionField: React.FC<IDockviewPanelProps<{ id: string }>> = ({
       id: "field",
       label: "Field",
       type: "dropdown",
-      value: "2025",
+      value: "2026",
       options: fields.map((field) => field.year),
       displaySource: true,
     },
@@ -91,9 +91,9 @@ const TwoDimensionField: React.FC<IDockviewPanelProps<{ id: string }>> = ({
 
   const [calcCoordinates, setCalcCoordinates] = useState<
     | ((
-        translation: [number, number],
-        alwaysFlipped: boolean
-      ) => [number, number])
+      translation: [number, number],
+      alwaysFlipped: boolean
+    ) => [number, number])
     | undefined
   >();
 
@@ -120,7 +120,7 @@ const TwoDimensionField: React.FC<IDockviewPanelProps<{ id: string }>> = ({
               setFieldScale={setFieldScale}
               width={dimensions.width}
               height={dimensions.height}
-              field={`${getSettingValue("field") ?? 2025}`}
+              field={`${getSettingValue("field") ?? 2026}`}
               setCalcCoordinates={setCalcCoordinates}
             />
           </Layer>
