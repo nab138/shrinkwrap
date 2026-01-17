@@ -14,6 +14,7 @@ export async function importConfig(store: Store | null, addToast: AddToast) {
     multiple: false,
     directory: false,
     filters: [{ name: "JSON", extensions: ["json"] }],
+    pickerMode: 'document'
   });
   if (file == null) return;
   try {
@@ -77,6 +78,7 @@ export async function importLog(client: NTClient | null, addToast: AddToast) {
     multiple: false,
     directory: false,
     filters: [{ name: "WPILib robot log", extensions: ["wpilog"] }],
+    pickerMode: 'document'
   });
   if (file == null) return;
   let separator = platform() === "windows" ? "\\" : "/";

@@ -1,5 +1,5 @@
 import React, { useCallback, useContext, useEffect, useRef } from "react";
-import { DockviewReact, DockviewReadyEvent } from "dockview";
+import { DockviewReact, DockviewReadyEvent, themeDark, themeAbyss, themeLight, themeAbyssSpaced, themeLightSpaced } from "dockview";
 import "./Hub.css";
 import "dockview/dist/styles/dockview.css";
 import { tabsConfig, components } from "../tabsConfig";
@@ -174,13 +174,31 @@ const Hub: React.FC<HubProps> = ({ setIp, ip }) => {
     [store]
   );
 
+  let dockviewTheme;
+  switch (theme) {
+    case "dark":
+      dockviewTheme = themeDark
+      break;
+    case "light":
+      dockviewTheme = themeLight
+      break;
+    case "abyss":
+      dockviewTheme = themeAbyss
+      break;
+    default:
+      dockviewTheme = themeDark;
+      break;
+  }
+  console.log(dockviewTheme);
+
   return (
     <div className={`container` + (platform() === "linux" ? " linux" : "")}>
       <DockviewReact
+        theme={dockviewTheme}
         components={components}
         leftHeaderActionsComponent={LeftControls}
         onReady={onReady}
-        className={"dockview-theme-" + theme + " view"}
+        className={"view"}
       />
     </div>
   );
