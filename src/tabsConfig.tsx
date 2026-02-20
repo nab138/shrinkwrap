@@ -4,7 +4,7 @@ import Settings from "./tabs/Settings";
 import ThreeDimensionField from "./tabs/ThreeDimensionField/ThreeDimensionField";
 import StateVisualizer from "./tabs/StateMachine/StateVisualizer";
 import TwoDimensionField from "./tabs/TwoDimensionField/TwoDimensionField";
-import ReefscapeButtonBoard from "./tabs/ReefscapeButtonBoard";
+// import ReefscapeButtonBoard from "./tabs/ReefscapeButtonBoard";
 import RebuiltAutoAim from "./tabs/RebuiltAutoAim";
 
 export type TabInfo = {
