@@ -1,4 +1,4 @@
-import { useContext, useEffect, useState } from "react";
+import { useContext, useEffect, useState, useMemo } from "react";
 import NTContext from "./NTContext";
 import NTTopicTypes from "./NTTopicType";
 
@@ -22,6 +22,15 @@ export const useNTValue = <T extends NTTopicTypes>(
         false,
         period
       );
+      // let map = client.getRawData().get(key);
+      // if (map) {
+      //   let latestEntry = Array.from(map.entries()).sort(
+      //     (a, b) => b[0] - a[0]
+      //   )[0];
+      //   if (latestEntry) {
+      //     listener(latestEntry[1] as T);
+      //   }
+      // }
 
       return () => {
         subscription?.unsubscribe();
@@ -36,22 +45,14 @@ export const useNTValue = <T extends NTTopicTypes>(
   return value;
 };
 
-// Provide a useComputedNTValue hook that takes a function that returns a value
-// and the function is called whenever the value is updated.
-// It can return any type, but should still be typesafe (generics)
-
 export const useComputedNTValue = <T extends NTTopicTypes, B>(
   key: string,
   compute: (t: T) => B,
   defaultValue: T,
   period = 1
 ) => {
-  const [computedValue, setComputedValue] = useState<B>(compute(defaultValue));
   const value = useNTValue(key, defaultValue, period);
-
-  useEffect(() => {
-    setComputedValue(compute(value));
-  }, [value, compute]);
-
+  // console.log(key, value)
+  const computedValue = useMemo(() => compute(value), [value, compute]);
   return computedValue;
 };

@@ -1,5 +1,6 @@
 import { useEffect, useRef, useState } from "react";
-import { Parameter, ScreenSize } from "./OxConfig";
+import { Parameter } from "./OxConfigProvider";
+import { ScreenSize } from "./OxConfig";
 import Modal from "../../hub/Modal";
 import React from "react";
 import useNTLive from "../../ntcore-react/useNTLive";

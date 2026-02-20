@@ -1,49 +1,43 @@
-import React, { useState, useEffect, useRef, useCallback } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import fuzzysort from "fuzzysort";
-import { useComputedNTValue, useNTValue } from "../../ntcore-react/useNTValue";
 import { useStore } from "../../utils/StoreContext";
 import "./OxConfig.css";
 import { platform } from "@tauri-apps/plugin-os";
 import useNTConnected from "../../ntcore-react/useNTConnected";
-import useNTState from "../../ntcore-react/useNTState";
 import { IDockviewPanelProps } from "dockview";
 import { ErrorIcon, SuccessIcon, useToast } from "react-toast-plus";
 import { invoke } from "@tauri-apps/api/core";
-import { decode } from "@msgpack/msgpack";
 import OxConfigEditor from "./Editor";
 import OxConfigTuner from "./Tuner";
 import useNTLive from "../../ntcore-react/useNTLive";
 import Modal from "../../hub/Modal";
+import { useOxConfig, Parameter, Class } from "./OxConfigProvider";
 
 const isMobile = platform() === "ios" || platform() === "android";
 
 export type ScreenSize = "small" | "medium" | "large";
-export type Parameter = {
-  key: string;
-  values: string[];
-  comment: string;
-  type: string;
-  displayKey?: string;
-};
 
-// name, key, type, values
-export type ClassParam = {
-  prettyName: string;
-  key: string;
-  type: string;
-  values: string[];
-};
-export type Class = {
-  prettyName: string;
-  key: string;
-  parameters: ClassParam[];
-  displayKey?: string;
-};
-
-const OxConfig: React.FC<IDockviewPanelProps> = () => {
+const OxConfig: React.FC<IDockviewPanelProps> = (props) => {
   const [screenSize, setMobileScreen] = useState<ScreenSize>(
     isMobile ? "small" : "large"
   );
+
+  const containerRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    if (isMobile) return;
+    const element = containerRef.current;
+    if (!element) return;
+    const resizeObserver = new ResizeObserver(() => {
+      const width = element.offsetWidth;
+      if (width < 600) setMobileScreen("small");
+      else if (width < 915) setMobileScreen("medium");
+      else setMobileScreen("large");
+    });
+    resizeObserver.observe(element);
+    return () => resizeObserver.disconnect();
+  }, [isMobile]);
+  const [deployDir] = useStore("deployDir", "");
 
   const { addToast, removeToast } = useToast();
   const [theme] = useStore("theme", "light");
@@ -51,19 +45,28 @@ const OxConfig: React.FC<IDockviewPanelProps> = () => {
 
   const liveMode = useNTLive();
 
-  useEffect(() => {
-    const handleResize = () => {
-      if (isMobile) return;
-      if (window.innerWidth < 600) return setMobileScreen("small");
-      if (window.innerWidth < 890) return setMobileScreen("medium");
-      return setMobileScreen("large");
-    };
-    handleResize();
-    window.addEventListener("resize", handleResize);
-    return () => window.removeEventListener("resize", handleResize);
-  }, [isMobile]);
-  const [deployDir] = useStore("deployDir", "");
+  const [isFocused, setIsFocused] = useState(props.api?.isActive ?? false);
 
+  const {
+    modes,
+    currentMode,
+    parameters,
+    classes,
+    connectedClients,
+    raw,
+    setMode,
+    setKey,
+    setCopyAll,
+    setClass,
+  } = useOxConfig();
+  useEffect(() => {
+    if (!props.api) return;
+    if (props.api.isActive) setIsFocused(true);
+    const focusDisposable = props.api.onDidActiveChange((a) => { setIsFocused(a.isActive) });
+    return () => {
+      focusDisposable.dispose();
+    };
+  }, [props.api]);
   const connected = useNTConnected();
   const [hasConnected, setHasConnected] = useState(false);
 
@@ -73,84 +76,11 @@ const OxConfig: React.FC<IDockviewPanelProps> = () => {
     }
   }, [connected, hasConnected]);
 
-  const computeModes = useCallback(
-    (val: string) => val.split(",").filter((v) => v !== ""),
-    []
-  );
-  const modes = useComputedNTValue<string, string[]>(
-    "/OxConfig/Modes",
-    computeModes,
-    ""
-  );
-  const currentMode = useNTValue<string>("/OxConfig/CurrentMode", "");
-  const [__, setMode] = useNTState<string>(
-    "/OxConfig/ModeSetter",
-    "string",
-    ""
-  );
-
-  const computeParameters = useCallback((params: string) => {
-    if (params == "") return [];
-    let paramsRaw = JSON.parse(params);
-    let parametersMap: Parameter[] = [];
-    for (let paramRaw of paramsRaw) {
-      if (paramRaw[0] == "root/mode") continue;
-      let key = paramRaw[0];
-      let comment = paramRaw[1];
-      let type = paramRaw[2].toLowerCase();
-      parametersMap.push({ key, values: paramRaw.slice(3), comment, type });
-    }
-    return parametersMap;
-  }, []);
-
-  const parameters = useComputedNTValue<string, Parameter[]>(
-    "/OxConfig/Params",
-    computeParameters,
-    ""
-  );
-
   const [displayParameters, setDisplayParameters] = useState<Parameter[]>([]);
   const [displayClasses, setDisplayClasses] = useState<Class[]>([]);
 
-  const computeClasses = useCallback((classesRaw: string) => {
-    if (classesRaw == "") return [];
-    let parsed: [string, string, ...string[][]][] = JSON.parse(classesRaw);
-    let classes: Class[] = [];
-    for (let cls of parsed) {
-      let prettyName = cls.shift() as string;
-      let key = cls.shift() as string;
-      let parameters: ClassParam[] = [];
-      for (let param of cls) {
-        if (typeof param === "string") {
-          console.error("Invalid class parameter (not string[])", param);
-          continue;
-        }
-        let prettyName = param.shift();
-        let key = param.shift();
-        let type = param.shift();
-        if (
-          prettyName === undefined ||
-          key === undefined ||
-          type === undefined
-        ) {
-          console.error("Invalid class parameter", param);
-          continue;
-        }
-        parameters.push({ prettyName, key, type, values: param });
-      }
-      classes.push({ prettyName, key, parameters });
-    }
-    return classes;
-  }, []);
-
-  const classes = useComputedNTValue<string, Class[]>(
-    "/OxConfig/Classes",
-    computeClasses,
-    ""
-  );
-
   useEffect(() => {
-    if (parameters.length === 0) return;
+    if (parameters.length === 0 || !isFocused) return;
     let search = document.querySelector(".config-search") as HTMLInputElement;
     if (search == null) return;
     if (search.value === "") setDisplayParameters(parameters);
@@ -173,13 +103,15 @@ const OxConfig: React.FC<IDockviewPanelProps> = () => {
       setDisplayParameters(filteredParams);
     };
     search.addEventListener("input", searchHandler);
+    // Run on mount/focus to apply current search value
+    searchHandler();
     return () => {
       search.removeEventListener("input", searchHandler);
     };
-  }, [parameters]);
+  }, [parameters, isFocused]);
 
   useEffect(() => {
-    if (classes.length === 0) return;
+    if (classes.length === 0 || !isFocused) return;
     let search = document.querySelector(".config-search") as HTMLInputElement;
     if (search == null) return;
     if (search.value === "") setDisplayClasses(classes);
@@ -202,43 +134,12 @@ const OxConfig: React.FC<IDockviewPanelProps> = () => {
       setDisplayClasses(filteredClasses);
     };
     search.addEventListener("input", searchHandler);
+    // Run on mount/focus to apply current search value
+    searchHandler();
     return () => {
       search.removeEventListener("input", searchHandler);
     };
-  }, [classes]);
-
-  const [_, setKey] = useNTState<string>("/OxConfig/KeySetter", "string", "");
-  const [______, setCopyAll] = useNTState<string>(
-    "/OxConfig/CopyAll",
-    "string",
-    ""
-  );
-  const [_____, setClass] = useNTState<string>(
-    "/OxConfig/ClassSetter",
-    "string",
-    ""
-  );
-
-  const computeConnectedClients = useCallback((val: Uint8Array) => {
-    try {
-      // Ensure val is a valid Uint8Array before decoding
-      if (val instanceof Uint8Array) {
-        return decode(val);
-      } else {
-        console.error("Expected Uint8Array but received:", val);
-        return [];
-      }
-    } catch (error) {
-      return [];
-    }
-  }, []);
-  const connectedClients = useComputedNTValue<Uint8Array, any>(
-    "$clients",
-    computeConnectedClients,
-    new Uint8Array()
-  );
-
-  const raw = useNTValue<string>("/OxConfig/Raw", "");
+  }, [classes, isFocused]);
 
   const [copyOpen, setCopyOpen] = useState<boolean>(false);
 
@@ -299,8 +200,8 @@ const OxConfig: React.FC<IDockviewPanelProps> = () => {
   const [copyTo, setCopyTo] = useState<string | null>(null);
 
   return (
-    <div className="pageContainer config-editor">
-      <div>
+    <div className="pageContainer config-editor" ref={containerRef}>
+      <div className="inner-ox-container">
         <div>
           <div
             className="config-editor-line"
@@ -317,7 +218,7 @@ const OxConfig: React.FC<IDockviewPanelProps> = () => {
                 (to {isTuner ? "config editor" : "tuner"})
               </a>
             </h2>
-            {(screenSize === "large" || (deployDir === "" && !isMobile)) && (
+            {((screenSize === "large" || screenSize === "medium") || (deployDir === "" && !isMobile)) && (
               <p className="deploy-dir deploy-path-cfg">
                 Deploy Directory
                 <span className="question-icon">?</span>
@@ -339,7 +240,7 @@ const OxConfig: React.FC<IDockviewPanelProps> = () => {
                       Not Set
                     </span>
                   ) : (
-                    deployDir
+                    screenSize === "medium" ? "Set" : deployDir
                   )}
                 </code>
               </p>
@@ -380,12 +281,12 @@ const OxConfig: React.FC<IDockviewPanelProps> = () => {
               {isMobile && (
                 <>
                   {connected &&
-                  connectedClients.some((client: any) => {
-                    if (client === undefined || client === null) return false;
-                    if (client.id === undefined || client.id === null)
-                      return false;
-                    return client.id.includes("ShrinkWrapDesktop");
-                  }) ? (
+                    connectedClients.some((client: any) => {
+                      if (client === undefined || client === null) return false;
+                      if (client.id === undefined || client.id === null)
+                        return false;
+                      return client.id.includes("ShrinkWrapDesktop");
+                    }) ? (
                     <div className="pc-indicator">
                       PC <SuccessIcon />
                     </div>

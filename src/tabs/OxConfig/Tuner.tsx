@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from "react";
-import { Class, ClassParam, ScreenSize } from "./OxConfig";
+import { Class, ClassParam } from "./OxConfigProvider";
+import { ScreenSize } from "./OxConfig";
 import { paramToInputType } from "./Editor";
 import { useToast } from "react-toast-plus";
 import Modal from "../../hub/Modal";

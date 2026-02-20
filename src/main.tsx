@@ -7,6 +7,7 @@ import { ToastProvider } from "react-toast-plus";
 import { platform } from "@tauri-apps/plugin-os";
 import { UpdateProvider } from "./utils/UpdateContext";
 import { load } from "@tauri-apps/plugin-store";
+import { OxConfigProvider } from "./tabs/OxConfig/OxConfigProvider";
 
 const MemoizedHub = React.memo(Hub);
 const MemoizedNTProvider = React.memo(NTProvider);
@@ -41,7 +42,9 @@ const InnerAppComponent: React.FC<{
       }}
     >
       <UpdateProvider>
-        <MemoizedHub setIp={setIp} ip={ip === "" ? "0" : ip} />
+        <OxConfigProvider>
+          <MemoizedHub setIp={setIp} ip={ip === "" ? "0" : ip} />
+        </OxConfigProvider>
       </UpdateProvider>
     </ToastProvider>
   );

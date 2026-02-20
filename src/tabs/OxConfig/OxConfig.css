@@ -30,12 +30,12 @@
   justify-content: space-between;
 }
 
-.search > h3 {
+.search>h3 {
   margin: 0 15px 0 0;
   padding: 5px 0;
 }
 
-.search > input {
+.search>input {
   width: 40%;
   border: 1px solid var(--border-color);
   margin-right: 10px;
@@ -113,6 +113,7 @@
 .comment-table-header {
   width: 25%;
 }
+
 .param-table-container {
   overflow-y: auto;
   border: 1px solid var(--border-color);
@@ -124,9 +125,9 @@
   scrollbar-color: #888 var(--background-color-1);
 }
 
-@media screen and (max-width: 575px) {
+@container (max-width: 693px) {
   .param-table-container {
-    top: 158px;
+    top: 175px;
   }
 }
 
@@ -194,7 +195,7 @@
 }
 
 /* Show extra information on hover */
-.question-icon:hover + .extra-info {
+.question-icon:hover+.extra-info {
   display: block;
   z-index: 999 !important;
 }
@@ -203,6 +204,7 @@
   margin-top: 10px;
   margin-left: 8px;
 }
+
 .controller-dropdown {
   margin-top: 25px;
 }
@@ -258,6 +260,7 @@ td input::-webkit-inner-spin-button {
   cursor: col-resize;
   z-index: 999;
 }
+
 .config-editor table {
   border: 1px solid var(--border-color);
   table-layout: fixed;
@@ -297,11 +300,11 @@ td input::-webkit-inner-spin-button {
   margin: 0;
 }
 
-.parameter-table-headers > th {
+.parameter-table-headers>th {
   position: sticky;
 }
 
-.parameter-table-headers th + th {
+.parameter-table-headers th+th {
   border-left: 1px solid var(--border-color);
 }
 
@@ -309,7 +312,7 @@ td input::-webkit-inner-spin-button {
   background-color: transparent;
 }
 
-.param-table-container td + td {
+.param-table-container td+td {
   border-left: 1px solid var(--border-color);
   margin: 0;
   padding: 0;
@@ -326,10 +329,14 @@ td input::-webkit-inner-spin-button {
 }
 
 .param-table div {
-  width: 100%; /* Ensure the div takes the full width of the cell */
-  overflow: auto; /* Make the div scrollable */
-  white-space: nowrap; /* Prevent text from wrapping */
-  text-overflow: ellipsis; /* Show ellipsis for overflowed text */
+  width: 100%;
+  /* Ensure the div takes the full width of the cell */
+  overflow: auto;
+  /* Make the div scrollable */
+  white-space: nowrap;
+  /* Prevent text from wrapping */
+  text-overflow: ellipsis;
+  /* Show ellipsis for overflowed text */
 }
 
 .param-table td div,
@@ -338,10 +345,12 @@ td input::-webkit-inner-spin-button {
   padding: 2px;
   box-shadow: none;
 }
+
 .param-table td {
   text-align: left;
   padding-left: 5px;
 }
+
 .param-table-container tr {
   border-top: 1px solid var(--border-color);
 }
@@ -369,7 +378,7 @@ td input::-webkit-inner-spin-button {
   overflow-x: hidden;
 }
 
-.tuner-container > * {
+.tuner-container>* {
   min-width: 300px;
   flex: 1 1 calc(40% - 5px);
 }
@@ -403,4 +412,8 @@ td input::-webkit-inner-spin-button {
 .config-editor input[disabled] {
   opacity: 0.6;
   cursor: not-allowed;
+}
+
+.inner-ox-container {
+  container-type: inline-size;
 }

@@ -189,7 +189,6 @@ const Hub: React.FC<HubProps> = ({ setIp, ip }) => {
       dockviewTheme = themeDark;
       break;
   }
-  console.log(dockviewTheme);
 
   return (
     <div className={`container` + (platform() === "linux" ? " linux" : "")}>

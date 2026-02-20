@@ -1,5 +1,5 @@
 import { IDockviewPanelProps } from "dockview";
-import OxConfig from "./tabs/OxConfig/OxConfig";
+import OxConfigTab from "./tabs/OxConfig/OxConfigTab";
 import Settings from "./tabs/Settings";
 import ThreeDimensionField from "./tabs/ThreeDimensionField/ThreeDimensionField";
 import StateVisualizer from "./tabs/StateMachine/StateVisualizer";
@@ -35,7 +35,7 @@ export const tabsConfig: TabInfo[] = [
   },
   {
     id: "oxconfigeditor",
-    component: OxConfig,
+    component: OxConfigTab,
     title: "🛠️ OxConfig",
   },
   {
