@@ -23,6 +23,7 @@ const OxConfig: React.FC<IDockviewPanelProps> = (props) => {
   );
 
   const containerRef = useRef<HTMLDivElement>(null);
+  const searchRef = useRef<HTMLInputElement>(null);
 
   useEffect(() => {
     if (isMobile) return;
@@ -81,7 +82,7 @@ const OxConfig: React.FC<IDockviewPanelProps> = (props) => {
 
   useEffect(() => {
     if (parameters.length === 0 || !isFocused) return;
-    let search = document.querySelector(".config-search") as HTMLInputElement;
+    let search = searchRef.current;
     if (search == null) return;
     if (search.value === "") setDisplayParameters(parameters);
     let searchHandler = () => {
@@ -112,7 +113,7 @@ const OxConfig: React.FC<IDockviewPanelProps> = (props) => {
 
   useEffect(() => {
     if (classes.length === 0 || !isFocused) return;
-    let search = document.querySelector(".config-search") as HTMLInputElement;
+    let search = searchRef.current;
     if (search == null) return;
     if (search.value === "") setDisplayClasses(classes);
     let searchHandler = () => {
@@ -250,6 +251,7 @@ const OxConfig: React.FC<IDockviewPanelProps> = (props) => {
             <div className="search">
               <h3>Search</h3>
               <input
+                ref={searchRef}
                 className="config-search"
                 type="text"
                 placeholder="Search..."
@@ -315,6 +317,8 @@ const OxConfig: React.FC<IDockviewPanelProps> = (props) => {
             connected={connected}
             modes={modes}
             setKey={setKey}
+            id={props.api.id}
+            key={props.api.id}
           />
         )}
       </div>

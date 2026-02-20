@@ -15,7 +15,7 @@ const LeftControlsRaw: React.FC<IDockviewHeaderActionsProps> = ({
     (tabId: string) => {
       let tab = tabsConfig.find((tab) => tab.id === tabId);
       if (tab == null) return;
-      let newId = tabId + Date.now();
+      let newId = tabId + Date.now() + "len" + containerApi.panels.length;
       containerApi
         ?.addPanel({
           id: newId,

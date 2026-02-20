@@ -11,6 +11,7 @@ export interface OxConfigEditorProps {
   modes: string[];
   displayParameters: Parameter[];
   setKey: (key: string) => void;
+  id: string;
 }
 
 const OxConfigEditor: React.FC<OxConfigEditorProps> = ({
@@ -19,6 +20,7 @@ const OxConfigEditor: React.FC<OxConfigEditorProps> = ({
   modes,
   displayParameters,
   setKey,
+  id
 }) => {
   const liveMode = useNTLive();
   const table = useRef<HTMLTableSectionElement>(null);
@@ -96,7 +98,7 @@ const OxConfigEditor: React.FC<OxConfigEditorProps> = ({
             )}
             {screenSize !== "small" &&
               modes.map((mode) => (
-                <th key={mode}>
+                <th key={mode + id}>
                   <div>{mode.charAt(0).toUpperCase() + mode.slice(1)}</div>
                   <div className="resizer" />
                 </th>
@@ -105,12 +107,12 @@ const OxConfigEditor: React.FC<OxConfigEditorProps> = ({
         </thead>
         <tbody className="parameter-table" ref={table}>
           {displayParameters.map((param) => (
-            <React.Fragment key={param.key}>
+            <React.Fragment key={param.key + id}>
               {screenSize === "small" && (
                 <Modal
                   isOpen={openKey === param.key}
                   onClose={() => setOpenKey(null)}
-                  key={param.key}
+                  key={param.key + id}
                 >
                   <h2 style={{ marginTop: 0, marginBottom: "15px" }}>
                     {param.key}
@@ -157,7 +159,7 @@ const OxConfigEditor: React.FC<OxConfigEditorProps> = ({
                           setKey
                         );
                         return (
-                          <tr key={i}>
+                          <tr key={i + id}>
                             <td>
                               {modes[i].charAt(0).toUpperCase() +
                                 modes[i].slice(1)}
@@ -179,7 +181,7 @@ const OxConfigEditor: React.FC<OxConfigEditorProps> = ({
                 </Modal>
               )}
 
-              <tr key={param.key}>
+              <tr key={`${param.key}-${id}`}>
                 <td
                   dangerouslySetInnerHTML={{
                     __html: param.displayKey ?? param.key,
@@ -227,7 +229,7 @@ const OxConfigEditor: React.FC<OxConfigEditorProps> = ({
                       setKey
                     );
                     return (
-                      <td key={i}>
+                      <td key={i + id}>
                         <div>{inputElem}</div>
                       </td>
                     );
