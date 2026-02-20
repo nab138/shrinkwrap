@@ -1,0 +1,202 @@
+import { useCallback, useEffect, useMemo } from "react";
+import { useOxConfig } from "./OxConfig/OxConfigProvider";
+import "./RebuiltAutoAim.css";
+import { IDockviewPanelProps } from "dockview";
+import { useComputedNTValue } from "../ntcore-react/useNTValue";
+import useNTState from "../ntcore-react/useNTState";
+import { ErrorIcon, SuccessIcon, useToast } from "react-toast-plus";
+import { useStore } from "../utils/StoreContext";
+import useNTConnected from "../ntcore-react/useNTConnected";
+import { platform } from "@tauri-apps/plugin-os";
+import { invoke } from "@tauri-apps/api/core";
+import useNTLive from "../ntcore-react/useNTLive";
+
+const RebuiltAutoAim: React.FC<
+    IDockviewPanelProps<{ id: string }>
+> = () => {
+    const {
+        setKey,
+        parameters,
+        currentMode,
+        modes
+    } = useOxConfig();
+
+    const connected = useNTConnected();
+    const {
+        connectedClients,
+    } = useOxConfig();
+    const [deployDir] = useStore("deployDir", "");
+    const { addToast, removeToast } = useToast();
+
+    useEffect(() => {
+        if (isMobile) return;
+        if (deployDir === "") {
+            let warning = addToast.error(
+                "[AutoAim] Deploy directory is unset. Changes will be overwritten on code rebuild."
+            );
+            return () => {
+                removeToast(warning.id);
+            };
+        }
+    }, [deployDir]);
+
+    const modeIndex = useMemo(() => {
+        return modes.findIndex((mode) => mode === currentMode);
+    }, [currentMode, modes]);
+
+    const aimModeParam = useMemo(() => {
+        return parameters.find((param) => param.key === "Shooter Midzone Calibration Mode");
+    }, [parameters]);
+
+    return <div className="pageContainer">
+        <div className="aimbot-header">
+            <h2>ProGaming Aimbot</h2>
+            <label className="aimbot-checkbox">Midzone calibration:
+                <input type="checkbox" checked={aimModeParam?.values[modeIndex] === "true"} onChange={(e) => setKey([aimModeParam?.key, aimModeParam?.comment, ...modes.map(() => e.target.checked ? "true" : "false")].join(","))} />
+            </label>
+            {isMobile && (
+                <>
+                    {connected &&
+                        connectedClients.some((client: any) => {
+                            if (client === undefined || client === null) return false;
+                            if (client.id === undefined || client.id === null)
+                                return false;
+                            return client.id.includes("ShrinkWrapDesktop");
+                        }) ? (
+                        <div className="pc-indicator">
+                            PC <SuccessIcon />
+                        </div>
+                    ) : (
+                        <div className="pc-indicator">
+                            PC <ErrorIcon />
+                        </div>
+                    )}
+                </>
+            )}
+        </div>
+        <div className="aimbot-tables">
+            <AutoAimTable ntKey="/SmartDashboard/AzAutoAim" setNtKey="/SmartDashboard/AzAutoAimSet" jsonPath="azaim.json" title="Alliance Zone" key={"az"} connected={connected} connectedClients={connectedClients} />
+            <AutoAimTable ntKey="/SmartDashboard/MzAutoAim" setNtKey="/SmartDashboard/MzAutoAimSet" jsonPath="mzaim.json" title="Neutral Zone" key={"mz"} connected={connected} connectedClients={connectedClients} />
+        </div>
+    </div>
+};
+
+export default RebuiltAutoAim;
+
+type ShotData = {
+    shots: {
+        distance: number;
+        hoodPosition: number;
+        shooterSpeed: number;
+        shotTime: number;
+        timestamp: number;
+    }[];
+}
+
+const isMobile = platform() === "ios" || platform() === "android";
+
+const AutoAimTable: React.FC<{
+    ntKey: string;
+    setNtKey: string;
+    jsonPath: string;
+    title: string;
+    connected: boolean;
+    connectedClients: any;
+}> = ({ ntKey, setNtKey, jsonPath, title, connected, connectedClients }) => {
+    const computeData = useCallback<(d: string) => ShotData | null>((d) => {
+        try {
+            return JSON.parse(d) as ShotData;
+        } catch (e) {
+            console.error(e);
+            return null;
+        }
+    }, []);
+
+    const data = useComputedNTValue<string, ShotData | null>(ntKey, computeData, "{}");
+
+    const { addToast } = useToast();
+    const liveMode = useNTLive();
+    const [deployDir] = useStore("deployDir", "");
+
+    useEffect(() => {
+        if (!connected || isMobile || deployDir === "") return;
+        (async () => {
+            let result = await invoke("write_autoaim", {
+                deploy: deployDir,
+                filename: jsonPath,
+                data: JSON.stringify(data),
+                timestamp: Date.now(),
+            });
+            if (result === "success") {
+                addToast.success("[AutoAim] Wrote config to deploy folder");
+            } else if (result === "no-exist") {
+                addToast.error(
+                    "[AutoAim] Deploy directory missing or doesn't contain config.json"
+                );
+            } else if (result !== "time") {
+                addToast.error("[AutoAim] Failed to save config, check permissions");
+            }
+        })();
+    }, [data, connected, deployDir]);
+
+    useEffect(() => {
+        if (!isMobile || !connected || connectedClients.length === 0) return;
+        if (
+            !connectedClients.some((client: any) => {
+                if (client === undefined || client === null) return false;
+                if (client.id === undefined || client.id === null) return false;
+                return client.id.includes("ShrinkWrapDesktop");
+            })
+        ) {
+            addToast.warning(
+                "[AutoAim] Shrinkwrap mobile is unable to save changes to the config file unless a desktop client is connected."
+            );
+        }
+    }, [connected, connectedClients]);
+
+
+    const [_, setter] = useNTState<string>(setNtKey, "string", "");
+
+    const updateData = useCallback((newData: ShotData) => {
+        let json: string;
+        try {
+            json = JSON.stringify(newData);
+        } catch (e) {
+            console.error(e);
+            return;
+        }
+        setter(json);
+    }, [setter]);
+
+
+    if (data == null || data == undefined) return <div>Invalid data</div>;
+    if (data.shots === undefined) return <div>No shots recorded</div>;
+
+    return <div className="aimbot-table">
+        <h3>{title}</h3>
+        <table>
+            <thead>
+                <tr>
+                    <th>Distance</th>
+                    <th>Hood Position</th>
+                    <th>Shooter Speed</th>
+                    <th>Shot Time</th>
+                    <th>Timestamp</th>
+                    <th>Delete</th>
+                </tr>
+            </thead>
+            <tbody>
+                {data.shots.map((shot, index) => (
+                    <tr key={index}>
+                        <td><input disabled={!connected || !liveMode} type="number" value={shot.distance} onChange={(e) => { const val = parseFloat(e.target.value); if (Number.isFinite(val)) updateData({ shots: data.shots.map((s, i) => i === index ? { ...s, distance: val } : s) }); }} /></td>
+                        <td><input disabled={!connected || !liveMode} type="number" value={shot.hoodPosition} onChange={(e) => { const val = parseFloat(e.target.value); if (Number.isFinite(val)) updateData({ shots: data.shots.map((s, i) => i === index ? { ...s, hoodPosition: val } : s) }); }} /></td>
+                        <td><input disabled={!connected || !liveMode} type="number" value={shot.shooterSpeed} onChange={(e) => { const val = parseFloat(e.target.value); if (Number.isFinite(val)) updateData({ shots: data.shots.map((s, i) => i === index ? { ...s, shooterSpeed: val } : s) }); }} /></td>
+                        <td><input disabled={!connected || !liveMode} type="number" value={shot.shotTime} onChange={(e) => { const val = parseFloat(e.target.value); if (Number.isFinite(val)) updateData({ shots: data.shots.map((s, i) => i === index ? { ...s, shotTime: val } : s) }); }} /></td>
+                        <td>{new Date(shot.timestamp).toLocaleString()}</td>
+                        <td><button disabled={!connected || !liveMode} onClick={() => updateData({ shots: data.shots.filter((_, i) => i !== index) })}>🗑</button></td>
+                    </tr>
+                ))}
+            </tbody>
+        </table>
+    </div>
+};

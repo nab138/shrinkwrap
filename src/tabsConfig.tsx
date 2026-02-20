@@ -5,6 +5,7 @@ import ThreeDimensionField from "./tabs/ThreeDimensionField/ThreeDimensionField"
 import StateVisualizer from "./tabs/StateMachine/StateVisualizer";
 import TwoDimensionField from "./tabs/TwoDimensionField/TwoDimensionField";
 import ReefscapeButtonBoard from "./tabs/ReefscapeButtonBoard";
+import RebuiltAutoAim from "./tabs/RebuiltAutoAim";
 
 export type TabInfo = {
   id: string;
@@ -38,11 +39,16 @@ export const tabsConfig: TabInfo[] = [
     component: OxConfigTab,
     title: "🛠️ OxConfig",
   },
+  // {
+  //   id: "reefscapebuttonboard",
+  //   component: ReefscapeButtonBoard,
+  //   title: "🎛️ Reefscape Button Board",
+  // },
   {
-    id: "reefscapebuttonboard",
-    component: ReefscapeButtonBoard,
-    title: "🎛️ Reefscape Button Board",
-  },
+    id: "rebuiltautoaim",
+    component: RebuiltAutoAim,
+    title: "🤖 Rebuilt Aim Tuner",
+  }
 ];
 
 export const components = tabsConfig.reduce((acc, tab) => {

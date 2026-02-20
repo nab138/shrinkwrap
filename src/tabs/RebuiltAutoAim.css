@@ -1,0 +1,48 @@
+.aimbot-checkbox {
+    display: flex;
+    align-items: center;
+    font-size: 16px;
+}
+
+.aimbot-header {
+    display: flex;
+    align-items: baseline;
+    justify-content: start;
+    gap: 20px;
+    padding: 0 20px;
+    flex-wrap: wrap;
+    margin-bottom: 10px;
+}
+
+.aimbot-header h2 {
+    margin-bottom: 0;
+}
+
+.aimbot-tables {
+    display: flex;
+    width: 100%;
+    justify-content: space-evenly;
+    flex-wrap: wrap;
+}
+
+.aimbot-table h3 {
+    margin: 0;
+    margin-bottom: 10px;
+}
+
+.aimbot-table table {
+    box-sizing: border-box;
+    border-collapse: collapse;
+}
+
+.aimbot-table th,
+.aimbot-table td {
+    border: 1px solid var(--border-color);
+    padding: 5px;
+    text-align: center;
+    box-sizing: border-box;
+}
+
+.aimbot-table input {
+    max-width: 3rem;
+}

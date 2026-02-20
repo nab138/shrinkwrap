@@ -22,6 +22,10 @@ lazy_static::lazy_static! {
     static ref LAST_TIMESTAMP: Mutex<u64> = Mutex::new(0);
 }
 
+lazy_static::lazy_static! {
+    static ref LAST_AUTOAIM_TIMESTAMP: Mutex<u64> = Mutex::new(0);
+}
+
 #[cfg_attr(mobile, tauri::mobile_entry_point)]
 pub fn run() {
     let mut builder = tauri::Builder::default()
@@ -117,7 +121,8 @@ pub fn run() {
             save_json,
             load_json,
             write_oxconfig,
-            open_log
+            open_log,
+            write_autoaim
         ])
         .run(tauri::generate_context!())
         .expect("error while running tauri application");
@@ -167,6 +172,32 @@ fn write_oxconfig(deploy: String, data: String, timestamp: u64) -> String {
 }
 
 #[tauri::command]
+fn write_autoaim(deploy: String, filename: String, data: String, timestamp: u64) -> String {
+    let config_path = format!("{}/{}", deploy, filename);
+    let path = Path::new(&config_path);
+
+    if !path.exists() {
+        return "no-exist".to_string();
+    }
+
+    let mut last_timestamp = LAST_AUTOAIM_TIMESTAMP.lock().unwrap();
+    if timestamp <= *last_timestamp {
+        return "time".to_string();
+    }
+
+    match File::create(&path) {
+        Ok(mut file) => {
+            if let Err(_) = file.write_all(data.as_bytes()) {
+                return "failed".to_string();
+            }
+            *last_timestamp = timestamp;
+            "success".to_string()
+        }
+        Err(_) => "failed".to_string(),
+    }
+}
+
+#[tauri::command]
 fn open_log(log_path: String) -> HashMap<String, (String, HashMap<u64, Value>)> {
     let mut all_data: HashMap<String, (String, HashMap<u64, Value>)> = HashMap::new();
     let path = PathBuf::from(&log_path);
@@ -185,7 +216,7 @@ fn open_log(log_path: String) -> HashMap<String, (String, HashMap<u64, Value>)> 
                 serde_json::to_value(frc_value_to_json(&value.value)).unwrap(),
             );
         });
-        // If the key starts with NT:, remove it. If not, add /AdvantageKit/ to it.
+
         let modified_key = if key.starts_with("NT:") {
             key[3..].to_string()
         } else {
