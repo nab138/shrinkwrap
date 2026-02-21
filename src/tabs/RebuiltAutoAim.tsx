@@ -1,9 +1,7 @@
 import { useCallback, useEffect, useMemo } from "react";
-import { useOxConfig } from "./OxConfig/OxConfigProvider";
+import { ShotData, useOxConfig } from "./OxConfig/OxConfigProvider";
 import "./RebuiltAutoAim.css";
 import { IDockviewPanelProps } from "dockview";
-import { useComputedNTValue } from "../ntcore-react/useNTValue";
-import useNTState from "../ntcore-react/useNTState";
 import { ErrorIcon, SuccessIcon, useToast } from "react-toast-plus";
 import { useStore } from "../utils/StoreContext";
 import useNTConnected from "../ntcore-react/useNTConnected";
@@ -18,7 +16,11 @@ const RebuiltAutoAim: React.FC<
         setKey,
         parameters,
         currentMode,
-        modes
+        modes,
+        azAimData,
+        mzAimData,
+        setAzAim,
+        setMzAim
     } = useOxConfig();
 
     const connected = useNTConnected();
@@ -48,12 +50,21 @@ const RebuiltAutoAim: React.FC<
         return parameters.find((param) => param.key === "Shooter Midzone Calibration Mode");
     }, [parameters]);
 
+    const tuningModeParam = useMemo(() => {
+        return parameters.find((param) => param.key === "Shooter Calibration Mode");
+    }, [parameters]);
+
+    const flywheelSpeedParam = useMemo(() => {
+        return parameters.find((param) => param.key === "CalibrationShotFlywheelSpeed");
+    }, [parameters]);
+
+    const hoodPositionParam = useMemo(() => {
+        return parameters.find((param) => param.key === "CalibrationShotHoodPosition");
+    }, [parameters]);
+
     return <div className="pageContainer">
         <div className="aimbot-header">
             <h2>ProGaming Aimbot</h2>
-            <label className="aimbot-checkbox">Midzone calibration:
-                <input type="checkbox" checked={aimModeParam?.values[modeIndex] === "true"} onChange={(e) => setKey([aimModeParam?.key, aimModeParam?.comment, ...modes.map(() => e.target.checked ? "true" : "false")].join(","))} />
-            </label>
             {isMobile && (
                 <>
                     {connected &&
@@ -73,47 +84,39 @@ const RebuiltAutoAim: React.FC<
                     )}
                 </>
             )}
+            <label className="aimbot-checkbox">Tuning enabled:
+                <input type="checkbox" checked={tuningModeParam?.values[modeIndex] === "true"} onChange={(e) => setKey([tuningModeParam?.key, tuningModeParam?.comment, ...modes.map(() => e.target.checked ? "true" : "false")].join(","))} />
+            </label>
+            <label className="aimbot-checkbox">Midzone calibration:
+                <input type="checkbox" checked={aimModeParam?.values[modeIndex] === "true"} onChange={(e) => setKey([aimModeParam?.key, aimModeParam?.comment, ...modes.map(() => e.target.checked ? "true" : "false")].join(","))} />
+            </label>
+            <label>Calibration flywheel speed:
+                <input type="number" value={flywheelSpeedParam?.values[modeIndex] ?? ""} onChange={(e) => { const val = parseFloat(e.target.value); if (Number.isFinite(val)) setKey([flywheelSpeedParam?.key, flywheelSpeedParam?.comment, ...modes.map(() => e.target.value)].join(",")) }} />
+            </label>
+            <label>Calibration hood position:
+                <input type="number" value={hoodPositionParam?.values[modeIndex] ?? ""} onChange={(e) => { const val = parseFloat(e.target.value); if (Number.isFinite(val)) setKey([hoodPositionParam?.key, hoodPositionParam?.comment, ...modes.map(() => e.target.value)].join(",")) }} />
+            </label>
         </div>
         <div className="aimbot-tables">
-            <AutoAimTable ntKey="/SmartDashboard/AzAutoAim" setNtKey="/SmartDashboard/AzAutoAimSet" jsonPath="azaim.json" title="Alliance Zone" key={"az"} connected={connected} connectedClients={connectedClients} />
-            <AutoAimTable ntKey="/SmartDashboard/MzAutoAim" setNtKey="/SmartDashboard/MzAutoAimSet" jsonPath="mzaim.json" title="Neutral Zone" key={"mz"} connected={connected} connectedClients={connectedClients} />
+            <AutoAimTable data={azAimData} setter={setAzAim} jsonPath="azaim.json" title="Alliance Zone" key={"az"} connected={connected} connectedClients={connectedClients} />
+            <AutoAimTable data={mzAimData} setter={setMzAim} jsonPath="mzaim.json" title="Neutral Zone" key={"mz"} connected={connected} connectedClients={connectedClients} />
         </div>
     </div>
 };
 
 export default RebuiltAutoAim;
 
-type ShotData = {
-    shots: {
-        distance: number;
-        hoodPosition: number;
-        shooterSpeed: number;
-        shotTime: number;
-        timestamp: number;
-    }[];
-}
 
 const isMobile = platform() === "ios" || platform() === "android";
 
 const AutoAimTable: React.FC<{
-    ntKey: string;
-    setNtKey: string;
+    data: ShotData | null;
+    setter: (value: string) => void;
     jsonPath: string;
     title: string;
     connected: boolean;
     connectedClients: any;
-}> = ({ ntKey, setNtKey, jsonPath, title, connected, connectedClients }) => {
-    const computeData = useCallback<(d: string) => ShotData | null>((d) => {
-        try {
-            return JSON.parse(d) as ShotData;
-        } catch (e) {
-            console.error(e);
-            return null;
-        }
-    }, []);
-
-    const data = useComputedNTValue<string, ShotData | null>(ntKey, computeData, "{}");
-
+}> = ({ data, setter, jsonPath, title, connected, connectedClients }) => {
     const { addToast } = useToast();
     const liveMode = useNTLive();
     const [deployDir] = useStore("deployDir", "");
@@ -153,9 +156,6 @@ const AutoAimTable: React.FC<{
             );
         }
     }, [connected, connectedClients]);
-
-
-    const [_, setter] = useNTState<string>(setNtKey, "string", "");
 
     const updateData = useCallback((newData: ShotData) => {
         let json: string;

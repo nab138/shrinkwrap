@@ -25,6 +25,16 @@ export type Class = {
     displayKey?: string;
 };
 
+export type ShotData = {
+    shots: {
+        distance: number;
+        hoodPosition: number;
+        shooterSpeed: number;
+        shotTime: number;
+        timestamp: number;
+    }[];
+}
+
 interface OxConfigContextType {
     modes: string[];
     currentMode: string;
@@ -36,6 +46,10 @@ interface OxConfigContextType {
     setKey: (value: string) => void;
     setCopyAll: (value: string) => void;
     setClass: (value: string) => void;
+    azAimData: ShotData | null;
+    mzAimData: ShotData | null;
+    setAzAim(value: string): void;
+    setMzAim(value: string): void;
 }
 
 const OxConfigContext = createContext<OxConfigContextType | undefined>(undefined);
@@ -144,6 +158,20 @@ export const OxConfigProvider: React.FC<{ children: React.ReactNode }> = ({ chil
     const [___, setCopyAll] = useNTState<string>("/OxConfig/CopyAll", "string", "");
     const [____, setClass] = useNTState<string>("/OxConfig/ClassSetter", "string", "");
 
+    const computeAutoAimData = useCallback<(d: string) => ShotData | null>((d) => {
+        try {
+            return JSON.parse(d) as ShotData;
+        } catch (e) {
+            console.error(e);
+            return null;
+        }
+    }, []);
+
+    const azAimData = useComputedNTValue<string, ShotData | null>("/SmartDashboard/AzAutoAim", computeAutoAimData, "{}");
+    const mzAimData = useComputedNTValue<string, ShotData | null>("/SmartDashboard/MzAutoAim", computeAutoAimData, "{}");
+
+    const [_____, setAzAim] = useNTState<string>("/SmartDashboard/AzAutoAimSet", "string", "");
+    const [______, setMzAim] = useNTState<string>("/SmartDashboard/MzAutoAimSet", "string", "");
     const value: OxConfigContextType = {
         modes,
         currentMode,
@@ -155,6 +183,10 @@ export const OxConfigProvider: React.FC<{ children: React.ReactNode }> = ({ chil
         setKey,
         setCopyAll,
         setClass,
+        azAimData,
+        mzAimData,
+        setAzAim,
+        setMzAim
     };
 
     return (

@@ -8,10 +8,14 @@
     display: flex;
     align-items: baseline;
     justify-content: start;
-    gap: 20px;
+    gap: 15px;
     padding: 0 20px;
     flex-wrap: wrap;
     margin-bottom: 10px;
+}
+
+.aimbot-header input {
+    width: 4.5rem;
 }
 
 .aimbot-header h2 {
@@ -44,5 +48,5 @@
 }
 
 .aimbot-table input {
-    max-width: 3rem;
+    max-width: 4rem;
 }
