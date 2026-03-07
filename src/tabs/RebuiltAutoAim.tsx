@@ -124,6 +124,7 @@ const AutoAimTable: React.FC<{
     useEffect(() => {
         if (!connected || isMobile || deployDir === "") return;
         (async () => {
+            if (data == null || data == undefined || data.shots == null || data.shots == undefined) return;
             let result = await invoke("write_autoaim", {
                 deploy: deployDir,
                 filename: jsonPath,
