@@ -8,7 +8,7 @@ import { open } from "@tauri-apps/plugin-dialog";
 import { platform } from "@tauri-apps/plugin-os";
 import { getVersion } from "@tauri-apps/api/app";
 import { useUpdate } from "../utils/UpdateContext";
-import { useContext, useEffect, useState } from "react";
+import { useContext, useEffect, useMemo, useState } from "react";
 import { devModePromise } from "../main";
 import { useToast } from "react-toast-plus";
 import {
@@ -25,9 +25,13 @@ const Settings: React.FC<IDockviewPanelProps<{ id: string }>> = () => {
   const [autoUpdate, setAutoUpdate] = useStore<boolean>("autoUpdate", true);
   const [connectionIP, setConnectionIP] = useStore<string>(
     "connectionIP",
-    "10.30.44.2"
+    "10.30.44.2",
   );
   const [deployDir, setDeployDir] = useStore("deployDir", "");
+  const [cameraDisplayNames, setCameraDisplayNames] = useStore<string[]>(
+    "cameraDisplayNames",
+    ["Camera 1", "Camera 2", "Camera 3", "Camera 4"],
+  );
   const connected = useNTConnected();
   const [appVersion, setAppVersion] = useState<string>("");
   const { checkForUpdates } = useUpdate();
@@ -36,6 +40,24 @@ const Settings: React.FC<IDockviewPanelProps<{ id: string }>> = () => {
   const [devStoreInstance, setDevStoreInstance] = useState<any>(null);
   const { store } = useContext(StoreContext);
   const client = useContext(NTContext);
+
+  const cameraNameSlots = useMemo(
+    () =>
+      Array.from({ length: 4 }, (_, index) => {
+        const value = cameraDisplayNames[index];
+        if (typeof value !== "string" || value.trim() === "") {
+          return `Camera ${index + 1}`;
+        }
+        return value;
+      }),
+    [cameraDisplayNames],
+  );
+
+  const updateCameraName = (index: number, nextValue: string) => {
+    const next = [...cameraNameSlots];
+    next[index] = nextValue;
+    setCameraDisplayNames(next);
+  };
 
   useEffect(() => {
     getVersion().then((version) => setAppVersion(version));
@@ -121,6 +143,20 @@ const Settings: React.FC<IDockviewPanelProps<{ id: string }>> = () => {
             </button>
           )}
         </Card>
+        <Card title="Cameras">
+          {cameraNameSlots.map((name, index) => (
+            <label key={index} className="camera-name-row">
+              Camera {index + 1}
+              <input
+                value={name}
+                onChange={(event) =>
+                  updateCameraName(index, event.target.value)
+                }
+                placeholder={`Camera ${index + 1}`}
+              />
+            </label>
+          ))}
+        </Card>
         {!isMobile && (
           <Card title="OxConfig">
             <label
@@ -177,7 +213,7 @@ const Settings: React.FC<IDockviewPanelProps<{ id: string }>> = () => {
                   lifetime: 5000,
                   autoClose: true,
                   closeButton: { visible: false },
-                }
+                },
               );
             }}
           >

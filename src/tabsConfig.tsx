@@ -6,6 +6,7 @@ import StateVisualizer from "./tabs/StateMachine/StateVisualizer";
 import TwoDimensionField from "./tabs/TwoDimensionField/TwoDimensionField";
 // import ReefscapeButtonBoard from "./tabs/ReefscapeButtonBoard";
 import RebuiltAutoAim from "./tabs/RebuiltAutoAim";
+import MjpegStreams from "./tabs/MjpegStreams";
 
 export type TabInfo = {
   id: string;
@@ -48,7 +49,12 @@ export const tabsConfig: TabInfo[] = [
     id: "rebuiltautoaim",
     component: RebuiltAutoAim,
     title: "🤖 Rebuilt Aim Tuner",
-  }
+  },
+  {
+    id: "mjpegstreams",
+    component: MjpegStreams,
+    title: "📷 Cameras",
+  },
 ];
 
 export const components = tabsConfig.reduce((acc, tab) => {
