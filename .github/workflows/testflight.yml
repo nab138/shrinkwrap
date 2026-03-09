@@ -15,7 +15,6 @@ jobs:
           xcode-version: "26.0.1"
       - name: Install Swift runtime and compatibility libraries
         run: |
-          sudo xcode-select --switch /Applications/Xcode.app
           sudo xcodebuild -runFirstLaunch
       - uses: dtolnay/rust-toolchain@stable
         with:
