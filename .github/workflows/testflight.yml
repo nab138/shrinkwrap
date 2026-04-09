@@ -75,9 +75,13 @@ jobs:
           # Clear Xcode caches
           rm -rf ~/Library/Developer/Xcode/DerivedData/*
           rm -rf ~/Library/Caches/com.apple.dt.Xcode
+          rm -rf ~/Library/Developer/Xcode/Archives
 
-          # List installed profiles for debugging
+          # Verify profile exists and list contents
           ls -la ~/Library/MobileDevice/Provisioning\ Profiles/
+
+          # List the profile details to verify it's valid
+          security cms -D -i ~/Library/MobileDevice/Provisioning\ Profiles/*.mobileprovision | grep -A 5 "TeamIdentifier\|CFBundleIdentifier"
       - name: Build iOS
         env:
           APPLE_DEVELOPMENT_TEAM: ${{ secrets.APPLE_DEVELOPMENT_TEAM }}
@@ -88,7 +92,7 @@ jobs:
           APPLE_API_KEY: ${{ secrets.APPLE_API_KEY_ID }}
           APPLE_API_KEY_PATH: ~/private_keys/AuthKey_${{ secrets.APPLE_API_KEY_ID }}.p8
           LIBRARY_SEARCH_PATHS: "/Applications/Xcode_26.0.1.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/lib/swift/iphoneos"
-          PROVISIONING_PROFILE_PATH: ${{ runner.temp }}/build_pp.mobileprovision
+          PROVISIONING_PROFILE_PATH: ~/Library/MobileDevice/Provisioning\ Profiles/*.mobileprovision
         run: |
           export RUSTFLAGS="-C link-arg=-L/Applications/Xcode_26.0.1.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/lib/swift/iphoneos $RUSTFLAGS"
           bun run tauri ios build --export-method app-store-connect
