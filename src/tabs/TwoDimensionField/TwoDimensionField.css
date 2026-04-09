@@ -6,4 +6,17 @@
   margin-top: 40px;
   height: calc(100% - 40px);
   overflow: hidden;
+  position: relative;
+}
+
+.twodfield-reset-view {
+  position: absolute;
+  top: 10px;
+  right: 10px;
+  z-index: 10;
+  padding: 0.4rem 0.7rem;
+  font-size: 0.9rem;
+  border-radius: 10px;
+  backdrop-filter: blur(4px);
+  background: color-mix(in srgb, var(--background-color-1) 88%, transparent);
 }

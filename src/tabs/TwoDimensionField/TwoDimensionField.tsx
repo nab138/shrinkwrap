@@ -12,6 +12,7 @@ import Robot from "./Robot";
 import Lines from "./Lines";
 import Trajectory from "./Trajectory";
 import Points from "./Points";
+import { Vector2d } from "konva/lib/types";
 
 const TwoDimensionField: React.FC<IDockviewPanelProps<{ id: string }>> = ({
   params,
@@ -37,17 +38,17 @@ const TwoDimensionField: React.FC<IDockviewPanelProps<{ id: string }>> = ({
 
   const [settings, setSettings] = useStore<Setting[]>(
     params.id,
-    initialSettings
+    initialSettings,
   );
 
   const handleSettingChange = (
     id: string,
-    value: boolean | string | number | Item[]
+    value: boolean | string | number | Item[],
   ) => {
     setSettings((prevSettings) =>
       prevSettings.map((setting) =>
-        setting.id === id ? { ...setting, value: value as any } : setting
-      )
+        setting.id === id ? { ...setting, value: value as any } : setting,
+      ),
     );
   };
 
@@ -56,7 +57,7 @@ const TwoDimensionField: React.FC<IDockviewPanelProps<{ id: string }>> = ({
       const setting = settings.find((setting) => setting.id === id);
       return setting ? setting.value : undefined;
     },
-    [settings]
+    [settings],
   );
 
   const [sidebarOpen, setSidebarOpen] = useState<boolean>(true);
@@ -91,13 +92,113 @@ const TwoDimensionField: React.FC<IDockviewPanelProps<{ id: string }>> = ({
 
   const [calcCoordinates, setCalcCoordinates] = useState<
     | ((
-      translation: [number, number],
-      alwaysFlipped: boolean
-    ) => [number, number])
+        translation: [number, number],
+        alwaysFlipped: boolean,
+      ) => [number, number])
     | undefined
   >();
 
   const [fieldScale, setFieldScale] = useState<number>(1);
+  const [stageScale, setStageScale] = useState<number>(1);
+  const [stagePosition, setStagePosition] = useState<Vector2d>({ x: 0, y: 0 });
+
+  const stageRef = React.useRef<any>(null);
+  const pinchDistanceRef = React.useRef<number | null>(null);
+
+  const applyScaleAtPoint = useCallback(
+    (point: Vector2d, nextScaleRaw: number) => {
+      const oldScale = stageScale;
+      const nextScale = Math.max(0.35, Math.min(4, nextScaleRaw));
+
+      const pointTo = {
+        x: (point.x - stagePosition.x) / oldScale,
+        y: (point.y - stagePosition.y) / oldScale,
+      };
+
+      setStageScale(nextScale);
+      setStagePosition({
+        x: point.x - pointTo.x * nextScale,
+        y: point.y - pointTo.y * nextScale,
+      });
+    },
+    [stagePosition, stageScale],
+  );
+
+  const resetView = useCallback(() => {
+    setStageScale(1);
+    setStagePosition({ x: 0, y: 0 });
+  }, []);
+
+  const handleWheel = (event: any) => {
+    event.evt.preventDefault();
+
+    const stage = stageRef.current;
+    if (!stage) return;
+
+    const oldScale = stageScale;
+    const pointer = stage.getPointerPosition();
+    if (!pointer) return;
+
+    const scaleBy = 1.08;
+    const direction = event.evt.deltaY > 0 ? -1 : 1;
+    const nextScaleUnclamped =
+      direction > 0 ? oldScale * scaleBy : oldScale / scaleBy;
+    applyScaleAtPoint(pointer, nextScaleUnclamped);
+  };
+
+  const handleTouchMove = (event: any) => {
+    const stage = stageRef.current;
+    if (!stage) return;
+
+    const touches = event.evt.touches;
+    if (!touches || touches.length !== 2) return;
+
+    event.evt.preventDefault();
+    stage.draggable(false);
+
+    const rect = stage.container().getBoundingClientRect();
+    const touch1 = touches[0];
+    const touch2 = touches[1];
+
+    const point1 = {
+      x: touch1.clientX - rect.left,
+      y: touch1.clientY - rect.top,
+    };
+    const point2 = {
+      x: touch2.clientX - rect.left,
+      y: touch2.clientY - rect.top,
+    };
+
+    const center = {
+      x: (point1.x + point2.x) / 2,
+      y: (point1.y + point2.y) / 2,
+    };
+
+    const distance = Math.hypot(point2.x - point1.x, point2.y - point1.y);
+    if (pinchDistanceRef.current === null) {
+      pinchDistanceRef.current = distance;
+      return;
+    }
+
+    if (pinchDistanceRef.current > 0) {
+      const scaleFactor = distance / pinchDistanceRef.current;
+      applyScaleAtPoint(center, stageScale * scaleFactor);
+    }
+
+    pinchDistanceRef.current = distance;
+  };
+
+  const handleTouchEnd = () => {
+    const stage = stageRef.current;
+    if (stage) {
+      stage.draggable(true);
+    }
+    pinchDistanceRef.current = null;
+  };
+
+  useEffect(() => {
+    resetView();
+  }, [getSettingValue("field"), resetView]);
 
   return (
     <div className="pageContainer">
@@ -114,7 +215,26 @@ const TwoDimensionField: React.FC<IDockviewPanelProps<{ id: string }>> = ({
         className={"twodfieldContainer" + (sidebarOpen ? " sidebar-open" : "")}
         ref={containerRef}
       >
-        <Stage width={dimensions.width} height={dimensions.height}>
+        <button className="twodfield-reset-view" onClick={resetView}>
+          Reset View
+        </button>
+        <Stage
+          ref={stageRef}
+          width={dimensions.width}
+          height={dimensions.height}
+          draggable
+          onDragEnd={(event) => {
+            setStagePosition(event.currentTarget.position());
+          }}
+          onWheel={handleWheel}
+          onTouchMove={handleTouchMove}
+          onTouchEnd={handleTouchEnd}
+          onTouchCancel={handleTouchEnd}
+          x={stagePosition.x}
+          y={stagePosition.y}
+          scaleX={stageScale}
+          scaleY={stageScale}
+        >
           <Layer>
             <FieldImage
               setFieldScale={setFieldScale}
@@ -138,7 +258,7 @@ const TwoDimensionField: React.FC<IDockviewPanelProps<{ id: string }>> = ({
                         fieldScale *
                         parseFloat(
                           item.options?.find((o) => o.label === "Thickness")
-                            ?.value ?? "0.035"
+                            ?.value ?? "0.035",
                         )
                       }
                       color={
@@ -163,7 +283,7 @@ const TwoDimensionField: React.FC<IDockviewPanelProps<{ id: string }>> = ({
                         fieldScale *
                         parseFloat(
                           item.options?.find((o) => o.label === "Size")
-                            ?.value ?? "0.1"
+                            ?.value ?? "0.1",
                         )
                       }
                       color={
@@ -188,13 +308,13 @@ const TwoDimensionField: React.FC<IDockviewPanelProps<{ id: string }>> = ({
                       scale={fieldScale}
                       bumperLength={parseFloat(
                         item.options?.find(
-                          (o) => o.label === "Bumper Length (m)"
-                        )?.value ?? "0.92"
+                          (o) => o.label === "Bumper Length (m)",
+                        )?.value ?? "0.92",
                       )}
                       bumperWidth={parseFloat(
                         item.options?.find(
-                          (o) => o.label === "Bumper Width (m)"
-                        )?.value ?? "0.92"
+                          (o) => o.label === "Bumper Width (m)",
+                        )?.value ?? "0.92",
                       )}
                     />
                   );
@@ -204,7 +324,7 @@ const TwoDimensionField: React.FC<IDockviewPanelProps<{ id: string }>> = ({
             {calcCoordinates &&
               (getSettingValue("elements") as Item[])
                 .filter(
-                  (item) => item.type === "Trajectory" && item.value != ""
+                  (item) => item.type === "Trajectory" && item.value != "",
                 )
                 .map((item) => {
                   return (
@@ -216,7 +336,7 @@ const TwoDimensionField: React.FC<IDockviewPanelProps<{ id: string }>> = ({
                         fieldScale *
                         parseFloat(
                           item.options?.find((o) => o.label === "Thickness")
-                            ?.value ?? "0.035"
+                            ?.value ?? "0.035",
                         )
                       }
                       color={

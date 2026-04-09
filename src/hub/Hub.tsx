@@ -1,5 +1,11 @@
 import React, { useCallback, useContext, useEffect, useRef } from "react";
-import { DockviewReact, DockviewReadyEvent, themeDark, themeAbyss, themeLight } from "dockview";
+import {
+  DockviewReact,
+  DockviewReadyEvent,
+  themeDark,
+  themeAbyss,
+  themeLight,
+} from "dockview";
 import "./Hub.css";
 import "dockview/dist/styles/dockview.css";
 import { tabsConfig, components } from "../tabsConfig";
@@ -68,14 +74,14 @@ const Hub: React.FC<HubProps> = ({ setIp, ip }) => {
         "import_config",
         async () => {
           importConfig(store, addToast);
-        }
+        },
       );
 
       const unlistenExport = await listen<boolean>(
         "export_config",
         async () => {
           exportConfig(store, addToast);
-        }
+        },
       );
 
       const unlistenLog = await listen<boolean>("open_log", async () => {
@@ -102,7 +108,7 @@ const Hub: React.FC<HubProps> = ({ setIp, ip }) => {
       await tauriWindow
         .getCurrentWindow()
         .setTitle(
-          `ShrinkWrap - ${connected ? "Connected to " + ip : "Disconnected"}`
+          `ShrinkWrap - ${connected ? "Connected to " + ip : "Disconnected"}`,
         );
       if (connected) {
         addToast.success("Connected to " + ip);
@@ -144,7 +150,14 @@ const Hub: React.FC<HubProps> = ({ setIp, ip }) => {
         failed = true;
       }
       if (layout !== null && layout !== undefined && !failed) {
-        event.api.fromJSON(JSON.parse(layout));
+        try {
+          event.api.fromJSON(JSON.parse(layout));
+        } catch (e) {
+          console.warn("Failed to restore saved layout, resetting", e);
+          await store.delete("layout");
+          await store.save();
+          openSettingsTab();
+        }
       }
       if (event.api.panels.length === 0) {
         openSettingsTab();
@@ -171,19 +184,19 @@ const Hub: React.FC<HubProps> = ({ setIp, ip }) => {
         unlisten2.dispose();
       };
     },
-    [store]
+    [store],
   );
 
   let dockviewTheme;
   switch (theme) {
     case "dark":
-      dockviewTheme = themeDark
+      dockviewTheme = themeDark;
       break;
     case "light":
-      dockviewTheme = themeLight
+      dockviewTheme = themeLight;
       break;
     case "abyss":
-      dockviewTheme = themeAbyss
+      dockviewTheme = themeAbyss;
       break;
     default:
       dockviewTheme = themeDark;
